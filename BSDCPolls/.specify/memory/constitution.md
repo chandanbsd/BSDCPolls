@@ -1,19 +1,18 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.4.1 → 1.5.0
+Version change: 1.5.0 → 1.6.0
 
-Reason for MINOR bump: New principle added (XI. Observability & Structured Logging).
-Technical Constraints updated with SigNoz, OpenTelemetry, and Serilog as pre-approved
-observability stack.
+Reason for MINOR bump: New principle added (XII. Code Style & Linting Enforcement).
+Technical Constraints updated with CSharpier, Prettier, Angular ESLint, and StyleCop as
+mandatory toolchain; build failure on lint failure mandated.
 
 Modified principles: None
 
 Added principles:
-  - XI. Observability & Structured Logging (NON-NEGOTIABLE) — ILogger<T> + Serilog sinks +
-    OpenTelemetry OTLP to self-hosted SigNoz (Aspire-orchestrated); stack traces logged
-    internally but PROHIBITED in frontend-facing API responses; Angular global ErrorHandler
-    and traceparent propagation required.
+  - XII. Code Style & Linting Enforcement (NON-NEGOTIABLE) — CSharpier for C# formatting;
+    Prettier for TypeScript/HTML/JSON; Angular ESLint; StyleCop.Analyzers applied uniformly
+    via Directory.Build.props; suppressions require justification; all linters fail the build.
 
 Removed sections: None
 
@@ -326,6 +325,58 @@ a user-reported error and the full diagnostic context. OpenTelemetry's vendor-ne
 protocol and SigNoz's self-hosted model keep observability data in the project's control and
 reproducible in the local dev environment.
 
+### XII. Code Style & Linting Enforcement (NON-NEGOTIABLE)
+
+**Linter failures are build failures.** A PR that introduces linter violations MUST NOT be
+merged. All linters described below are configured to fail their respective build steps with
+a non-zero exit code; CI MUST run all linters and fail the pipeline on any violation.
+
+**C# formatting — CSharpier**
+CSharpier is the pre-approved opinionated C# code formatter. All C# files MUST be
+CSharpier-formatted. `dotnet csharpier --check .` MUST pass in CI; unformatted files are a
+pipeline failure. CSharpier configuration lives at the solution root (`.csharpierrc.json`)
+and applies to all projects — per-project overrides are PROHIBITED.
+
+**C# style rules — StyleCop.Analyzers**
+StyleCop.Analyzers MUST be referenced in `Directory.Build.props` at the solution root so
+it applies uniformly to every .NET project without per-project opt-in. The rule set follows
+the Microsoft C# Coding Conventions and Google C# Style Guide where they do not conflict with
+ASP.NET Core conventions. A single `stylecop.json` at the solution root is the sole
+StyleCop configuration file.
+
+Suppressing a StyleCop rule is PROHIBITED unless:
+1. The suppression appears in the shared solution-level `GlobalSuppressions.cs` (not in
+   individual `.cs` files, except where the suppression is genuinely call-site-specific).
+2. The `[SuppressMessage]` attribute carries a non-empty `Justification` parameter explaining
+   precisely why the rule does not apply and confirming the same exception applies uniformly
+   across the codebase.
+3. The suppression is reviewed and approved during code review.
+
+Per-project deviations from the shared StyleCop configuration are PROHIBITED. If a rule is
+inappropriate for all projects, it is disabled at the solution root with justification — never
+selectively per project.
+
+**TypeScript/Angular formatting — Prettier**
+Prettier is the pre-approved TypeScript, HTML, JSON, and SCSS formatter. A single
+`.prettierrc` at the repository root governs all frontend files. `prettier --check .` MUST
+pass in CI. Prettier overrides in nested directories or per-file pragma comments
+(`// prettier-ignore`) require a code comment explaining the exception and are subject to
+review.
+
+**TypeScript/Angular linting — Angular ESLint**
+`@angular-eslint/eslint-plugin` and `@angular-eslint/eslint-plugin-template` are the
+pre-approved Angular linting packages. `ng lint` MUST pass with zero errors and zero
+warnings (warnings are treated as errors via `--max-warnings 0`). A single
+`eslint.config.js` or `.eslintrc.json` at the Angular project root governs all files.
+`// eslint-disable` comments require an inline justification and are reviewed; blanket file-
+level disable comments (`/* eslint-disable */`) are PROHIBITED.
+
+**Rationale**: Consistent, automatically-enforced formatting eliminates all style debates
+from code review, freeing it for substantive correctness and design feedback. Uniform
+StyleCop rules across projects mean every C# developer reads and writes the same style
+regardless of which service they are in. Build-failure-on-lint-violation makes the
+standard non-negotiable rather than aspirational.
+
 ## Technical Constraints
 
 - **Frontend**: Angular (latest stable LTS), Angular Material, RxJS, NgRX Signal Store, Angular
@@ -372,6 +423,15 @@ reproducible in the local dev environment.
 - **Angular error reporting**: A global Angular `ErrorHandler` implementation MUST exist
   that reports unhandled errors to the BFF logging endpoint. An HTTP interceptor MUST
   inject `traceparent` on all outgoing requests.
+- **C# formatter**: CSharpier. Single `.csharpierrc.json` at solution root. `dotnet
+  csharpier --check .` MUST pass in CI.
+- **C# style linter**: StyleCop.Analyzers via `Directory.Build.props` (solution-wide).
+  Single `stylecop.json` + solution-level `GlobalSuppressions.cs`. No per-project rule
+  deviations without solution-wide justification.
+- **TypeScript/HTML formatter**: Prettier. Single `.prettierrc` at repository root.
+  `prettier --check .` MUST pass in CI.
+- **TypeScript/Angular linter**: Angular ESLint (`@angular-eslint/*`). `ng lint
+  --max-warnings 0` MUST pass in CI. No blanket file-level ESLint disables.
 - **Entity validation**: Every EF Core entity class MUST declare all validation and schema
   constraints via Data Annotations within the same `.cs` file (e.g., `[Required]`,
   `[MaxLength]`, `[Range]`). Separate validation classes and standalone FluentValidation
@@ -415,11 +475,13 @@ Amendments require:
 All PRs MUST verify compliance with Principles I (Angular Material Only), II (Reactive-First),
 VI (BFF Architecture), VII (IaC & Environment Parity), VIII (Layered .NET Architecture),
 IX (Code Quality & Maintainability First), X (Contract-Driven Validation & TypeScript
-Generation), and XI (Observability & Structured Logging) in the Constitution Check section
-of `plan.md`. Principle IX applies to every line of every PR. Any new Contract DTO touching
-the frontend boundary MUST have a co-located FluentValidation validator (Principle X). Any
-new service endpoint MUST include structured logging for the happy path and all error
-branches (Principle XI). Complexity exceptions MUST be justified in the plan's Complexity
-Tracking table. Use `CLAUDE.md` for runtime agent guidance.
+Generation), XI (Observability & Structured Logging), and XII (Code Style & Linting
+Enforcement) in the Constitution Check section of `plan.md`. Principle IX applies to every
+line of every PR. Any new Contract DTO touching the frontend boundary MUST have a co-located
+FluentValidation validator (Principle X). Any new service endpoint MUST include structured
+logging for the happy path and all error branches (Principle XI). CSharpier, StyleCop,
+Prettier, and Angular ESLint MUST all pass — linter failures are merge blockers (Principle
+XII). Complexity exceptions MUST be justified in the plan's Complexity Tracking table.
+Use `CLAUDE.md` for runtime agent guidance.
 
-**Version**: 1.5.0 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-06-10
+**Version**: 1.6.0 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-06-10
