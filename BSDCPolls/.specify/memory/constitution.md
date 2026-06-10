@@ -1,18 +1,18 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.5.0 → 1.6.0
+Version change: 1.7.0 → 1.8.0
 
-Reason for MINOR bump: New principle added (XII. Code Style & Linting Enforcement).
-Technical Constraints updated with CSharpier, Prettier, Angular ESLint, and StyleCop as
-mandatory toolchain; build failure on lint failure mandated.
+Reason for MINOR bump: New principle added (XIV. Interface-Driven Design). Every service,
+data-access class, and infrastructure helper in all .NET projects MUST implement an
+interface and be registered/injected via that interface. Controllers are the sole exception.
 
 Modified principles: None
 
 Added principles:
-  - XII. Code Style & Linting Enforcement (NON-NEGOTIABLE) — CSharpier for C# formatting;
-    Prettier for TypeScript/HTML/JSON; Angular ESLint; StyleCop.Analyzers applied uniformly
-    via Directory.Build.props; suppressions require justification; all linters fail the build.
+  - XIV. Interface-Driven Design (NON-NEGOTIABLE) — all .NET service, business, and data
+    classes MUST implement a corresponding I-prefixed interface; DI registration and
+    constructor injection always use the interface type; controllers are the sole exception.
 
 Removed sections: None
 
@@ -377,6 +377,158 @@ StyleCop rules across projects mean every C# developer reads and writes the same
 regardless of which service they are in. Build-failure-on-lint-violation makes the
 standard non-negotiable rather than aspirational.
 
+### XIII. Entity Framework Core Conventions (NON-NEGOTIABLE)
+
+**No raw SQL**
+`FromSqlRaw`, `FromSqlInterpolated`, `ExecuteSqlRaw`, `ExecuteSqlInterpolated`, and
+`Database.ExecuteSql*` are PROHIBITED. All data access MUST go through EF Core LINQ
+queries. LINQ method syntax (`Where`, `Select`, `Include`, `OrderBy`, etc.) is mandatory.
+LINQ query syntax (`from x in … select`) is permitted only when method syntax would produce
+genuinely unreadable expression trees, and MUST carry an inline comment explaining the
+exception.
+
+**ModelBuilder configuration**
+All entity relationships MUST be explicitly configured in `OnModelCreating` using the Fluent
+API — relying on EF Core's naming conventions alone for relationships is PROHIBITED. Every
+relationship MUST declare bidirectional navigation properties on both sides and MUST use
+`HasForeignKey` to name the typed FK property explicitly:
+
+```csharp
+entity.HasMany(p => p.Votes)
+      .WithOne(v => v.Poll)
+      .HasForeignKey(v => v.PollId)
+      .OnDelete(DeleteBehavior.Cascade);
+```
+
+Typed FK properties (e.g., `public int PollId { get; private set; }`) MUST exist on the
+dependent entity alongside the navigation property. Shadow FK properties are PROHIBITED.
+
+**Entity encapsulation pattern**
+All entity property setters MUST be `private set` or `init`. Public property setters are
+PROHIBITED. The public parameterless constructor is PROHIBITED; use a `protected` EF Core
+constructor (for proxy support) plus a `private` full constructor called by the factory.
+
+Entity creation MUST use a `public static` factory method that validates inputs and returns
+the new entity. The factory method is responsible for calling `DbSet.Add`:
+
+```csharp
+// In the service layer:
+var poll = Poll.Create("My Poll", createdByUserId, dbContext);
+await dbContext.SaveChangesAsync();
+```
+
+All post-creation state mutations MUST go through named instance methods — direct property
+assignment from outside the entity class is PROHIBITED:
+
+```csharp
+// CORRECT
+poll.UpdateTitle("New Title", updatedByUserId);
+
+// PROHIBITED
+poll.Title = "New Title";
+```
+
+**Universal AuditableEntity base class**
+Every entity in `BSDCPolls.Api.Data` MUST inherit from `AuditableEntity`. No entity may
+omit any of these properties:
+
+- `int Id` — integer primary key (auto-increment, internal use and FK references only)
+- `Guid Uid` — unique GUID generated in C# at creation (`Guid.NewGuid()`); the only ID
+  exposed to the frontend and external APIs (prevents integer enumeration)
+- `bool IsActive` — soft-delete flag; defaults to `true`; hard deletes are PROHIBITED
+- `DateTime CreatedOn` — UTC timestamp set by `SaveChangesInterceptor` on INSERT
+- `int CreatedById` — FK to `ApplicationUser.Id`; set once on creation, never updated
+- `ApplicationUser CreatedBy` — navigation property
+- `DateTime UpdatedOn` — UTC timestamp set by `SaveChangesInterceptor` on every UPDATE
+- `int UpdatedById` — FK to `ApplicationUser.Id`; updated on every change
+- `ApplicationUser UpdatedBy` — navigation property
+
+`CreatedOn`/`UpdatedOn`/`CreatedById`/`UpdatedById` MUST be populated automatically by a
+`SaveChangesInterceptor` that reads from `ICurrentUserContext` — manual assignment in
+service code is PROHIBITED.
+
+**Loading strategy**
+Lazy loading MUST be enabled globally via `UseLazyLoadingProxies()`. All entity navigation
+properties MUST be declared `virtual` to support proxy generation.
+
+Eager loading (`Include`/`ThenInclude`) MUST be used when the query is in a service method
+that is known to access related data. The choice MUST be documented with an inline comment:
+
+```csharp
+// Eager-load votes: this endpoint renders the full poll result breakdown.
+var poll = await dbContext.Polls
+    .Include(p => p.Votes)
+    .FirstOrDefaultAsync(p => p.Uid == uid);
+```
+
+Using lazy loading in a loop or in any code that iterates a collection is PROHIBITED (N+1
+prevention). All such call sites MUST use eager loading with explicit `Include`.
+
+**PostgreSQL audit history (temporal table equivalent)**
+SQL Server's temporal tables do not exist in PostgreSQL. The mandated equivalent is an EF
+Core `SaveChangesInterceptor` that writes a row to an `AuditLog` table on every INSERT,
+UPDATE, and DELETE. Each `AuditLog` row stores: `EntityType`, `EntityId` (int), `EntityUid`
+(GUID), `Action` (Create/Update/Delete), `ChangedProperties` (JSONB), `OldValues` (JSONB),
+`NewValues` (JSONB), `ChangedOn` (UTC), `ChangedById`. This provides a full change history
+queryable from the application layer. The `AuditLog` table is append-only; rows MUST NOT be
+updated or deleted by application code.
+
+**Rationale**: The no-raw-SQL rule keeps all data access in strongly-typed, refactorable
+LINQ. Private setters + factory + instance methods enforce the invariant that an entity is
+always in a valid state — no external code can leave it half-constructed. The dual-key
+pattern (int Id + Guid Uid) keeps joins fast internally while exposing non-guessable
+identifiers publicly. The universal `AuditableEntity` ensures every table is audit-ready
+from commit one; the interceptor-based audit log gives PostgreSQL full temporal history
+without requiring a schema extension.
+
+### XIV. Interface-Driven Design (NON-NEGOTIABLE)
+
+Every non-trivial class in `BSDCPolls.BFF.Business`, `BSDCPolls.Api.Business`, and
+`BSDCPolls.Api.Data` MUST implement a corresponding interface. The **sole exception** is
+ASP.NET Core controllers — controllers are framework infrastructure and do not require an
+interface.
+
+**Naming and co-location**
+Interfaces follow the standard .NET `I`-prefix convention: `IPollService` → `PollService`,
+`IVoteRepository` → `VoteRepository`. The interface file MUST be co-located with its
+implementation in the same project and namespace (e.g., `Services/IPollService.cs` alongside
+`Services/PollService.cs`). Interfaces MUST NOT be placed in a separate `Interfaces/`
+folder — proximity to the implementation is deliberate and aids discoverability.
+
+**DI registration and injection**
+All DI registrations MUST reference the interface, never the concrete type:
+
+```csharp
+// CORRECT
+services.AddScoped<IPollService, PollService>();
+
+// PROHIBITED — bypasses the abstraction
+services.AddScoped<PollService>();
+```
+
+Constructor parameters MUST declare the interface type, never the concrete type. Direct
+instantiation of service classes (`new PollService(...)`) outside of tests is PROHIBITED.
+
+**What requires an interface**
+- All business/domain service classes in `*.Business` projects
+- All data-access classes in `BSDCPolls.Api.Data` (query services, interceptors, context
+  wrappers, audit writers)
+- All infrastructure helpers injected via DI (e.g., `ICurrentUserContext`,
+  `IDateTimeProvider`, `ISignalRNotifier`)
+- All BFF coordination services
+
+**What does NOT require an interface**
+- ASP.NET Core controllers (explicit exception — framework convention)
+- EF Core `DbContext` subclass (EF Core's own DI handles registration)
+- Static utility classes with no DI dependencies
+- Entity classes (domain objects, not services)
+
+**Rationale**: Interface-driven design makes every dependency a seam — swappable,
+mockable in tests, and independently evolvable. It enforces the Dependency Inversion
+Principle at the architectural level: higher-layer code (Business) depends on abstractions,
+not concretions in lower layers (Data). Combined with Principle IX's quality mandate,
+it ensures testability is a first-class property of every service from the start.
+
 ## Technical Constraints
 
 - **Frontend**: Angular (latest stable LTS), Angular Material, RxJS, NgRX Signal Store, Angular
@@ -475,13 +627,16 @@ Amendments require:
 All PRs MUST verify compliance with Principles I (Angular Material Only), II (Reactive-First),
 VI (BFF Architecture), VII (IaC & Environment Parity), VIII (Layered .NET Architecture),
 IX (Code Quality & Maintainability First), X (Contract-Driven Validation & TypeScript
-Generation), XI (Observability & Structured Logging), and XII (Code Style & Linting
-Enforcement) in the Constitution Check section of `plan.md`. Principle IX applies to every
-line of every PR. Any new Contract DTO touching the frontend boundary MUST have a co-located
-FluentValidation validator (Principle X). Any new service endpoint MUST include structured
-logging for the happy path and all error branches (Principle XI). CSharpier, StyleCop,
-Prettier, and Angular ESLint MUST all pass — linter failures are merge blockers (Principle
-XII). Complexity exceptions MUST be justified in the plan's Complexity Tracking table.
+Generation), XI (Observability & Structured Logging), XII (Code Style & Linting Enforcement),
+XIII (EF Core Conventions), and XIV (Interface-Driven Design) in the Constitution Check
+section of `plan.md`.
+Principle IX applies to every line of every PR. Any new Contract DTO touching the frontend
+boundary MUST have a co-located FluentValidation validator (Principle X). Any new service
+endpoint MUST include structured logging for the happy path and all error branches (Principle
+XI). All linters MUST pass — failures are merge blockers (Principle XII). Every new entity
+MUST extend `AuditableEntity`, use private setters, and have a static Create factory method;
+no raw SQL; N+1 must be explicitly prevented with eager loading (Principle XIII).
+Complexity exceptions MUST be justified in the plan's Complexity Tracking table.
 Use `CLAUDE.md` for runtime agent guidance.
 
-**Version**: 1.6.0 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-06-10
+**Version**: 1.8.0 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-06-10
