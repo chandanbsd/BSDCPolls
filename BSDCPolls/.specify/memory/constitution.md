@@ -1,29 +1,23 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.1.1 → 1.2.0
+Version change: 1.3.0 → 1.4.0
 
-Reason for MINOR bump: New principle added (VIII. Layered .NET Project Architecture).
-Technical Constraints materially expanded with entity data annotation and EF Migrations
-worker service mandates.
+Reason for MINOR bump: New principle added (X. Contract-Driven Validation & TypeScript
+Generation). Technical Constraints updated to reflect FluentValidation and NSwag as
+pre-approved dependencies and AutoMapper as a prohibited library.
 
 Modified principles: None
 
 Added principles:
-  - VIII. Layered .NET Project Architecture (NON-NEGOTIABLE) — prescribed project layout for
-    BFF tier (Web API + Business lib), API tier (Web API + Business lib + Data lib), and a
-    shared Contracts library as the sole cross-service type boundary.
-
-Added constraints:
-  - Entity classes MUST carry all validation via Data Annotations in-file.
-  - Schema changes MUST be applied via EF Core Migrations run by an Aspire worker service.
+  - X. Contract-Driven Validation & TypeScript Generation (NON-NEGOTIABLE) — FluentValidation
+    validators co-located with DTOs in Contracts; NSwag generates all TypeScript types from
+    OpenAPI; AutoMapper and all object-mapping libraries are prohibited.
 
 Removed sections: None
 
 Templates reviewed:
-  - .specify/templates/plan-template.md     ✅ No changes needed — Constitution Check gate
-                                               covers new principle; plan authors must list
-                                               Contracts lib tasks when adding new API surface.
+  - .specify/templates/plan-template.md     ✅ No changes needed.
   - .specify/templates/spec-template.md     ✅ No changes needed.
   - .specify/templates/tasks-template.md    ✅ No changes needed.
 
@@ -162,6 +156,89 @@ in a layer above its own. The mandated solution layout is:
 dependencies a compile error, not a code-review finding. The Contracts library eliminates
 implicit coupling between services — every shared type has a single authoritative definition.
 
+### IX. Code Quality & Maintainability First (NON-NEGOTIABLE — OVERARCHING PRINCIPLE)
+
+This is the highest-priority principle in this constitution and the explicit, intentional
+charter of the project. BSDCPolls is a **software engineering excellence project first**;
+a usable product second. When any decision creates tension between code quality and delivery
+speed, **code quality MUST win, without exception**.
+
+The following rules are non-negotiable across all .NET and Angular code:
+
+**Zero-warning builds**
+- All .NET projects MUST set `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>` and
+  `<Nullable>enable</Nullable>`. No warnings are acceptable in any build configuration.
+- The Angular project MUST compile with `"strict": true` in `tsconfig.json` and
+  `strictTemplates: true` in `angularCompilerOptions`.
+
+**No unjustified suppressions**
+- `#pragma warning disable`, `[SuppressMessage]`, `// @ts-ignore`, and
+  `// eslint-disable[-next-line]` directives MUST NOT be committed without an inline
+  comment at the same location explaining precisely why the suppression is safe.
+- The null-forgiving operator (`!`) MUST NOT be used without an inline comment proving
+  null is impossible at that point.
+- Each PR review MUST check that the suppression count has not increased without approval.
+
+**Mandatory documentation**
+- All `public` and `internal` .NET APIs MUST have XML documentation comments.
+- All exported Angular services, components, and store features MUST have JSDoc comments.
+
+**No committed noise**
+- Commented-out code MUST NOT appear in any committed changeset.
+- `// TODO` comments MUST NOT be merged to main — they become tracked issues before merge.
+
+**Quality gates over velocity**
+- A feature delivered slowly with excellent code is ACCEPTABLE and PREFERRED.
+- A feature delivered quickly with quality shortcuts MUST be reverted or refactored before
+  it may be considered complete. Speed is not a justification for lowering standards.
+- No "we'll fix it later" exemptions — later never comes, and debt compounds.
+
+**Rationale**: Technical debt incurred at the foundation of a project compounds faster than
+anywhere else. Establishing and mechanically enforcing zero-tolerance quality standards from
+commit one is orders of magnitude cheaper than retrofitting them later. This principle is
+the user's deliberate, informed choice — it is not subject to trade-off negotiation.
+
+### X. Contract-Driven Validation & TypeScript Generation (NON-NEGOTIABLE)
+
+**FluentValidation in Contracts**
+All request payload types in `BSDCPolls.Contracts` that originate from the frontend MUST
+have a corresponding FluentValidation `AbstractValidator<T>` defined in the same project,
+co-located with the DTO class (same namespace, adjacent file or nested class). Validators
+MUST encode all business rules that can be expressed as input constraints — field lengths,
+required fields, value ranges, conditional rules, cross-field rules. Thin "required field"
+only validators are PROHIBITED; validators MUST be exhaustive.
+
+Validator registration (DI wiring) happens in `BSDCPolls.BFF` and `BSDCPolls.Api` as
+appropriate; validator class definitions live exclusively in `BSDCPolls.Contracts`. This
+keeps the validation contract co-located with the data contract and accessible to tooling.
+
+Note: Entity classes in `BSDCPolls.Api.Data` continue to use Data Annotations for EF Core
+schema constraints (per Principle VIII). FluentValidation is for cross-boundary payload
+validation in Contracts — the two are complementary, not competing.
+
+**NSwag TypeScript generation**
+All TypeScript types, interfaces, and API client code MUST be auto-generated from the BFF's
+OpenAPI specification using NSwag (or an equivalent OpenAPI-to-TypeScript tool approved via
+constitution amendment). Hand-written TypeScript classes or interfaces that duplicate C#
+contract types are PROHIBITED. The NSwag generation step MUST be integrated into the build
+pipeline so TypeScript types are always in sync with the C# contract source of truth.
+Generated files MUST be committed to the repository (not gitignored) so diffs are visible
+in PRs and type regressions are caught in code review.
+
+**AutoMapper ban**
+AutoMapper and all similar convention-based object-mapping libraries (Mapster, TinyMapper,
+etc.) are PROHIBITED across the entire solution. All object-to-object mapping MUST be
+explicit, hand-written code — preferably static factory methods (`DTO.From(entity)`) or
+extension methods. Explicit mapping is visible, refactorable, and fails at compile time when
+a property is renamed; implicit mapping fails silently.
+
+**Rationale**: Co-locating FluentValidation validators with DTOs in Contracts makes the
+validation rules part of the public contract, visible to all consuming projects, and
+eliminates duplicated validation logic scattered across BFF and API. NSwag closes the
+frontend/backend type gap by generating TypeScript directly from the authoritative C# schema,
+making runtime type mismatches impossible. The AutoMapper ban enforces explicit, readable
+mapping code consistent with Principle IX's zero-ambiguity standard.
+
 ## Technical Constraints
 
 - **Frontend**: Angular (latest stable LTS), Angular Material, RxJS, NgRX Signal Store, Angular
@@ -189,6 +266,14 @@ implicit coupling between services — every shared type has a single authoritat
 - **Testing**: Angular Testing Library + Jest for frontend unit tests; Playwright for e2e.
   xUnit for .NET unit and integration tests. All test tooling MUST be declared in the Aspire
   AppHost or documented in `plan.md` Technical Context before implementation begins.
+- **Validation**: FluentValidation is pre-approved for `BSDCPolls.Contracts` (validator
+  definitions) and for `BSDCPolls.BFF` / `BSDCPolls.Api` (DI registration only). No other
+  validation library may be used for cross-boundary payload validation.
+- **TypeScript generation**: NSwag CLI is the pre-approved tool for generating TypeScript
+  types and API clients from the BFF OpenAPI schema. The generation MUST run as part of the
+  build pipeline. Hand-written TypeScript that duplicates C# contract types is PROHIBITED.
+- **Prohibited libraries**: AutoMapper, Mapster, TinyMapper, and all convention-based
+  object-mapping libraries are PROHIBITED. Explicit, hand-written mapping code is mandatory.
 - **Entity validation**: Every EF Core entity class MUST declare all validation and schema
   constraints via Data Annotations within the same `.cs` file (e.g., `[Required]`,
   `[MaxLength]`, `[Range]`). Separate validation classes and standalone FluentValidation
@@ -217,6 +302,11 @@ and demonstrable against the full local Aspire stack.
 This constitution supersedes all other practices, style guides, and conventions. Any conflict
 between this document and another guideline resolves in favour of this constitution.
 
+**Principle IX (Code Quality & Maintainability First) supersedes all other principles when
+they conflict.** If following any other principle would require a quality shortcut, the
+shortcut is not permitted — the other principle must be satisfied in a quality-compliant way
+or the feature must be deferred until it can be.
+
 Amendments require:
 1. A documented rationale explaining why the existing principle is insufficient.
 2. A semantic version bump (MAJOR for principle removal/redefinition, MINOR for additions,
@@ -225,8 +315,11 @@ Amendments require:
 4. Review and explicit acceptance before the next feature spec is opened.
 
 All PRs MUST verify compliance with Principles I (Angular Material Only), II (Reactive-First),
-VI (BFF Architecture), VII (IaC & Environment Parity), and VIII (Layered .NET Architecture)
-in the Constitution Check section of `plan.md`. Complexity exceptions MUST be justified in
-the plan's Complexity Tracking table. Use `CLAUDE.md` for runtime agent guidance.
+VI (BFF Architecture), VII (IaC & Environment Parity), VIII (Layered .NET Architecture),
+IX (Code Quality & Maintainability First), and X (Contract-Driven Validation & TypeScript
+Generation) in the Constitution Check section of `plan.md`. Principle IX applies to every
+line of every PR. Any new Contract DTO touching the frontend boundary MUST have a co-located
+FluentValidation validator (Principle X). Complexity exceptions MUST be justified in the
+plan's Complexity Tracking table. Use `CLAUDE.md` for runtime agent guidance.
 
-**Version**: 1.2.0 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-06-10
+**Version**: 1.4.0 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-06-10
