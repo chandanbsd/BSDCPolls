@@ -1,33 +1,33 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.0.0 → 1.1.0
+Version change: 1.1.1 → 1.2.0
 
-Reason for MINOR bump: Two new principles added (VI, VII). Technical Constraints section
-fully resolved — TODO(BACKEND_STACK) replaced with concrete stack. Principle III updated
-to name SignalR explicitly as the mandated real-time transport.
+Reason for MINOR bump: New principle added (VIII. Layered .NET Project Architecture).
+Technical Constraints materially expanded with entity data annotation and EF Migrations
+worker service mandates.
 
-Modified principles:
-  - III. Real-Time First — added SignalR as the mandated transport; removed generic
-    "WebSockets or SSE" language now that the stack is decided.
+Modified principles: None
 
 Added principles:
-  - VI. BFF Architecture (NON-NEGOTIABLE) — frontend talks only to BFF, never to backend API.
-  - VII. Infrastructure as Code & Environment Parity — Aspire + Podman, local = production.
+  - VIII. Layered .NET Project Architecture (NON-NEGOTIABLE) — prescribed project layout for
+    BFF tier (Web API + Business lib), API tier (Web API + Business lib + Data lib), and a
+    shared Contracts library as the sole cross-service type boundary.
+
+Added constraints:
+  - Entity classes MUST carry all validation via Data Annotations in-file.
+  - Schema changes MUST be applied via EF Core Migrations run by an Aspire worker service.
 
 Removed sections: None
 
 Templates reviewed:
   - .specify/templates/plan-template.md     ✅ No changes needed — Constitution Check gate
-                                               already present; plan authors must list Aspire
-                                               service declarations as a task.
-  - .specify/templates/spec-template.md     ✅ No changes needed — technology-agnostic.
-  - .specify/templates/tasks-template.md    ✅ No changes needed — phased delivery model aligns.
+                                               covers new principle; plan authors must list
+                                               Contracts lib tasks when adding new API surface.
+  - .specify/templates/spec-template.md     ✅ No changes needed.
+  - .specify/templates/tasks-template.md    ✅ No changes needed.
 
-Follow-up TODOs:
-  - TODO(SIGNALR_HUB_TOPOLOGY): Whether the BFF proxies raw SignalR frames to the backend
-    or translates to an internal gRPC/HTTP call is an architectural decision to be made at
-    the first real-time feature plan. Record the decision here via PATCH amendment.
+Follow-up TODOs: None.
 -->
 
 # BSDCPolls Constitution
@@ -103,10 +103,11 @@ afterthought — Angular Material provides it for free only when its patterns ar
 The Angular frontend MUST connect exclusively to the BFF (Backend For Frontend) ASP.NET Core
 project. Direct calls from the frontend to the backend API are PROHIBITED. The BFF is the sole
 internet-facing .NET service; the backend API MUST be network-isolated to internal service
-communication only. The BFF is responsible for: forwarding authenticated requests to the backend
-API, hosting the SignalR hub that the frontend connects to, and enforcing Supabase auth token
-validation at the edge. No business logic MUST be duplicated between BFF and backend — the BFF
-acts as a thin translation and security layer.
+communication only. The BFF is responsible for: hosting the SignalR hub that the frontend
+connects to, enforcing Supabase auth token validation at the edge, and forwarding domain
+requests to the backend API. All BFF → backend API calls MUST use internal HTTPS or gRPC;
+raw SignalR proxying from BFF to backend is PROHIBITED. No business logic MUST be duplicated
+between BFF and backend — the BFF acts as a thin translation and security layer.
 
 **Rationale**: The BFF pattern keeps the public attack surface minimal, allows frontend-specific
 concerns (auth edge, aggregation, SignalR fan-out) to evolve independently of the core domain
@@ -127,6 +128,40 @@ the single source of truth for service topology, connection strings, and inter-s
 local environment is structurally identical to production. Aspire + Podman provides reproducible
 orchestration without requiring a cloud account or Docker Desktop license.
 
+### VIII. Layered .NET Project Architecture (NON-NEGOTIABLE)
+
+All .NET code MUST follow a strict layered project structure. No project may reference a project
+in a layer above its own. The mandated solution layout is:
+
+*BFF tier*
+- `BSDCPolls.BFF` — ASP.NET Core Web API; entry point, controllers, SignalR hub; references
+  `BSDCPolls.BFF.Business` and `BSDCPolls.Contracts` only.
+- `BSDCPolls.BFF.Business` — class library; all BFF business logic, auth forwarding, service
+  orchestration; references `BSDCPolls.Contracts` only.
+
+*Backend API tier*
+- `BSDCPolls.Api` — ASP.NET Core Web API; entry point and controllers; references
+  `BSDCPolls.Api.Business` and `BSDCPolls.Contracts` only.
+- `BSDCPolls.Api.Business` — class library; all domain logic; references `BSDCPolls.Api.Data`
+  and `BSDCPolls.Contracts`.
+- `BSDCPolls.Api.Data` — class library; EF Core `DbContext`, entity classes, migrations,
+  repository implementations; references `BSDCPolls.Contracts` for shared value types only.
+
+*Shared*
+- `BSDCPolls.Contracts` — class library; all request/response DTOs, gRPC message types, and
+  SignalR event payload types that cross the BFF ↔ API boundary. Has zero dependencies on other
+  solution projects. Neither BFF nor API may define ad-hoc inter-service types outside this
+  library.
+
+*Aspire orchestration*
+- `BSDCPolls.AppHost` — .NET Aspire AppHost; declares all services, containers, and references.
+- `BSDCPolls.MigrationWorker` — Aspire worker service; runs EF Core Migrations at startup
+  before the API becomes available (see Technical Constraints).
+
+**Rationale**: Enforcing project-level layer boundaries via .csproj references makes illegal
+dependencies a compile error, not a code-review finding. The Contracts library eliminates
+implicit coupling between services — every shared type has a single authoritative definition.
+
 ## Technical Constraints
 
 - **Frontend**: Angular (latest stable LTS), Angular Material, RxJS, NgRX Signal Store, Angular
@@ -135,9 +170,12 @@ orchestration without requiring a cloud account or Docker Desktop license.
   ASP.NET Core SignalR hubs.
 - **Backend services** (both latest stable):
   - *BFF*: ASP.NET Core Web API, C# — internet-facing, hosts SignalR hub, validates Supabase
-    JWT, proxies to backend API.
+    JWT, calls backend API via internal HTTPS or gRPC.
   - *Backend API*: ASP.NET Core Web API, C#, Entity Framework Core — internal only, owns domain
-    logic and database access.
+    logic and database access; exposes gRPC and/or HTTPS endpoints for BFF consumption only.
+- **BFF → API transport**: Internal HTTPS or gRPC. Raw SignalR proxying to the backend is
+  PROHIBITED. gRPC is preferred for strongly-typed service contracts; HTTPS is acceptable for
+  simpler pass-through endpoints.
 - **Orchestration**: .NET Aspire (latest stable). All services, containers, environment
   variables, and inter-service references MUST be declared in the Aspire AppHost project. No
   service may be started outside of Aspire during local development.
@@ -151,8 +189,18 @@ orchestration without requiring a cloud account or Docker Desktop license.
 - **Testing**: Angular Testing Library + Jest for frontend unit tests; Playwright for e2e.
   xUnit for .NET unit and integration tests. All test tooling MUST be declared in the Aspire
   AppHost or documented in `plan.md` Technical Context before implementation begins.
-- **TODO(SIGNALR_HUB_TOPOLOGY)**: Whether the BFF proxies raw SignalR to the backend or
-  translates to an internal call is undecided. Resolve at first real-time feature plan.
+- **Entity validation**: Every EF Core entity class MUST declare all validation and schema
+  constraints via Data Annotations within the same `.cs` file (e.g., `[Required]`,
+  `[MaxLength]`, `[Range]`). Separate validation classes and standalone FluentValidation
+  profiles applied to entity types are PROHIBITED. Fluent API in `OnModelCreating` is permitted
+  only for schema details that cannot be expressed as attributes (e.g., composite primary keys,
+  complex indexes, owned-entity configuration); it MUST NOT duplicate annotation-expressible
+  constraints.
+- **Schema migrations**: All database schema changes MUST be applied via EF Core Migrations.
+  Manual SQL schema changes are PROHIBITED in all environments including local development and
+  CI. Migrations MUST be executed by `BSDCPolls.MigrationWorker` — a dedicated Aspire-registered
+  worker service — at startup, prior to the API accepting traffic. The API project MUST NOT call
+  `Database.Migrate()` itself at runtime.
 
 ## Development Workflow
 
@@ -177,8 +225,8 @@ Amendments require:
 4. Review and explicit acceptance before the next feature spec is opened.
 
 All PRs MUST verify compliance with Principles I (Angular Material Only), II (Reactive-First),
-VI (BFF Architecture), and VII (IaC & Environment Parity) in the Constitution Check section of
-`plan.md`. Complexity exceptions MUST be justified in the plan's Complexity Tracking table.
-Use `CLAUDE.md` for runtime agent guidance.
+VI (BFF Architecture), VII (IaC & Environment Parity), and VIII (Layered .NET Architecture)
+in the Constitution Check section of `plan.md`. Complexity exceptions MUST be justified in
+the plan's Complexity Tracking table. Use `CLAUDE.md` for runtime agent guidance.
 
-**Version**: 1.1.0 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-06-10
+**Version**: 1.2.0 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-06-10
