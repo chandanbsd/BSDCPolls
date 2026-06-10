@@ -1,23 +1,32 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.8.1 → 1.8.2
+Version change: 1.8.2 → 1.9.0
 
-Reason for PATCH bump: Development Workflow clarified — Angular and .NET skills activate
-automatically at the start of any implementation task; no manual invocation required.
-CLAUDE.md updated to carry the auto-activation instruction so Claude Code loads the correct
-skill before writing any Angular or .NET code.
+Reason for MINOR bump: New principle added (XV. No Test Projects). Explicit, unconditional
+prohibition on all unit tests, test files, and test projects for both frontend and backend.
+Testing tools removed from Technical Constraints. Quality is achieved through self-documenting
+code, mnemonic naming, and adherence to the other principles — not test suites.
 
 Modified principles: None
 
-Added sections: None (Development Workflow amended)
+Added principles:
+  - XV. No Test Projects (NON-NEGOTIABLE) — zero unit tests, zero test files, zero test
+    projects committed to the repository for any layer. Code quality is enforced through
+    self-documenting code, linting, type systems, and constitution-mandated patterns.
 
-Removed sections: None
+Removed constraints:
+  - Testing tools entry (Angular Testing Library + Jest, Playwright, xUnit) removed from
+    Technical Constraints — these libraries MUST NOT be added to the project.
 
 Templates reviewed:
-  - .specify/templates/plan-template.md     ✅ No changes needed.
+  - .specify/templates/plan-template.md     ✅ No changes needed — tasks template already
+                                               marks tests as OPTIONAL and explicitly warns
+                                               "DO NOT keep sample tasks"; plan authors
+                                               must omit all test tasks per this principle.
   - .specify/templates/spec-template.md     ✅ No changes needed.
-  - .specify/templates/tasks-template.md    ✅ No changes needed.
+  - .specify/templates/tasks-template.md    ✅ No changes needed — tests already marked
+                                               OPTIONAL; Principle XV makes them absent.
 
 Follow-up TODOs: None.
 -->
@@ -521,11 +530,32 @@ instantiation of service classes (`new PollService(...)`) outside of tests is PR
 - Static utility classes with no DI dependencies
 - Entity classes (domain objects, not services)
 
-**Rationale**: Interface-driven design makes every dependency a seam — swappable,
-mockable in tests, and independently evolvable. It enforces the Dependency Inversion
-Principle at the architectural level: higher-layer code (Business) depends on abstractions,
-not concretions in lower layers (Data). Combined with Principle IX's quality mandate,
-it ensures testability is a first-class property of every service from the start.
+**Rationale**: Interface-driven design makes every dependency a seam — swappable and
+independently evolvable. It enforces the Dependency Inversion Principle at the architectural
+level: higher-layer code (Business) depends on abstractions, not concretions in lower layers
+(Data).
+
+### XV. No Test Projects (NON-NEGOTIABLE)
+
+**No unit tests, integration tests, e2e tests, or test files of any kind MUST be written
+or committed to this repository — for either the frontend or the backend.**
+
+This is an explicit, unconditional architectural decision. Quality is achieved through:
+- Self-documenting code with mnemonic, intention-revealing names (Principle IX)
+- Strong type systems (TypeScript strict mode, C# nullable reference types)
+- Compile-time safety (interface contracts, FluentValidation, EF Core model validation)
+- Automated linting and formatting (Principle XII)
+- Architectural pattern enforcement (layer boundaries, entity factory pattern, no raw SQL)
+
+No test project files (`.spec.ts`, `*Tests.csproj`, `*Test.csproj`, `tests/` directories,
+`__tests__/` directories) MUST be created, and no test libraries MUST be added as
+dependencies. Any AI-generated test code MUST NOT be committed. Pull requests containing
+test files MUST be rejected.
+
+**Rationale**: The user has made a deliberate, informed decision that the return on
+investment for AI-generated unit tests in this project does not justify the maintenance
+overhead they create. Code quality is the responsibility of the design, type system,
+linting, and code review — not of a test suite that mirrors the implementation.
 
 ## Technical Constraints
 
@@ -551,9 +581,9 @@ it ensures testability is a first-class property of every service from the start
   validates Supabase JWTs. No external auth provider network calls during local development.
 - **CSS**: Zero custom CSS, zero inline styles — enforced at code review. Angular ESLint rules
   SHOULD be configured to catch `[style]` binding violations automatically.
-- **Testing**: Angular Testing Library + Jest for frontend unit tests; Playwright for e2e.
-  xUnit for .NET unit and integration tests. All test tooling MUST be declared in the Aspire
-  AppHost or documented in `plan.md` Technical Context before implementation begins.
+- **No testing libraries**: Angular Testing Library, Jest, Jasmine, Karma, Playwright,
+  xUnit, NUnit, MSTest, and all other test frameworks are PROHIBITED — do not install,
+  reference, or configure any testing library (Principle XV).
 - **Validation**: FluentValidation is pre-approved for `BSDCPolls.Contracts` (validator
   definitions) and for `BSDCPolls.BFF` / `BSDCPolls.Api` (DI registration only). No other
   validation library may be used for cross-boundary payload validation.
@@ -640,15 +670,16 @@ All PRs MUST verify compliance with Principles I (Angular Material Only), II (Re
 VI (BFF Architecture), VII (IaC & Environment Parity), VIII (Layered .NET Architecture),
 IX (Code Quality & Maintainability First), X (Contract-Driven Validation & TypeScript
 Generation), XI (Observability & Structured Logging), XII (Code Style & Linting Enforcement),
-XIII (EF Core Conventions), and XIV (Interface-Driven Design) in the Constitution Check
-section of `plan.md`.
+XIII (EF Core Conventions), XIV (Interface-Driven Design), and XV (No Test Projects) in
+the Constitution Check section of `plan.md`.
 Principle IX applies to every line of every PR. Any new Contract DTO touching the frontend
 boundary MUST have a co-located FluentValidation validator (Principle X). Any new service
 endpoint MUST include structured logging for the happy path and all error branches (Principle
 XI). All linters MUST pass — failures are merge blockers (Principle XII). Every new entity
 MUST extend `AuditableEntity`, use private setters, and have a static Create factory method;
-no raw SQL; N+1 must be explicitly prevented with eager loading (Principle XIII).
+no raw SQL; N+1 must be explicitly prevented with eager loading (Principle XIII). PRs
+containing any test files MUST be rejected (Principle XV).
 Complexity exceptions MUST be justified in the plan's Complexity Tracking table.
 Use `CLAUDE.md` for runtime agent guidance.
 
-**Version**: 1.8.2 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-06-10
+**Version**: 1.9.0 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-06-10
