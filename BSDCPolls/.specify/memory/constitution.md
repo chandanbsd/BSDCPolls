@@ -1,18 +1,20 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.3.0 → 1.4.0
+Version change: 1.4.0 → 1.4.1
 
-Reason for MINOR bump: New principle added (X. Contract-Driven Validation & TypeScript
-Generation). Technical Constraints updated to reflect FluentValidation and NSwag as
-pre-approved dependencies and AutoMapper as a prohibited library.
+Reason for PATCH bump: Principle X clarified to make explicit that C# FluentValidation is
+the single authoritative source of truth for ALL validation rules — including frontend Angular
+form validators. Angular form validators must mirror FluentValidation rules exactly; the C#
+side is the definition, the TypeScript side is the enforcement replica. NSwag section
+expanded to describe the validation metadata bridge and the manual-sync requirement for
+complex cross-field rules.
 
-Modified principles: None
+Modified principles:
+  - X. Contract-Driven Validation & TypeScript Generation — clarified validation single-source-
+    of-truth intent; expanded NSwag section; added Angular form sync rules.
 
-Added principles:
-  - X. Contract-Driven Validation & TypeScript Generation (NON-NEGOTIABLE) — FluentValidation
-    validators co-located with DTOs in Contracts; NSwag generates all TypeScript types from
-    OpenAPI; AutoMapper and all object-mapping libraries are prohibited.
+Added sections: None
 
 Removed sections: None
 
@@ -200,44 +202,64 @@ the user's deliberate, informed choice — it is not subject to trade-off negoti
 
 ### X. Contract-Driven Validation & TypeScript Generation (NON-NEGOTIABLE)
 
-**FluentValidation in Contracts**
-All request payload types in `BSDCPolls.Contracts` that originate from the frontend MUST
-have a corresponding FluentValidation `AbstractValidator<T>` defined in the same project,
-co-located with the DTO class (same namespace, adjacent file or nested class). Validators
-MUST encode all business rules that can be expressed as input constraints — field lengths,
-required fields, value ranges, conditional rules, cross-field rules. Thin "required field"
-only validators are PROHIBITED; validators MUST be exhaustive.
+**C# FluentValidation is the single source of truth for all validation rules.**
+Every validation rule that a user must satisfy before submitting a form EXISTS FIRST in a
+C# FluentValidation `AbstractValidator<T>` in `BSDCPolls.Contracts`. The Angular reactive
+form validators are a replica of those rules — they enforce the same constraints client-side
+for UX, but the C# side is the definition. If the two ever diverge, the C# rule is correct
+and the Angular rule MUST be updated to match.
 
-Validator registration (DI wiring) happens in `BSDCPolls.BFF` and `BSDCPolls.Api` as
-appropriate; validator class definitions live exclusively in `BSDCPolls.Contracts`. This
-keeps the validation contract co-located with the data contract and accessible to tooling.
+**FluentValidation validators in Contracts**
+Every request payload type in `BSDCPolls.Contracts` that originates from the frontend MUST
+have a co-located `AbstractValidator<T>` in the same project. Validators MUST be exhaustive
+— they encode every constraint a user must satisfy, including: required fields, max/min
+lengths, value ranges, format rules, conditional rules, and cross-field rules (e.g., "field A
+and field B may each be null, but both MUST NOT be null simultaneously"). Thin validators
+that only check `RuleFor(x => x.Field).NotEmpty()` on every field are PROHIBITED; the
+validator is the formal specification of valid input.
 
-Note: Entity classes in `BSDCPolls.Api.Data` continue to use Data Annotations for EF Core
-schema constraints (per Principle VIII). FluentValidation is for cross-boundary payload
-validation in Contracts — the two are complementary, not competing.
+Validator DI registration occurs in `BSDCPolls.BFF` (for frontend-facing validation) and
+`BSDCPolls.Api` (for defense-in-depth). Validator class definitions live exclusively in
+`BSDCPolls.Contracts`.
 
-**NSwag TypeScript generation**
-All TypeScript types, interfaces, and API client code MUST be auto-generated from the BFF's
-OpenAPI specification using NSwag (or an equivalent OpenAPI-to-TypeScript tool approved via
-constitution amendment). Hand-written TypeScript classes or interfaces that duplicate C#
-contract types are PROHIBITED. The NSwag generation step MUST be integrated into the build
-pipeline so TypeScript types are always in sync with the C# contract source of truth.
-Generated files MUST be committed to the repository (not gitignored) so diffs are visible
-in PRs and type regressions are caught in code review.
+Note: EF Core entity classes in `BSDCPolls.Api.Data` use Data Annotations for schema
+constraints (Principle VIII). FluentValidation governs cross-boundary payload validation
+in Contracts. The two are complementary, not competing.
+
+**NSwag TypeScript generation and Angular form sync**
+All TypeScript types, API client code, and — where the OpenAPI schema supports it —
+validation metadata MUST be auto-generated from the BFF's OpenAPI specification using NSwag.
+Hand-written TypeScript that duplicates C# contract types is PROHIBITED. The NSwag generation
+step MUST run as part of the build pipeline; generated files MUST be committed to the
+repository so type regressions appear as diffs in PRs.
+
+For simple rules expressible in OpenAPI (required, minLength, maxLength, pattern, minimum,
+maximum), NSwag-generated types carry the metadata and Angular form validators MUST be
+derived from it — no hand-coded duplication.
+
+For complex rules that OpenAPI cannot express (cross-field constraints, conditional
+nullability, business-rule interdependencies), Angular MUST implement a custom reactive form
+validator that replicates the C# FluentValidation rule exactly. Each such Angular validator
+MUST carry a code comment of the form:
+```
+// Mirrors: BSDCPolls.Contracts.<ValidatorClass>.<RuleName>
+```
+This comment is the traceability link that code review uses to verify the frontend rule
+matches its C# authoritative source.
 
 **AutoMapper ban**
 AutoMapper and all similar convention-based object-mapping libraries (Mapster, TinyMapper,
 etc.) are PROHIBITED across the entire solution. All object-to-object mapping MUST be
 explicit, hand-written code — preferably static factory methods (`DTO.From(entity)`) or
-extension methods. Explicit mapping is visible, refactorable, and fails at compile time when
-a property is renamed; implicit mapping fails silently.
+extension methods. Explicit mapping fails at compile time when a property is renamed;
+implicit mapping fails silently at runtime.
 
-**Rationale**: Co-locating FluentValidation validators with DTOs in Contracts makes the
-validation rules part of the public contract, visible to all consuming projects, and
-eliminates duplicated validation logic scattered across BFF and API. NSwag closes the
-frontend/backend type gap by generating TypeScript directly from the authoritative C# schema,
-making runtime type mismatches impossible. The AutoMapper ban enforces explicit, readable
-mapping code consistent with Principle IX's zero-ambiguity standard.
+**Rationale**: Forms are a trust boundary. If a user can submit a payload that the backend
+rejects, the UX is broken. If the backend accepts a payload the frontend thought was valid,
+security is broken. Deriving Angular form validators from the same FluentValidation rules
+that the backend enforces eliminates this entire class of frontend/backend disagreement. The
+C# contract is the ground truth; NSwag and the traceability comments are the enforcement
+mechanism that keeps Angular in lockstep.
 
 ## Technical Constraints
 
@@ -322,4 +344,4 @@ line of every PR. Any new Contract DTO touching the frontend boundary MUST have 
 FluentValidation validator (Principle X). Complexity exceptions MUST be justified in the
 plan's Complexity Tracking table. Use `CLAUDE.md` for runtime agent guidance.
 
-**Version**: 1.4.0 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-06-10
+**Version**: 1.4.1 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-06-10
