@@ -1,18 +1,16 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.7.0 → 1.8.0
+Version change: 1.8.1 → 1.8.2
 
-Reason for MINOR bump: New principle added (XIV. Interface-Driven Design). Every service,
-data-access class, and infrastructure helper in all .NET projects MUST implement an
-interface and be registered/injected via that interface. Controllers are the sole exception.
+Reason for PATCH bump: Development Workflow clarified — Angular and .NET skills activate
+automatically at the start of any implementation task; no manual invocation required.
+CLAUDE.md updated to carry the auto-activation instruction so Claude Code loads the correct
+skill before writing any Angular or .NET code.
 
 Modified principles: None
 
-Added principles:
-  - XIV. Interface-Driven Design (NON-NEGOTIABLE) — all .NET service, business, and data
-    classes MUST implement a corresponding I-prefixed interface; DI registration and
-    constructor injection always use the interface type; controllers are the sole exception.
+Added sections: None (Development Workflow amended)
 
 Removed sections: None
 
@@ -607,6 +605,20 @@ Every plan MUST include a task for declaring new services or containers in the A
 Features are delivered incrementally by user story, with each story independently testable
 and demonstrable against the full local Aspire stack.
 
+**AI coding skills — automatic activation**
+The following Claude Code AI skills are installed and activate **automatically** at the
+start of any implementation task. No manual invocation is required or expected.
+
+- **Angular skill** (`https://github.com/angular/skills`) — auto-loaded before writing
+  any Angular TypeScript, component, service, store, or template code.
+- **.NET skill** (`https://github.com/dotnet/skills`) — auto-loaded before writing any
+  C# code across BFF, API, Contracts, Data, or Aspire projects.
+
+Auto-activation is configured in `CLAUDE.md`. These skills are the implementation-level
+authority for language patterns; this constitution is the architectural and governance
+authority. Both apply simultaneously — the skills govern *how* to write code; the
+constitution governs *what rules* the code must follow.
+
 ## Governance
 
 This constitution supersedes all other practices, style guides, and conventions. Any conflict
@@ -639,4 +651,4 @@ no raw SQL; N+1 must be explicitly prevented with eager loading (Principle XIII)
 Complexity exceptions MUST be justified in the plan's Complexity Tracking table.
 Use `CLAUDE.md` for runtime agent guidance.
 
-**Version**: 1.8.0 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-06-10
+**Version**: 1.8.2 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-06-10
