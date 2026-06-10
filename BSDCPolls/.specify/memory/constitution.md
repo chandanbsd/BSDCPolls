@@ -1,20 +1,19 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.4.0 → 1.4.1
+Version change: 1.4.1 → 1.5.0
 
-Reason for PATCH bump: Principle X clarified to make explicit that C# FluentValidation is
-the single authoritative source of truth for ALL validation rules — including frontend Angular
-form validators. Angular form validators must mirror FluentValidation rules exactly; the C#
-side is the definition, the TypeScript side is the enforcement replica. NSwag section
-expanded to describe the validation metadata bridge and the manual-sync requirement for
-complex cross-field rules.
+Reason for MINOR bump: New principle added (XI. Observability & Structured Logging).
+Technical Constraints updated with SigNoz, OpenTelemetry, and Serilog as pre-approved
+observability stack.
 
-Modified principles:
-  - X. Contract-Driven Validation & TypeScript Generation — clarified validation single-source-
-    of-truth intent; expanded NSwag section; added Angular form sync rules.
+Modified principles: None
 
-Added sections: None
+Added principles:
+  - XI. Observability & Structured Logging (NON-NEGOTIABLE) — ILogger<T> + Serilog sinks +
+    OpenTelemetry OTLP to self-hosted SigNoz (Aspire-orchestrated); stack traces logged
+    internally but PROHIBITED in frontend-facing API responses; Angular global ErrorHandler
+    and traceparent propagation required.
 
 Removed sections: None
 
@@ -261,6 +260,72 @@ that the backend enforces eliminates this entire class of frontend/backend disag
 C# contract is the ground truth; NSwag and the traceability comments are the enforcement
 mechanism that keeps Angular in lockstep.
 
+### XI. Observability & Structured Logging (NON-NEGOTIABLE)
+
+**Structured logging in .NET (ILogger<T> + Serilog)**
+All application code in `BSDCPolls.BFF`, `BSDCPolls.BFF.Business`, `BSDCPolls.Api`,
+`BSDCPolls.Api.Business`, and `BSDCPolls.Api.Data` MUST use `ILogger<T>` exclusively.
+Direct Serilog static calls (`Log.Information(...)`, `Log.Error(...)`) in application code
+are PROHIBITED; Serilog is configured only at host startup as the `ILogger` provider and
+sink. All log messages MUST use structured message templates with named placeholders — string
+interpolation in log calls is PROHIBITED:
+
+```csharp
+// CORRECT — structured, queryable in SigNoz
+_logger.LogError(ex, "Vote rejected for poll {PollId} by user {UserId}", pollId, userId);
+
+// PROHIBITED — loses structure, not queryable
+_logger.LogError($"Vote rejected for poll {pollId} by user {userId}");
+```
+
+Log levels MUST be used consistently: `Error` for exceptions and unexpected failures;
+`Warning` for degraded-but-recoverable states; `Information` for significant domain events
+(poll created, vote cast); `Debug` for detailed flow tracing useful in development.
+
+**Exception handling — no swallowing, no bleeding**
+Exceptions MUST NOT be swallowed. Empty `catch` blocks and `catch (Exception)` blocks
+that do not log are PROHIBITED. Every caught exception MUST be logged at `Error` level with
+the full exception object so the stack trace is captured:
+
+```csharp
+catch (Exception ex)
+{
+    _logger.LogError(ex, "Failed to process vote for poll {PollId}", pollId);
+    throw; // or wrap and rethrow — never silently discard
+}
+```
+
+API error responses sent to the Angular frontend MUST NOT include stack traces, exception
+type names, or internal service names. Error responses MUST return: an appropriate HTTP
+status code, a user-readable message, and the OpenTelemetry **trace ID** of the request.
+The trace ID is the only link the user carries; support uses it to pull the full trace from
+SigNoz.
+
+**OpenTelemetry — three pillars**
+All .NET services (BFF, API, MigrationWorker) MUST export traces, metrics, and logs via
+OTLP to SigNoz. W3C TraceContext (`traceparent`) MUST be propagated on all inter-service
+calls (BFF → API, API → Supabase). Every API error response MUST include the active trace
+ID in a response header (e.g., `X-Trace-Id`) and in the error response body.
+
+**Angular observability**
+The Angular app MUST implement a global `ErrorHandler` that captures all unhandled errors
+and reports them to a dedicated logging endpoint on the BFF, including: error message,
+stack trace (safe — server-side only, not rendered to the user), current route, and
+component context. An Angular HTTP interceptor MUST inject the `traceparent` header on all
+outgoing requests so distributed traces span frontend → BFF → API.
+
+**SigNoz orchestration**
+SigNoz MUST be provisioned as a self-hosted Podman container registered in the Aspire
+AppHost. The Aspire dashboard MUST surface a link to the SigNoz UI. No managed or external
+observability SaaS is used in local development or CI.
+
+**Rationale**: Abundant, structured logging is the primary debugging tool for a real-time
+application where race conditions and async failures are hard to reproduce. Stack traces
+MUST reach the log and MUST NOT reach the browser — the trace ID is the safe bridge between
+a user-reported error and the full diagnostic context. OpenTelemetry's vendor-neutral OTLP
+protocol and SigNoz's self-hosted model keep observability data in the project's control and
+reproducible in the local dev environment.
+
 ## Technical Constraints
 
 - **Frontend**: Angular (latest stable LTS), Angular Material, RxJS, NgRX Signal Store, Angular
@@ -296,6 +361,17 @@ mechanism that keeps Angular in lockstep.
   build pipeline. Hand-written TypeScript that duplicates C# contract types is PROHIBITED.
 - **Prohibited libraries**: AutoMapper, Mapster, TinyMapper, and all convention-based
   object-mapping libraries are PROHIBITED. Explicit, hand-written mapping code is mandatory.
+- **Observability backend**: Self-hosted SigNoz. Provisioned as a Podman container via
+  Aspire. Receives OTLP (traces, metrics, logs) from all .NET services. No external
+  observability SaaS in local or CI environments.
+- **Logging provider**: Serilog (configured at host startup only as the `ILogger` sink).
+  Application code uses `ILogger<T>` exclusively — never Serilog static methods.
+- **Telemetry SDK**: OpenTelemetry .NET SDK (`OpenTelemetry.*` packages). Traces, metrics,
+  and logs MUST be exported via OTLP. W3C TraceContext propagation is mandatory on all
+  inter-service calls.
+- **Angular error reporting**: A global Angular `ErrorHandler` implementation MUST exist
+  that reports unhandled errors to the BFF logging endpoint. An HTTP interceptor MUST
+  inject `traceparent` on all outgoing requests.
 - **Entity validation**: Every EF Core entity class MUST declare all validation and schema
   constraints via Data Annotations within the same `.cs` file (e.g., `[Required]`,
   `[MaxLength]`, `[Range]`). Separate validation classes and standalone FluentValidation
@@ -338,10 +414,12 @@ Amendments require:
 
 All PRs MUST verify compliance with Principles I (Angular Material Only), II (Reactive-First),
 VI (BFF Architecture), VII (IaC & Environment Parity), VIII (Layered .NET Architecture),
-IX (Code Quality & Maintainability First), and X (Contract-Driven Validation & TypeScript
-Generation) in the Constitution Check section of `plan.md`. Principle IX applies to every
-line of every PR. Any new Contract DTO touching the frontend boundary MUST have a co-located
-FluentValidation validator (Principle X). Complexity exceptions MUST be justified in the
-plan's Complexity Tracking table. Use `CLAUDE.md` for runtime agent guidance.
+IX (Code Quality & Maintainability First), X (Contract-Driven Validation & TypeScript
+Generation), and XI (Observability & Structured Logging) in the Constitution Check section
+of `plan.md`. Principle IX applies to every line of every PR. Any new Contract DTO touching
+the frontend boundary MUST have a co-located FluentValidation validator (Principle X). Any
+new service endpoint MUST include structured logging for the happy path and all error
+branches (Principle XI). Complexity exceptions MUST be justified in the plan's Complexity
+Tracking table. Use `CLAUDE.md` for runtime agent guidance.
 
-**Version**: 1.4.1 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-06-10
+**Version**: 1.5.0 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-06-10
