@@ -1,12 +1,20 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
 // ── PostgreSQL (Supabase) ─────────────────────────────────────────────────────
+// Pinned dev password so GoTrue (a non-.NET container) can share the same creds.
+// Set via: dotnet user-secrets set "Parameters:postgres-password" "<pass>" --project src/BSDCPolls.AppHost
+var pgPassword = builder.AddParameter("postgres-password", secret: true);
+
 var postgres = builder
-    .AddPostgres("bsdcpolls-postgres")
+    .AddPostgres("bsdcpolls-postgres", password: pgPassword)
     .WithEnvironment("POSTGRES_DB", "bsdcpolls")
     .WithPgAdmin();
 
 var db = postgres.AddDatabase("BsdcPollsDb", "bsdcpolls");
+
+// GoTrue DB URL constructed from the same Aspire parameter — password resolved at runtime.
+var goTrueDbUrl = ReferenceExpression.Create(
+    $"postgres://postgres:{pgPassword.Resource}@bsdcpolls-postgres:5432/bsdcpolls");
 
 // ── Supabase GoTrue (auth) ────────────────────────────────────────────────────
 // Self-hosted GoTrue. MAILER_AUTOCONFIRM=true disables the email confirmation
@@ -14,7 +22,7 @@ var db = postgres.AddDatabase("BsdcPollsDb", "bsdcpolls");
 var goTrue = builder
     .AddContainer("gotrue", "supabase/gotrue", "v2.173.0")
     .WithEnvironment("GOTRUE_DB_DRIVER", "postgres")
-    .WithEnvironment("GOTRUE_DB_DATABASE_URL", "postgres://postgres:postgres@bsdcpolls-postgres:5432/bsdcpolls")
+    .WithEnvironment("GOTRUE_DB_DATABASE_URL", goTrueDbUrl)
     .WithEnvironment("GOTRUE_SITE_URL", "http://localhost:4200")
     .WithEnvironment("GOTRUE_JWT_SECRET", "super-secret-jwt-token-for-dev-only")
     .WithEnvironment("GOTRUE_JWT_EXP", "3600")
