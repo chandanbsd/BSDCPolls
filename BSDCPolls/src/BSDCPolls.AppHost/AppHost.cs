@@ -12,7 +12,7 @@ var db = postgres.AddDatabase("BsdcPollsDb", "bsdcpolls");
 // Self-hosted GoTrue. MAILER_AUTOCONFIRM=true disables the email confirmation
 // flow; users register with synthetic internal emails only.
 var goTrue = builder
-    .AddContainer("gotrue", "supabase/gotrue", "latest")
+    .AddContainer("gotrue", "supabase/gotrue", "v2.173.0")
     .WithEnvironment("GOTRUE_DB_DRIVER", "postgres")
     .WithEnvironment("GOTRUE_DB_DATABASE_URL", "postgres://postgres:postgres@bsdcpolls-postgres:5432/bsdcpolls")
     .WithEnvironment("GOTRUE_SITE_URL", "http://localhost:4200")
@@ -22,12 +22,14 @@ var goTrue = builder
     .WithEnvironment("PORT", "9999")
     .WithEnvironment("MAILER_AUTOCONFIRM", "true")
     .WithEnvironment("GOTRUE_LOG_LEVEL", "debug")
+    .WithEnvironment("API_EXTERNAL_URL", "http://localhost:9999")
     .WithHttpEndpoint(targetPort: 9999, name: "gotrue");
 
 // ── SigNoz observability ──────────────────────────────────────────────────────
 // SigNoz all-in-one container. OTLP gRPC on 4317, OTLP HTTP on 4318.
 var sigNoz = builder
     .AddContainer("signoz", "signoz/signoz", "latest")
+    .WithVolume("signoz-data", "/var/lib/signoz")
     .WithHttpEndpoint(targetPort: 3301, name: "signoz-ui")
     .WithEndpoint(targetPort: 4317, name: "otlp-grpc", scheme: "http")
     .WithEndpoint(targetPort: 4318, name: "otlp-http", scheme: "http");
