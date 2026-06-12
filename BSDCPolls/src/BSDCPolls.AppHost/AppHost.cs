@@ -54,6 +54,7 @@ var migrationWorker = builder
 var api = builder
     .AddProject<Projects.BSDCPolls_Api>("bsdcpolls-api")
     .WithReference(db)
+    .WithEnvironment("GoTrue__Url", goTrue.GetEndpoint("gotrue"))
     .WithEnvironment("Otlp__Endpoint", sigNozOtlpEndpoint)
     .WaitForCompletion(migrationWorker);
 
@@ -61,7 +62,6 @@ var api = builder
 builder
     .AddProject<Projects.BSDCPolls_BFF>("bsdcpolls-bff")
     .WithReference(api)
-    .WithEnvironment("GoTrue__Url", goTrue.GetEndpoint("gotrue"))
     .WithEnvironment("InternalApi__Url", api.GetEndpoint("http"))
     .WithEnvironment("Otlp__Endpoint", sigNozOtlpEndpoint)
     .WaitForCompletion(migrationWorker);
