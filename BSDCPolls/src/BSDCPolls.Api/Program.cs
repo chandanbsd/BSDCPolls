@@ -1,9 +1,15 @@
+using System.Text;
+using BSDCPolls.Api.Business.Auth;
+using BSDCPolls.Api.Business.UsernameGeneration;
 using BSDCPolls.Api.Data;
 using BSDCPolls.Api.Data.Infrastructure;
+using BSDCPolls.Api.Data.Repositories;
 using BSDCPolls.Api.Middleware;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -48,6 +54,43 @@ builder.Services.AddDbContext<BsdcPollsDbContext>((sp, options) =>
         .AddInterceptors(sp.GetRequiredService<AuditInterceptor>());
 });
 
+// ── JWT Bearer (GoTrue JWTs validated by the API for [Authorize] endpoints) ───
+var jwtSecret = builder.Configuration["GoTrue__JwtSecret"]
+    ?? "super-secret-jwt-token-for-dev-only";
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+// ── Repositories ─────────────────────────────────────────────────────────────
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUsernameHistoryRepository, UsernameHistoryRepository>();
+
+// ── Business services ─────────────────────────────────────────────────────────
+builder.Services.AddSingleton<IUsernameGenerator, UsernameGeneratorService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+// ── GoTrue HttpClient ─────────────────────────────────────────────────────────
+var goTrueUrl = builder.Configuration["GoTrue__Url"]
+    ?? "http://localhost:9999";
+
+builder.Services.AddHttpClient("GoTrue", client =>
+{
+    client.BaseAddress = new Uri(goTrueUrl);
+});
+
 // ── FluentValidation ──────────────────────────────────────────────────────────
 builder.Services
     .AddFluentValidationAutoValidation()
@@ -60,6 +103,9 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<TraceIdMiddleware>();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

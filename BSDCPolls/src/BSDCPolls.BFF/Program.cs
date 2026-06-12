@@ -1,3 +1,5 @@
+using System.Text;
+using BSDCPolls.BFF.Business.Auth;
 using BSDCPolls.BFF.Middleware;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -31,23 +33,22 @@ builder.Services
         .AddAspNetCoreInstrumentation()
         .AddOtlpExporter(o => o.Endpoint = new Uri(otlpEndpoint)));
 
-// ── Authentication (Supabase GoTrue JWT) ──────────────────────────────────────
-var goTrueUrl = builder.Configuration["GoTrue:Url"]
-    ?? throw new InvalidOperationException("GoTrue:Url configuration is required.");
+// ── Authentication (Supabase GoTrue JWT — symmetric key validation) ───────────
+var jwtSecret = builder.Configuration["GoTrue__JwtSecret"]
+    ?? "super-secret-jwt-token-for-dev-only";
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.Authority = goTrueUrl;
-        options.Audience = "authenticated";
         options.RequireHttpsMetadata = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuerSigningKey = true,
-            ValidateIssuer = true,
-            ValidateAudience = true,
+            ValidateIssuer = false,
+            ValidateAudience = false,
             ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
             ClockSkew = TimeSpan.FromSeconds(30),
         };
 
@@ -59,13 +60,19 @@ builder.Services
                 var accessToken = ctx.Request.Query["access_token"];
                 var path = ctx.HttpContext.Request.Path;
                 if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                {
                     ctx.Token = accessToken;
+                }
+
                 return Task.CompletedTask;
             },
         };
     });
 
 builder.Services.AddAuthorization();
+
+// ── BFF auth service ──────────────────────────────────────────────────────────
+builder.Services.AddScoped<IBffAuthService, BffAuthService>();
 
 // ── SignalR ────────────────────────────────────────────────────────────────────
 builder.Services.AddSignalR();

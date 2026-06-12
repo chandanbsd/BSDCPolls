@@ -8,6 +8,10 @@ var pgPassword = builder.AddParameter("postgres-password", secret: true);
 var postgres = builder
     .AddPostgres("bsdcpolls-postgres", password: pgPassword)
     .WithEnvironment("POSTGRES_DB", "bsdcpolls")
+
+    // Mounts postgres-init/ so PostgreSQL runs 01-create-auth-schema.sql on first startup,
+    // pre-creating the auth schema that GoTrue requires before it can run its own migrations.
+    .WithBindMount("postgres-init", "/docker-entrypoint-initdb.d")
     .WithPgAdmin();
 
 var db = postgres.AddDatabase("BsdcPollsDb", "bsdcpolls");
@@ -31,7 +35,8 @@ var goTrue = builder
     .WithEnvironment("MAILER_AUTOCONFIRM", "true")
     .WithEnvironment("GOTRUE_LOG_LEVEL", "debug")
     .WithEnvironment("API_EXTERNAL_URL", "http://localhost:9999")
-    .WithHttpEndpoint(targetPort: 9999, name: "gotrue");
+    .WithHttpEndpoint(targetPort: 9999, name: "gotrue")
+    .WaitFor(postgres);
 
 // ── SigNoz observability ──────────────────────────────────────────────────────
 // SigNoz all-in-one container. OTLP gRPC on 4317, OTLP HTTP on 4318.

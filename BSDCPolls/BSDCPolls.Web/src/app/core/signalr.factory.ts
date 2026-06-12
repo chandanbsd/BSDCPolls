@@ -3,7 +3,7 @@ import {
   HubConnectionBuilder,
   LogLevel,
 } from '@microsoft/signalr';
-import { AuthStore } from '../features/auth/auth.store';
+import { AuthStore } from '../store/auth.store';
 
 /**
  * Creates and configures a SignalR hub connection.

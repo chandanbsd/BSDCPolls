@@ -1,0 +1,27 @@
+# Profanity deny-list — words that must not appear in generated usernames
+# One word per line, lowercase
+ass
+arse
+bastard
+bitch
+bloody
+bollocks
+bugger
+crap
+cunt
+damn
+dick
+douche
+dumbass
+fuck
+hell
+jackass
+jerk
+piss
+prick
+shit
+slut
+sod
+twat
+wank
+whore

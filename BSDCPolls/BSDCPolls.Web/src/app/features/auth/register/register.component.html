@@ -1,0 +1,39 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Create an account</mat-card-title>
+    <mat-card-subtitle>
+      Choose a secure password. Your username will be generated for you.
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <input matInput type="password" formControlName="password" autocomplete="new-password" />
+        @if (form.controls.password.errors?.['required'] && form.controls.password.touched) {
+          <mat-error>Password is required.</mat-error>
+        }
+        @if (form.controls.password.errors?.['minlength'] && form.controls.password.touched) {
+          <mat-error>Password must be at least 12 characters.</mat-error>
+        }
+      </mat-form-field>
+
+      @if (error) {
+        <mat-error>{{ error }}</mat-error>
+      }
+
+      <button mat-flat-button type="submit" [disabled]="isLoading">
+        @if (isLoading) {
+          <mat-spinner diameter="20" />
+        } @else {
+          Create account
+        }
+      </button>
+    </form>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <a mat-button routerLink="/auth/login">Already have an account?</a>
+  </mat-card-actions>
+</mat-card>

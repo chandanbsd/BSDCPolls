@@ -6,13 +6,14 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
 import { GlobalErrorHandler } from './core/global-error-handler';
 import { traceparentInterceptor } from './core/traceparent.interceptor';
+import { tokenInterceptor } from './core/auth/token.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideAnimationsAsync(),
-    provideHttpClient(withInterceptors([traceparentInterceptor])),
+    provideHttpClient(withInterceptors([traceparentInterceptor, tokenInterceptor])),
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
   ],
 };

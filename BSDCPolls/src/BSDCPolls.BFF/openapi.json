@@ -1,0 +1,156 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "BSDCPolls BFF",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "operationId": "Auth_Register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RegisterRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RegisterResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad Request" }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "operationId": "Auth_Login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/LoginRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LoginResponse" }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "tags": ["Users"],
+        "operationId": "Users_GetMe",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserProfileResponse" }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    },
+    "/api/users/me/username/change": {
+      "post": {
+        "tags": ["Users"],
+        "operationId": "Users_ChangeUsername",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UsernameChangeResponse" }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" },
+          "429": { "description": "Too Many Requests" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RegisterRequest": {
+        "type": "object",
+        "required": ["password"],
+        "properties": {
+          "password": { "type": "string", "minLength": 12 }
+        }
+      },
+      "RegisterResponse": {
+        "type": "object",
+        "required": ["username", "userUid"],
+        "properties": {
+          "username": { "type": "string" },
+          "userUid": { "type": "string", "format": "uuid" }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["username", "password"],
+        "properties": {
+          "username": { "type": "string", "maxLength": 60 },
+          "password": { "type": "string" }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "required": ["accessToken", "expiresAt", "userUid", "username"],
+        "properties": {
+          "accessToken": { "type": "string" },
+          "expiresAt": { "type": "string", "format": "date-time" },
+          "userUid": { "type": "string", "format": "uuid" },
+          "username": { "type": "string" }
+        }
+      },
+      "UserProfileResponse": {
+        "type": "object",
+        "required": ["userUid", "username", "createdOn"],
+        "properties": {
+          "userUid": { "type": "string", "format": "uuid" },
+          "username": { "type": "string" },
+          "createdOn": { "type": "string", "format": "date-time" }
+        }
+      },
+      "UsernameChangeResponse": {
+        "type": "object",
+        "required": ["newUsername"],
+        "properties": {
+          "newUsername": { "type": "string" }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
