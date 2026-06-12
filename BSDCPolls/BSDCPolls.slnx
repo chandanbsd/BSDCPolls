@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BSDCPolls.Api.Business/BSDCPolls.Api.Business.csproj" />
+    <Project Path="src/BSDCPolls.Api.Data/BSDCPolls.Api.Data.csproj" />
+    <Project Path="src/BSDCPolls.Api/BSDCPolls.Api.csproj" />
+    <Project Path="src/BSDCPolls.AppHost/BSDCPolls.AppHost.csproj" />
+    <Project Path="src/BSDCPolls.BFF.Business/BSDCPolls.BFF.Business.csproj" />
+    <Project Path="src/BSDCPolls.BFF/BSDCPolls.BFF.csproj" />
+    <Project Path="src/BSDCPolls.Contracts/BSDCPolls.Contracts.csproj" />
+    <Project Path="src/BSDCPolls.MigrationWorker/BSDCPolls.MigrationWorker.csproj" />
+  </Folder>
+</Solution>

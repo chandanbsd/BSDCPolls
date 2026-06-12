@@ -1,0 +1,47 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.DotSettings.user
+packages/
+*.nupkg
+*.snupkg
+
+## Entity Framework migrations – keep the files but ignore the temp output
+*.ef.tmp
+
+## Aspire / Podman
+.aspire/
+.podman/
+
+## Angular / Node
+BSDCPolls.Web/node_modules/
+BSDCPolls.Web/dist/
+BSDCPolls.Web/.angular/
+BSDCPolls.Web/src/app/generated/
+BSDCPolls.Web/coverage/
+
+## Secrets / environment
+.env
+.env.*
+appsettings.Local.json
+appsettings.*.Local.json
+secrets.json
+
+## IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.tmp
+
+## Logs
+*.log
+logs/
+
+## OS
+ehthumbs.db
+Desktop.ini

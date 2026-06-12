@@ -1,0 +1,6 @@
+@BSDCPolls.Api_HostAddress = http://localhost:5037
+
+GET {{BSDCPolls.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

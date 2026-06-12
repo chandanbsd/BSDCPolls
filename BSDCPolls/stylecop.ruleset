@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="BSDCPolls StyleCop Rules" ToolsVersion="17.0">
+  <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
+    <!-- File headers disabled: xmlHeader=false in stylecop.json -->
+    <Rule Id="SA1633" Action="None" />
+    <Rule Id="SA1634" Action="None" />
+    <Rule Id="SA1635" Action="None" />
+    <Rule Id="SA1636" Action="None" />
+    <Rule Id="SA1637" Action="None" />
+    <Rule Id="SA1638" Action="None" />
+    <Rule Id="SA1639" Action="None" />
+    <Rule Id="SA1640" Action="None" />
+    <Rule Id="SA1641" Action="None" />
+    <!-- SA1009: closing paren — overly strict for multi-line positional records -->
+    <Rule Id="SA1009" Action="None" />
+    <!-- SA1101: this. prefix not required — modern C# idiom omits it -->
+    <Rule Id="SA1101" Action="None" />
+    <!-- SA1201: properties-before-constructors — entity domain model pattern uses props-first -->
+    <Rule Id="SA1201" Action="None" />
+    <!-- SA1204: static-before-non-static — factory method pattern places them after ctors -->
+    <Rule Id="SA1204" Action="None" />
+    <!-- SA1309: allow underscore-prefixed private fields (standard .NET convention) -->
+    <Rule Id="SA1309" Action="None" />
+    <!-- SA1503: braces always required — suppressed to keep guard-throw lines concise -->
+    <Rule Id="SA1503" Action="None" />
+    <!-- SA1512: single-line comment followed by blank line — suppressed for section separators -->
+    <Rule Id="SA1512" Action="None" />
+    <!-- SA1611/SA1615: param/return docs — summary docs are sufficient for this codebase -->
+    <Rule Id="SA1611" Action="None" />
+    <Rule Id="SA1615" Action="None" />
+    <!-- SA1623: property summaries must start with "Gets" — our docs are more descriptive -->
+    <Rule Id="SA1623" Action="None" />
+    <!-- SA1413: trailing comma in multi-line initializers — suppressed for EF Core generated migrations -->
+    <Rule Id="SA1413" Action="None" />
+    <!-- SA1642: constructor doc standard text — our docs are more informative -->
+    <Rule Id="SA1642" Action="None" />
+  </Rules>
+</RuleSet>
