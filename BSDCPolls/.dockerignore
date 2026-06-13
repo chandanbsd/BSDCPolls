@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.angular/
+.git/
+.vscode/
+.idea/
+bin/
+obj/
+out/
+*.log
+.env*
+coverage/
+src/app/generated/

@@ -1,0 +1,113 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Profile</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    @if (isLoading()) {
+      <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+    } @else {
+      <!-- Username section -->
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Username</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>
+            Your current username:
+            <strong>{{ authStore.username() }}</strong>
+          </p>
+          <p>Your username is auto-generated and does not contain any personal information.</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-stroked-button color="primary" [disabled]="isChangingUsername()" (click)="changeUsername()">
+            @if (isChangingUsername()) {
+              <mat-progress-spinner diameter="20" mode="indeterminate"></mat-progress-spinner>
+            } @else {
+              Change Username
+            }
+          </button>
+        </mat-card-actions>
+      </mat-card>
+
+      @if (privacySettings()) {
+        <!-- Show public content toggle -->
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Feed Visibility</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <mat-slide-toggle
+              [checked]="privacySettings()!.showPublicContent"
+              [disabled]="isSaving()"
+              (change)="updateShowPublicContent($event.checked)"
+            >
+              Show my public polls and surveys in other users' feeds
+            </mat-slide-toggle>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Invite permission radio group -->
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Who Can Invite Me</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <mat-radio-group
+              [value]="privacySettings()!.invitePermission"
+              [disabled]="isSaving()"
+              (change)="updateInvitePermission($event.value)"
+            >
+              <mat-radio-button [value]="InvitePermission.Everyone">Everyone</mat-radio-button>
+              <mat-radio-button [value]="InvitePermission.AllowlistOnly">Selected users only</mat-radio-button>
+              <mat-radio-button [value]="InvitePermission.Nobody">Nobody</mat-radio-button>
+            </mat-radio-group>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Allowlist management -->
+        @if (privacySettings()!.invitePermission === InvitePermission.AllowlistOnly) {
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Invite Allowlist</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-form-field appearance="outline">
+                <mat-label>Add username to allowlist</mat-label>
+                <input matInput [formControl]="allowlistUsernameInput" placeholder="username" />
+                @if (allowlistUsernameInput.hasError('required')) {
+                  <mat-error>Username is required</mat-error>
+                }
+                @if (allowlistUsernameInput.hasError('maxlength')) {
+                  <mat-error>Username must be 60 characters or fewer</mat-error>
+                }
+              </mat-form-field>
+              <button
+                mat-stroked-button
+                color="primary"
+                [disabled]="allowlistUsernameInput.invalid || isSaving()"
+                (click)="addAllowlistEntry()"
+              >
+                Add
+              </button>
+
+              @if (privacySettings()!.allowlist.length > 0) {
+                <mat-chip-set>
+                  @for (entry of privacySettings()!.allowlist; track entry.userUid) {
+                    <mat-chip (removed)="removeAllowlistEntry(entry.userUid)">
+                      {{ entry.username }}
+                      <button matChipRemove [attr.aria-label]="'Remove ' + entry.username">
+                        <mat-icon>cancel</mat-icon>
+                      </button>
+                    </mat-chip>
+                  }
+                </mat-chip-set>
+              } @else {
+                <p>No users on your allowlist yet.</p>
+              }
+            </mat-card-content>
+          </mat-card>
+        }
+      }
+    }
+  </mat-card-content>
+</mat-card>

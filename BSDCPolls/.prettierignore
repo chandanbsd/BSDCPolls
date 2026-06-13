@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.angular/
+package-lock.json
+src/app/generated/
+bin/
+obj/
+*.log
+.env*
+coverage/
