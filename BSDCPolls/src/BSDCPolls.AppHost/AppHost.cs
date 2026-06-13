@@ -24,7 +24,7 @@ var goTrueDbUrl = ReferenceExpression.Create(
 // Self-hosted GoTrue. MAILER_AUTOCONFIRM=true disables the email confirmation
 // flow; users register with synthetic internal emails only.
 var goTrue = builder
-    .AddContainer("gotrue", "supabase/gotrue", "v2.173.0")
+    .AddContainer("gotrue", "supabase/gotrue", "v2.151.0")
     .WithEnvironment("GOTRUE_DB_DRIVER", "postgres")
     .WithEnvironment("GOTRUE_DB_DATABASE_URL", goTrueDbUrl)
     .WithEnvironment("GOTRUE_SITE_URL", "http://localhost:4200")
