@@ -1,32 +1,39 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.8.2 → 1.9.0
+Version change: 1.9.0 → 2.0.0
 
-Reason for MINOR bump: New principle added (XV. No Test Projects). Explicit, unconditional
-prohibition on all unit tests, test files, and test projects for both frontend and backend.
-Testing tools removed from Technical Constraints. Quality is achieved through self-documenting
-code, mnemonic naming, and adherence to the other principles — not test suites.
+Reason for MAJOR bump: Backward-incompatible redefinition of Principle I. The absolute
+"Zero custom CSS" prohibition has been replaced with a controlled SCSS policy that permits
+SCSS strictly for Angular Material theming, responsive layout overrides, and component
+encapsulation — while adding an unconditional `::ng-deep` ban. This changes the governing
+rule; code that was previously prohibited (any SCSS) is now permitted under defined conditions,
+and code that was previously permitted implicitly (`::ng-deep` was not called out) is now
+explicitly banned. Principle V is also materially expanded with a Google Material Design 3
+mandate, stronger WCAG requirements, and a comprehensive responsive testing protocol.
 
-Modified principles: None
+Modified principles:
+  - I.  "Angular Material Only" → "Angular Material + Controlled SCSS"
+        Old: Zero custom CSS of any kind, PROHIBITED entirely.
+        New: SCSS is permitted for theming, responsive overrides, and component layout.
+             `::ng-deep` is absolutely prohibited. Inline styles remain prohibited.
+  - V.  "Accessibility & Responsive Design" (expanded)
+        New: Explicit Google Material Design 3 mandate, WCAG 2.1 AA minimum
+             (AAA where reasonably achievable), screen reader testing mandate,
+             breakpoint testing extended to 5 named breakpoints.
 
-Added principles:
-  - XV. No Test Projects (NON-NEGOTIABLE) — zero unit tests, zero test files, zero test
-    projects committed to the repository for any layer. Code quality is enforced through
-    self-documenting code, linting, type systems, and constitution-mandated patterns.
+Added sections: None.
 
 Removed constraints:
-  - Testing tools entry (Angular Testing Library + Jest, Playwright, xUnit) removed from
-    Technical Constraints — these libraries MUST NOT be added to the project.
+  - "CSS: Zero custom CSS, zero inline styles" in Technical Constraints updated to reflect
+    the new SCSS-permitted-with-restrictions policy.
 
 Templates reviewed:
-  - .specify/templates/plan-template.md     ✅ No changes needed — tasks template already
-                                               marks tests as OPTIONAL and explicitly warns
-                                               "DO NOT keep sample tasks"; plan authors
-                                               must omit all test tasks per this principle.
+  - .specify/templates/plan-template.md     ⚠ pending — Constitution Check section
+                                              references Principle I by old name.
+                                              Manual update recommended.
   - .specify/templates/spec-template.md     ✅ No changes needed.
-  - .specify/templates/tasks-template.md    ✅ No changes needed — tests already marked
-                                               OPTIONAL; Principle XV makes them absent.
+  - .specify/templates/tasks-template.md    ✅ No changes needed.
 
 Follow-up TODOs: None.
 -->
@@ -35,18 +42,35 @@ Follow-up TODOs: None.
 
 ## Core Principles
 
-### I. Angular Material Only (NON-NEGOTIABLE)
+### I. Angular Material + Controlled SCSS (NON-NEGOTIABLE)
 
-All UI MUST be built exclusively with Angular Material components and its theming system.
-Custom CSS of any kind is PROHIBITED — this includes inline styles (`[style]` bindings),
-component-scoped stylesheets, global CSS overrides, and utility-class libraries (e.g., Tailwind).
-Layout MUST be achieved through Angular Material layout primitives (CDK, Angular Flex Layout, or
-Material's built-in structural components). Theming customisation MUST use Angular Material's
-design token / theming API only.
+All UI MUST be built on Angular Material components and its theming system. Angular Material
+is the primary and mandatory UI framework; no other UI component library may be used without a
+constitution amendment.
 
-**Rationale**: A zero-custom-CSS rule eliminates style drift, enforces visual consistency, and
-ensures every UI element inherits accessibility and theming behaviour from the design system
-without manual intervention.
+**SCSS is permitted** under the following conditions only:
+- Angular Material theming: customising the Material Design 3 colour scheme, typography scale,
+  density, and design tokens via `@use '@angular/material' as mat` and `mat.define-theme(...)`.
+- Component-scoped SCSS for layout properties (margin, padding, gap, flex/grid) that cannot be
+  expressed with Material layout primitives or Angular CDK. Every such SCSS block MUST carry
+  an inline comment explaining why a Material primitive is insufficient.
+- Responsive overrides at Angular Material's named breakpoints (`xs`, `sm`, `md`, `lg`, `xl`)
+  using `@media` queries. Breakpoints MUST align with Material Design 3 adaptive layout
+  guidelines.
+
+**Absolutely PROHIBITED — no exceptions:**
+- `::ng-deep` in any form, in any file, for any reason. Shadow-DOM piercing defeats Angular's
+  view encapsulation and is permanently banned across the entire codebase.
+- Inline styles via `[style]` bindings or the `style` attribute in templates.
+- Global CSS overrides that bypass Angular Material's theming API.
+- Utility-class CSS libraries (Tailwind, Bootstrap, UnoCSS, etc.).
+- Importing or applying third-party CSS/SCSS files outside of Angular Material and CDK.
+
+**Rationale**: Restricting SCSS to theming and layout-only overrides preserves the benefits
+of a design-system-driven UI (consistency, accessibility, dark-mode support) while allowing
+the necessary ergonomic control over spacing and responsive behaviour. The absolute `::ng-deep`
+ban is non-negotiable: once shadow-DOM piercing enters a codebase it proliferates uncontrolled,
+destroys encapsulation, and creates unmaintainable specificity wars.
 
 ### II. Reactive-First Architecture (NON-NEGOTIABLE)
 
@@ -88,16 +112,68 @@ amendment or plan-level exemption.
 Lazy loading and strict dependency control are the primary levers for keeping Time-to-Interactive
 low and the bundle lean.
 
-### V. Accessibility & Responsive Design
+### V. Accessibility, Responsive Design & Material Design 3 (NON-NEGOTIABLE)
 
-All screens MUST be fully functional and visually correct at every standard breakpoint from 320px
-(phone portrait) through 1920px+ (large desktop). All interactive elements MUST meet WCAG 2.1 AA
-standards. Angular Material's built-in a11y behaviour (focus management, ARIA roles, keyboard
-navigation) MUST NOT be overridden or bypassed. Responsive layouts MUST be verified on at least
-three breakpoints (mobile / tablet / desktop) before a feature is marked complete.
+**Accessibility — maximum focus**
 
-**Rationale**: BSDCPolls is used across devices. Accessibility is a baseline requirement, not an
-afterthought — Angular Material provides it for free only when its patterns are not circumvented.
+Accessibility is a first-class requirement in this project, not an afterthought. All UI MUST
+meet or exceed **WCAG 2.1 Level AA** as a minimum; WCAG 2.1 Level AAA MUST be achieved
+wherever it is reasonably implementable without architectural compromise.
+
+Mandatory accessibility requirements:
+- All interactive elements MUST be fully operable via keyboard alone (Tab, Enter, Space, Arrow
+  keys) with a visible focus indicator at all times.
+- Every non-decorative image and icon MUST have a meaningful `alt` attribute or `aria-label`.
+- All form fields MUST have associated `<label>` elements or `aria-labelledby` references; error
+  messages MUST be linked with `aria-describedby`.
+- Colour contrast ratios MUST meet WCAG AA (4.5:1 for normal text, 3:1 for large text and UI
+  components). Do not rely on colour alone to convey information.
+- Angular Material's built-in ARIA roles, focus management, and keyboard navigation MUST NOT be
+  overridden, bypassed, or suppressed.
+- Live regions (`aria-live`, `aria-atomic`) MUST be used for real-time vote count updates so
+  screen readers announce changes without requiring focus movement.
+- Screen reader compatibility MUST be manually verified with at least one screen reader
+  (VoiceOver on macOS or NVDA on Windows) before a feature is marked complete.
+
+**Google Material Design 3 compliance**
+
+All UI decisions (layout, typography, colour, spacing, interaction patterns, motion) MUST
+follow **Google's official Material Design 3 guidelines** (`m3.material.io`). Angular Material
+implements M3; use its components and theming API as the implementation vehicle for M3
+compliance. Deviations from M3 patterns MUST be explicitly justified.
+
+Specific M3 obligations:
+- Use M3 colour roles (`primary`, `on-primary`, `surface`, `on-surface`, etc.) exclusively —
+  hard-coded hex/rgb colour values in SCSS are PROHIBITED.
+- Use M3 typography scale tokens (`display-large`, `headline-medium`, `body-small`, etc.) via
+  Angular Material's typography system — hard-coded `font-size` or `font-weight` values in
+  SCSS are PROHIBITED.
+- Use M3 elevation and shape tokens for surfaces, cards, and dialogs — hard-coded
+  `box-shadow` or `border-radius` values in SCSS are PROHIBITED.
+- Motion and transitions MUST use M3 motion duration and easing tokens where Angular Material
+  exposes them.
+
+**Responsive design — all screen sizes**
+
+All screens MUST be fully functional and visually correct at every standard breakpoint:
+
+| Breakpoint | Range | Verification required |
+|---|---|---|
+| `xs` (phone portrait) | 320 px – 599 px | ✅ |
+| `sm` (phone landscape / small tablet) | 600 px – 959 px | ✅ |
+| `md` (tablet) | 960 px – 1279 px | ✅ |
+| `lg` (desktop) | 1280 px – 1919 px | ✅ |
+| `xl` (large desktop) | 1920 px + | ✅ |
+
+Responsive layouts MUST be implemented using Angular Material's responsive primitives (CDK
+`BreakpointObserver`, `mat-grid-list`, Flex Layout, or CSS Grid within component SCSS).
+Breakpoint verification MUST be performed before a feature is marked complete.
+
+**Rationale**: BSDCPolls is used across devices ranging from budget phones to large monitors.
+Material Design 3 provides a complete, Google-authored design system that solves colour, type,
+spacing, motion, and accessibility together — adherence eliminates local design decisions and
+ensures the product is coherent, accessible, and on-brand. The WCAG AAA aspiration signals
+that this project treats accessibility as a genuine engineering concern, not a checkbox.
 
 ### VI. BFF Architecture (NON-NEGOTIABLE)
 
@@ -579,8 +655,17 @@ linting, and code review — not of a test suite that mirrors the implementation
   EF Core targets this PostgreSQL instance. No managed cloud DB in local or CI environments.
 - **Auth**: Self-hosted Supabase Auth. Provisioned as a Podman container via Aspire. The BFF
   validates Supabase JWTs. No external auth provider network calls during local development.
-- **CSS**: Zero custom CSS, zero inline styles — enforced at code review. Angular ESLint rules
-  SHOULD be configured to catch `[style]` binding violations automatically.
+- **SCSS policy**: SCSS is permitted for Angular Material theming, responsive layout overrides,
+  and component-scoped layout properties only (Principle I). `::ng-deep` is ABSOLUTELY
+  PROHIBITED in any form. Inline styles (`[style]` bindings) are PROHIBITED. Utility-class
+  CSS libraries (Tailwind, Bootstrap, etc.) are PROHIBITED. Hard-coded colour, font-size,
+  font-weight, box-shadow, or border-radius values in SCSS are PROHIBITED — use M3 design
+  tokens exclusively.
+- **Design system**: Google Material Design 3 (`m3.material.io`). All layout, typography,
+  colour, spacing, and interaction decisions MUST follow M3 guidelines. Angular Material is
+  the implementation vehicle.
+- **Accessibility**: WCAG 2.1 AA minimum, AAA aspirational. Screen reader verification
+  required before feature sign-off. Live regions for real-time updates mandatory.
 - **No testing libraries**: Angular Testing Library, Jest, Jasmine, Karma, Playwright,
   xUnit, NUnit, MSTest, and all other test frameworks are PROHIBITED — do not install,
   reference, or configure any testing library (Principle XV).
@@ -608,7 +693,7 @@ linting, and code review — not of a test suite that mirrors the implementation
 - **C# style linter**: StyleCop.Analyzers via `Directory.Build.props` (solution-wide).
   Single `stylecop.json` + solution-level `GlobalSuppressions.cs`. No per-project rule
   deviations without solution-wide justification.
-- **TypeScript/HTML formatter**: Prettier. Single `.prettierrc` at repository root.
+- **TypeScript/HTML/SCSS formatter**: Prettier. Single `.prettierrc` at repository root.
   `prettier --check .` MUST pass in CI.
 - **TypeScript/Angular linter**: Angular ESLint (`@angular-eslint/*`). `ng lint
   --max-warnings 0` MUST pass in CI. No blanket file-level ESLint disables.
@@ -666,20 +751,23 @@ Amendments require:
 3. Propagation of the change to all affected templates and this Sync Impact Report.
 4. Review and explicit acceptance before the next feature spec is opened.
 
-All PRs MUST verify compliance with Principles I (Angular Material Only), II (Reactive-First),
-VI (BFF Architecture), VII (IaC & Environment Parity), VIII (Layered .NET Architecture),
-IX (Code Quality & Maintainability First), X (Contract-Driven Validation & TypeScript
-Generation), XI (Observability & Structured Logging), XII (Code Style & Linting Enforcement),
-XIII (EF Core Conventions), XIV (Interface-Driven Design), and XV (No Test Projects) in
-the Constitution Check section of `plan.md`.
+All PRs MUST verify compliance with Principles I (Angular Material + Controlled SCSS),
+II (Reactive-First), V (Accessibility, Responsive Design & Material Design 3), VI (BFF
+Architecture), VII (IaC & Environment Parity), VIII (Layered .NET Architecture), IX (Code
+Quality & Maintainability First), X (Contract-Driven Validation & TypeScript Generation),
+XI (Observability & Structured Logging), XII (Code Style & Linting Enforcement), XIII (EF
+Core Conventions), XIV (Interface-Driven Design), and XV (No Test Projects) in the
+Constitution Check section of `plan.md`.
 Principle IX applies to every line of every PR. Any new Contract DTO touching the frontend
 boundary MUST have a co-located FluentValidation validator (Principle X). Any new service
 endpoint MUST include structured logging for the happy path and all error branches (Principle
 XI). All linters MUST pass — failures are merge blockers (Principle XII). Every new entity
 MUST extend `AuditableEntity`, use private setters, and have a static Create factory method;
-no raw SQL; N+1 must be explicitly prevented with eager loading (Principle XIII). PRs
-containing any test files MUST be rejected (Principle XV).
+no raw SQL; N+1 must be explicitly prevented with eager loading (Principle XIII). Every
+Angular PR MUST verify: no `::ng-deep`, no inline styles, no hard-coded colour/size values
+in SCSS, all breakpoints render correctly, WCAG AA contrast ratios pass (Principle I + V).
+PRs containing any test files MUST be rejected (Principle XV).
 Complexity exceptions MUST be justified in the plan's Complexity Tracking table.
 Use `CLAUDE.md` for runtime agent guidance.
 
-**Version**: 1.9.0 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-06-10
+**Version**: 2.0.0 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-06-13
