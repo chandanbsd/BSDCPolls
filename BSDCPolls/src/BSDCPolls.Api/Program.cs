@@ -69,7 +69,7 @@ builder.Services.AddDbContext<BsdcPollsDbContext>(
 );
 
 // ── JWT Bearer (GoTrue JWTs validated by the API for [Authorize] endpoints) ───
-var jwtSecret = builder.Configuration["GoTrue__JwtSecret"] ?? "super-secret-jwt-token-for-dev-only";
+var jwtSecret = builder.Configuration["GoTrue:JwtSecret"] ?? "super-secret-jwt-token-for-dev-only";
 
 builder
     .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -109,7 +109,7 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IPrivacyService, PrivacyService>();
 
 // ── GoTrue HttpClient ─────────────────────────────────────────────────────────
-var goTrueUrl = builder.Configuration["GoTrue__Url"] ?? "http://localhost:9999";
+var goTrueUrl = builder.Configuration["GoTrue:Url"] ?? "http://localhost:9999";
 
 builder.Services.AddHttpClient(
     "GoTrue",

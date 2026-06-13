@@ -44,7 +44,7 @@ builder
     );
 
 // ── Authentication (Supabase GoTrue JWT — symmetric key validation) ───────────
-var jwtSecret = builder.Configuration["GoTrue__JwtSecret"] ?? "super-secret-jwt-token-for-dev-only";
+var jwtSecret = builder.Configuration["GoTrue:JwtSecret"] ?? "super-secret-jwt-token-for-dev-only";
 
 builder
     .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

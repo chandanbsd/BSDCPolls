@@ -61,7 +61,8 @@ var api = builder
     .WithReference(db)
     .WithEnvironment("GoTrue__Url", goTrue.GetEndpoint("gotrue"))
     .WithEnvironment("Otlp__Endpoint", sigNozOtlpEndpoint)
-    .WaitForCompletion(migrationWorker);
+    .WaitForCompletion(migrationWorker)
+    .WaitFor(goTrue);
 
 // ── BFF (internet-facing) ─────────────────────────────────────────────────────
 var bff = builder
@@ -76,7 +77,7 @@ api.WithEnvironment("Bff__InternalUrl", bff.GetEndpoint("http"));
 
 // ── Angular dev server ────────────────────────────────────────────────────────
 builder
-    .AddNpmApp("bsdcpolls-web", "../BSDCPolls.Web", "start")
+    .AddNpmApp("bsdcpolls-web", "../../BSDCPolls.Web", "start")
     .WaitFor(bff);
 
 builder.Build().Run();

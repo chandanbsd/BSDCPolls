@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -9,6 +9,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthStore } from '../../../store/auth.store';
 import { UsernameDialogComponent } from './username-dialog.component';
+
+const hasUppercase = (c: AbstractControl) => /[A-Z]/.test(c.value) ? null : { hasUppercase: true };
+const hasLowercase = (c: AbstractControl) => /[a-z]/.test(c.value) ? null : { hasLowercase: true };
+const hasDigit = (c: AbstractControl) => /[0-9]/.test(c.value) ? null : { hasDigit: true };
+const hasSpecial = (c: AbstractControl) => /[^a-zA-Z0-9]/.test(c.value) ? null : { hasSpecial: true };
 
 @Component({
   selector: 'app-register',
@@ -32,7 +37,7 @@ export class RegisterComponent {
   private readonly fb = inject(FormBuilder);
 
   readonly form = this.fb.nonNullable.group({
-    password: ['', [Validators.required, Validators.minLength(12)]],
+    password: ['', [Validators.required, Validators.minLength(12), hasUppercase, hasLowercase, hasDigit, hasSpecial]],
   });
 
   get isLoading() {

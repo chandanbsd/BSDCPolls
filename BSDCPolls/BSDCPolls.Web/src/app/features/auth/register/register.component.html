@@ -15,6 +15,18 @@
         @if (form.controls.password.errors?.['minlength'] && form.controls.password.touched) {
           <mat-error>Password must be at least 12 characters.</mat-error>
         }
+        @if (form.controls.password.errors?.['hasUppercase'] && form.controls.password.touched) {
+          <mat-error>Must contain at least one uppercase letter.</mat-error>
+        }
+        @if (form.controls.password.errors?.['hasLowercase'] && form.controls.password.touched) {
+          <mat-error>Must contain at least one lowercase letter.</mat-error>
+        }
+        @if (form.controls.password.errors?.['hasDigit'] && form.controls.password.touched) {
+          <mat-error>Must contain at least one digit.</mat-error>
+        }
+        @if (form.controls.password.errors?.['hasSpecial'] && form.controls.password.touched) {
+          <mat-error>Must contain at least one special character.</mat-error>
+        }
       </mat-form-field>
 
       @if (error) {
