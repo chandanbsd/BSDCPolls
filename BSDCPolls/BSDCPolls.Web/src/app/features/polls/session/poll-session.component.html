@@ -1,0 +1,89 @@
+@if (pollStore.poll(); as poll) {
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ poll.title }}</mat-card-title>
+      <mat-card-subtitle>
+        Status: {{ poll.status }}
+        @if (poll.isPublic) {
+          &nbsp;· Public
+        }
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (pollStore.isCreator()) {
+        <!-- Creator controls -->
+        <div>
+          @if (poll.status === PollStatus.Draft) {
+            <button mat-raised-button color="primary" (click)="activatePoll()" [disabled]="isActivating">
+              @if (isActivating) { <mat-spinner diameter="20"></mat-spinner> } @else { Start Session }
+            </button>
+          }
+          @if (poll.status === PollStatus.Active) {
+            <button mat-raised-button color="accent" (click)="openAddQuestionDialog()">
+              Add Question
+            </button>
+            <button mat-raised-button color="warn" (click)="closePoll()" [disabled]="isClosing">
+              @if (isClosing) { <mat-spinner diameter="20"></mat-spinner> } @else { Close Poll }
+            </button>
+          }
+          <button mat-stroked-button (click)="openInviteDialog()">Invite User</button>
+        </div>
+
+        <!-- Live results for creator -->
+        @for (question of poll.questions; track question.questionUid) {
+          @if (question.pushedAt) {
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>{{ question.text }}</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                @for (option of question.options; track option.optionUid) {
+                  <div>
+                    <span>{{ option.text }}</span>
+                    <mat-progress-bar mode="determinate" [value]="0"></mat-progress-bar>
+                  </div>
+                }
+              </mat-card-content>
+            </mat-card>
+          }
+        }
+      } @else {
+        <!-- Participant view -->
+        @if (pollStore.activeQuestion(); as activeQuestion) {
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>{{ activeQuestion.text }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-radio-group [(ngModel)]="selectedOptionUid">
+                @for (option of activeQuestion.options; track option.optionUid) {
+                  <mat-radio-button [value]="option.optionUid">{{ option.text }}</mat-radio-button>
+                }
+              </mat-radio-group>
+              @if (voteError) {
+                <p>{{ voteError }}</p>
+              }
+            </mat-card-content>
+            <mat-card-actions>
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="submitVote()"
+                [disabled]="!selectedOptionUid"
+              >
+                Submit Vote
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        } @else {
+          <p>Waiting for the next question...</p>
+        }
+      }
+    </mat-card-content>
+  </mat-card>
+} @else if (pollStore.error()) {
+  <p>{{ pollStore.error() }}</p>
+} @else {
+  <mat-spinner></mat-spinner>
+}

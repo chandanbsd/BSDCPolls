@@ -1,0 +1,74 @@
+<mat-tab-group (selectedIndexChange)="onTabChange($event)">
+  <mat-tab label="Polls">
+    <div class="tab-content">
+      @if (store.isLoading()) {
+        <mat-spinner diameter="40"></mat-spinner>
+      }
+      @if (store.error()) {
+        <p>{{ store.error() }}</p>
+      }
+      <div>
+        <button mat-raised-button color="primary" (click)="createPoll()">
+          <mat-icon>add</mat-icon> New Poll
+        </button>
+      </div>
+      @for (poll of store.polls(); track poll.pollUid) {
+        <mat-card (click)="openPoll(poll.pollUid)">
+          <mat-card-header>
+            <mat-card-title>{{ poll.title }}</mat-card-title>
+            <mat-card-subtitle>by {{ poll.creatorUsername }}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <mat-chip-set>
+              <mat-chip>{{ poll.status }}</mat-chip>
+              @if (!poll.isPublic) {
+                <mat-chip>Private</mat-chip>
+              }
+            </mat-chip-set>
+          </mat-card-content>
+        </mat-card>
+      }
+      @if (!store.isLoading() && store.polls().length === 0) {
+        <p>No polls yet.</p>
+      }
+    </div>
+  </mat-tab>
+
+  <mat-tab label="Surveys">
+    <div class="tab-content">
+      @if (store.isLoading()) {
+        <mat-spinner diameter="40"></mat-spinner>
+      }
+      <div>
+        <button mat-raised-button color="primary" (click)="createSurvey()">
+          <mat-icon>add</mat-icon> New Survey
+        </button>
+      </div>
+      @for (survey of store.surveys(); track survey.surveyUid) {
+        <mat-card (click)="openSurvey(survey.surveyUid)">
+          <mat-card-header>
+            <mat-card-title>{{ survey.title }}</mat-card-title>
+            <mat-card-subtitle>by {{ survey.creatorUsername }}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <mat-chip-set>
+              <mat-chip>{{ survey.status }}</mat-chip>
+              @if (!survey.isPublic) {
+                <mat-chip>Private</mat-chip>
+              }
+            </mat-chip-set>
+          </mat-card-content>
+        </mat-card>
+      }
+      @if (!store.isLoading() && store.surveys().length === 0) {
+        <p>No surveys yet.</p>
+      }
+    </div>
+  </mat-tab>
+
+  <mat-tab label="Results">
+    <div class="tab-content">
+      <p>Completed polls and surveys you participated in will appear here.</p>
+    </div>
+  </mat-tab>
+</mat-tab-group>

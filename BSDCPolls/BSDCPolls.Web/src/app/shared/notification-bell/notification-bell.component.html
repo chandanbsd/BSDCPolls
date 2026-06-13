@@ -1,0 +1,35 @@
+<button
+  mat-icon-button
+  [matBadge]="store.unreadCount() > 0 ? store.unreadCount() : null"
+  matBadgeColor="warn"
+  [matMenuTriggerFor]="notifMenu"
+  (click)="openNotifications()"
+  aria-label="Notifications">
+  <mat-icon>notifications</mat-icon>
+</button>
+
+<mat-menu #notifMenu="matMenu" xPosition="before">
+  <div mat-menu-item disabled>
+    <strong>Notifications</strong>
+  </div>
+  <mat-divider></mat-divider>
+
+  @if (store.items().length === 0) {
+    <div mat-menu-item disabled>No notifications</div>
+  }
+
+  @for (item of store.items().slice(0, 10); track item.notificationUid) {
+    <button mat-menu-item (click)="navigateTo(item); markRead(item.notificationUid)">
+      <mat-icon [color]="item.isRead ? '' : 'primary'">mail</mat-icon>
+      <span>
+        {{ item.invitation.inviterUsername }} invited you to
+        {{ item.invitation.pollTitle ?? item.invitation.surveyTitle ?? 'a poll/survey' }}
+      </span>
+    </button>
+  }
+
+  @if (store.unreadCount() > 0) {
+    <mat-divider></mat-divider>
+    <button mat-menu-item (click)="markAllRead()">Mark all as read</button>
+  }
+</mat-menu>

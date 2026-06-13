@@ -1,0 +1,95 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Create Survey</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-stepper orientation="vertical" [linear]="true">
+      <!-- Step 1: Title & Visibility -->
+      <mat-step [stepControl]="metaForm" label="Survey Details">
+        <form [formGroup]="metaForm">
+          <mat-form-field appearance="outline">
+            <mat-label>Title</mat-label>
+            <input matInput formControlName="title" maxlength="200" />
+            @if (metaForm.get('title')?.hasError('required')) {
+              <mat-error>Title is required.</mat-error>
+            }
+          </mat-form-field>
+          <mat-slide-toggle formControlName="isPublic">Public survey</mat-slide-toggle>
+          <div>
+            <button mat-raised-button color="primary" matStepperNext [disabled]="metaForm.invalid">
+              Next
+            </button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- Step 2: Question Tree -->
+      <mat-step [stepControl]="questionsForm" label="Questions">
+        <form [formGroup]="questionsForm">
+          @for (question of questions.controls; track $index) {
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>Question {{ $index + 1 }}</mat-panel-title>
+              </mat-expansion-panel-header>
+              <div [formGroup]="$any(question)">
+                <mat-form-field appearance="outline">
+                  <mat-label>Question text</mat-label>
+                  <textarea matInput formControlName="text" maxlength="500" rows="2"></textarea>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Answer type</mat-label>
+                  <mat-select formControlName="answerType">
+                    @for (type of answerTypes; track type) {
+                      <mat-option [value]="type">{{ type }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-slide-toggle formControlName="isRequired">Required</mat-slide-toggle>
+
+                @if ($any(question).get('answerType').value === SurveyAnswerType.MultipleChoice) {
+                  <div>
+                    <p>Choices</p>
+                    <mat-chip-grid aria-label="Answer choices">
+                      @for (choice of choicesFor($index).controls; track $index) {
+                        <mat-chip-row (removed)="removeChoice($index, $index)">
+                          <input matInput [formControl]="$any(choice).get('text')" placeholder="Choice text" />
+                          <button matChipRemove [attr.aria-label]="'Remove choice'">
+                            <mat-icon>cancel</mat-icon>
+                          </button>
+                        </mat-chip-row>
+                      }
+                    </mat-chip-grid>
+                    <button mat-stroked-button (click)="addChoice($index)">
+                      <mat-icon>add</mat-icon> Add Choice
+                    </button>
+                  </div>
+                }
+
+                <button mat-icon-button color="warn" (click)="removeQuestion($index)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </mat-expansion-panel>
+          }
+
+          <button mat-stroked-button (click)="addQuestion()">
+            <mat-icon>add</mat-icon> Add Question
+          </button>
+
+          <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="isLoading || questionsForm.invalid || questions.length === 0">
+              @if (isLoading) { <mat-spinner diameter="20"></mat-spinner> } @else { Create Survey }
+            </button>
+          </div>
+
+          @if (error) {
+            <p>{{ error }}</p>
+          }
+        </form>
+      </mat-step>
+    </mat-stepper>
+  </mat-card-content>
+</mat-card>

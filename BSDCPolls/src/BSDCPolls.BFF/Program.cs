@@ -1,5 +1,10 @@
 using System.Text;
 using BSDCPolls.BFF.Business.Auth;
+using BSDCPolls.BFF.Business.Invitations;
+using BSDCPolls.BFF.Business.Notifications;
+using BSDCPolls.BFF.Business.Polls;
+using BSDCPolls.BFF.Business.Surveys;
+using BSDCPolls.BFF.Hubs;
 using BSDCPolls.BFF.Middleware;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -73,6 +78,11 @@ builder.Services.AddAuthorization();
 
 // ── BFF auth service ──────────────────────────────────────────────────────────
 builder.Services.AddScoped<IBffAuthService, BffAuthService>();
+builder.Services.AddScoped<IBffPollService, BffPollService>();
+builder.Services.AddScoped<IBffSurveyService, BffSurveyService>();
+builder.Services.AddScoped<IBffInvitationService, BffInvitationService>();
+builder.Services.AddScoped<IBffNotificationService, BffNotificationService>();
+builder.Services.AddSingleton<IPollSessionTracker, PollSessionTracker>();
 
 // ── SignalR ────────────────────────────────────────────────────────────────────
 builder.Services.AddSignalR();
@@ -134,8 +144,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// SignalR hubs — mapped when hub classes are added in Phase 4 / Phase 6
-// app.MapHub<PollHub>("/hubs/poll");
-// app.MapHub<NotificationHub>("/hubs/notifications");
+app.MapHub<PollHub>("/hubs/poll");
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.Run();

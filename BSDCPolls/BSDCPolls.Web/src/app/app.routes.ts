@@ -8,11 +8,22 @@ export const routes: Routes = [
       import('./features/auth/auth.routes').then((m) => m.authRoutes),
   },
   {
+    path: 'polls',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./features/polls/poll.routes').then((m) => m.pollRoutes),
+  },
+  {
+    path: 'surveys',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./features/surveys/survey.routes').then((m) => m.surveyRoutes),
+  },
+  {
     path: 'feed',
     canActivate: [authGuard],
-    // Placeholder — replaced in Phase 4 when FeedComponent is implemented
-    loadComponent: () =>
-      import('./app.component').then((m) => m.AppComponent),
+    loadChildren: () =>
+      import('./features/feed/feed.routes').then((m) => m.feedRoutes),
   },
   {
     path: '',

@@ -91,6 +91,531 @@
         },
         "security": [{ "Bearer": [] }]
       }
+    },
+    "/api/polls": {
+      "get": {
+        "tags": ["Polls"],
+        "operationId": "Polls_GetFeed",
+        "parameters": [
+          { "name": "status", "in": "query", "schema": { "$ref": "#/components/schemas/PollStatus" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "pageSize", "in": "query", "schema": { "type": "integer", "default": 20 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PollFeedResponse" }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        },
+        "security": [{ "Bearer": [] }]
+      },
+      "post": {
+        "tags": ["Polls"],
+        "operationId": "Polls_Create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreatePollRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PollDetailResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad Request" },
+          "401": { "description": "Unauthorized" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    },
+    "/api/polls/{pollUid}": {
+      "get": {
+        "tags": ["Polls"],
+        "operationId": "Polls_GetByUid",
+        "parameters": [
+          { "name": "pollUid", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PollDetailResponse" }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    },
+    "/api/polls/{pollUid}/status": {
+      "patch": {
+        "tags": ["Polls"],
+        "operationId": "Polls_ChangeStatus",
+        "parameters": [
+          { "name": "pollUid", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ChangePollStatusRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PollDetailResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad Request" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    },
+    "/api/polls/{pollUid}/questions": {
+      "post": {
+        "tags": ["Polls"],
+        "operationId": "Polls_AddQuestion",
+        "parameters": [
+          { "name": "pollUid", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AddPollQuestionRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PollQuestionResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad Request" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    },
+    "/api/polls/{pollUid}/questions/{questionUid}/push": {
+      "post": {
+        "tags": ["Polls"],
+        "operationId": "Polls_PushQuestion",
+        "parameters": [
+          { "name": "pollUid", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+          { "name": "questionUid", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PollQuestionResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad Request" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    },
+    "/api/surveys": {
+      "get": {
+        "tags": ["Surveys"],
+        "operationId": "Surveys_GetFeed",
+        "parameters": [
+          { "name": "status", "in": "query", "schema": { "$ref": "#/components/schemas/SurveyStatus" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "pageSize", "in": "query", "schema": { "type": "integer", "default": 20 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SurveyFeedResponse" }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        },
+        "security": [{ "Bearer": [] }]
+      },
+      "post": {
+        "tags": ["Surveys"],
+        "operationId": "Surveys_Create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateSurveyRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SurveyDetailResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad Request" },
+          "401": { "description": "Unauthorized" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    },
+    "/api/surveys/{surveyUid}": {
+      "get": {
+        "tags": ["Surveys"],
+        "operationId": "Surveys_GetByUid",
+        "parameters": [
+          { "name": "surveyUid", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SurveyDetailResponse" }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    },
+    "/api/surveys/{surveyUid}/status": {
+      "patch": {
+        "tags": ["Surveys"],
+        "operationId": "Surveys_ChangeStatus",
+        "parameters": [
+          { "name": "surveyUid", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ChangeSurveyStatusRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SurveyDetailResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad Request" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    },
+    "/api/surveys/{surveyUid}/questions": {
+      "put": {
+        "tags": ["Surveys"],
+        "operationId": "Surveys_UpdateQuestions",
+        "parameters": [
+          { "name": "surveyUid", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateSurveyQuestionsRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SurveyDetailResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad Request" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    },
+    "/api/surveys/{surveyUid}/responses": {
+      "post": {
+        "tags": ["Surveys"],
+        "operationId": "Surveys_SaveResponse",
+        "parameters": [
+          { "name": "surveyUid", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SaveSurveyResponseRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SurveyResponseStatusResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad Request" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "409": { "description": "Conflict" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    },
+    "/api/surveys/{surveyUid}/responses/{responseUid}/documents": {
+      "post": {
+        "tags": ["Surveys"],
+        "operationId": "Surveys_UploadDocument",
+        "parameters": [
+          { "name": "surveyUid", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+          { "name": "responseUid", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["file", "questionUid"],
+                "properties": {
+                  "file": { "type": "string", "format": "binary" },
+                  "questionUid": { "type": "string", "format": "uuid" }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SurveyDocumentResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad Request" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    },
+    "/api/surveys/{surveyUid}/results": {
+      "get": {
+        "tags": ["Surveys"],
+        "operationId": "Surveys_GetResults",
+        "parameters": [
+          { "name": "surveyUid", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SurveyResultsResponse" }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    },
+    "/api/polls/{pollUid}/invitations": {
+      "post": {
+        "tags": ["Invitations"],
+        "operationId": "Invitations_CreatePollInvitation",
+        "parameters": [
+          { "name": "pollUid", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateInvitationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InvitationResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad Request" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    },
+    "/api/surveys/{surveyUid}/invitations": {
+      "post": {
+        "tags": ["Invitations"],
+        "operationId": "Invitations_CreateSurveyInvitation",
+        "parameters": [
+          { "name": "surveyUid", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateInvitationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InvitationResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad Request" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    },
+    "/api/notifications": {
+      "get": {
+        "tags": ["Notifications"],
+        "operationId": "Notifications_GetNotifications",
+        "parameters": [
+          { "name": "unreadOnly", "in": "query", "schema": { "type": "boolean", "default": false } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "pageSize", "in": "query", "schema": { "type": "integer", "default": 20 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/NotificationListResponse" }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    },
+    "/api/notifications/{notificationUid}/read": {
+      "patch": {
+        "tags": ["Notifications"],
+        "operationId": "Notifications_MarkRead",
+        "parameters": [
+          { "name": "notificationUid", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/NotificationReadResponse" }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    },
+    "/api/notifications/read-all": {
+      "patch": {
+        "tags": ["Notifications"],
+        "operationId": "Notifications_MarkAllRead",
+        "responses": {
+          "204": { "description": "No Content" },
+          "401": { "description": "Unauthorized" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    },
+    "/api/polls/{pollUid}/results": {
+      "get": {
+        "tags": ["Polls"],
+        "operationId": "Polls_GetResults",
+        "parameters": [
+          { "name": "pollUid", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PollResultsResponse" }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
     }
   },
   "components": {
@@ -142,6 +667,415 @@
         "required": ["newUsername"],
         "properties": {
           "newUsername": { "type": "string" }
+        }
+      },
+      "PollStatus": {
+        "type": "string",
+        "enum": ["Draft", "Active", "Closed"]
+      },
+      "CreatePollRequest": {
+        "type": "object",
+        "required": ["title", "isPublic"],
+        "properties": {
+          "title": { "type": "string", "maxLength": 200 },
+          "isPublic": { "type": "boolean" }
+        }
+      },
+      "ChangePollStatusRequest": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": { "$ref": "#/components/schemas/PollStatus" }
+        }
+      },
+      "AnswerOptionInput": {
+        "type": "object",
+        "required": ["text", "orderIndex"],
+        "properties": {
+          "text": { "type": "string", "maxLength": 200 },
+          "orderIndex": { "type": "integer" }
+        }
+      },
+      "AddPollQuestionRequest": {
+        "type": "object",
+        "required": ["text", "options", "pushImmediately"],
+        "properties": {
+          "text": { "type": "string", "maxLength": 500 },
+          "options": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/AnswerOptionInput" },
+            "minItems": 2,
+            "maxItems": 10
+          },
+          "pushImmediately": { "type": "boolean" }
+        }
+      },
+      "PollAnswerOptionResponse": {
+        "type": "object",
+        "required": ["optionUid", "text", "orderIndex"],
+        "properties": {
+          "optionUid": { "type": "string", "format": "uuid" },
+          "text": { "type": "string" },
+          "orderIndex": { "type": "integer" }
+        }
+      },
+      "PollQuestionResponse": {
+        "type": "object",
+        "required": ["questionUid", "text", "orderIndex", "options"],
+        "properties": {
+          "questionUid": { "type": "string", "format": "uuid" },
+          "text": { "type": "string" },
+          "orderIndex": { "type": "integer" },
+          "pushedAt": { "type": "string", "format": "date-time", "nullable": true },
+          "options": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PollAnswerOptionResponse" }
+          }
+        }
+      },
+      "PollDetailResponse": {
+        "type": "object",
+        "required": ["pollUid", "title", "isPublic", "status", "createdOn", "isCreator", "questions"],
+        "properties": {
+          "pollUid": { "type": "string", "format": "uuid" },
+          "title": { "type": "string" },
+          "isPublic": { "type": "boolean" },
+          "status": { "$ref": "#/components/schemas/PollStatus" },
+          "createdOn": { "type": "string", "format": "date-time" },
+          "isCreator": { "type": "boolean" },
+          "questions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PollQuestionResponse" }
+          }
+        }
+      },
+      "PollFeedItem": {
+        "type": "object",
+        "required": ["pollUid", "title", "isPublic", "status", "creatorUsername", "questionCount", "createdOn"],
+        "properties": {
+          "pollUid": { "type": "string", "format": "uuid" },
+          "title": { "type": "string" },
+          "isPublic": { "type": "boolean" },
+          "status": { "$ref": "#/components/schemas/PollStatus" },
+          "creatorUsername": { "type": "string" },
+          "questionCount": { "type": "integer" },
+          "createdOn": { "type": "string", "format": "date-time" },
+          "invitedAt": { "type": "string", "format": "date-time", "nullable": true }
+        }
+      },
+      "PollFeedResponse": {
+        "type": "object",
+        "required": ["items", "totalCount", "page", "pageSize"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PollFeedItem" }
+          },
+          "totalCount": { "type": "integer" },
+          "page": { "type": "integer" },
+          "pageSize": { "type": "integer" }
+        }
+      },
+      "PollResultsOptionResponse": {
+        "type": "object",
+        "required": ["optionUid", "text", "voteCount", "percentage"],
+        "properties": {
+          "optionUid": { "type": "string", "format": "uuid" },
+          "text": { "type": "string" },
+          "voteCount": { "type": "integer" },
+          "percentage": { "type": "number" }
+        }
+      },
+      "PollResultsQuestionResponse": {
+        "type": "object",
+        "required": ["questionUid", "text", "totalVotes", "options"],
+        "properties": {
+          "questionUid": { "type": "string", "format": "uuid" },
+          "text": { "type": "string" },
+          "pushedAt": { "type": "string", "format": "date-time", "nullable": true },
+          "totalVotes": { "type": "integer" },
+          "options": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PollResultsOptionResponse" }
+          }
+        }
+      },
+      "SurveyStatus": {
+        "type": "string",
+        "enum": ["Draft", "Published", "Closed"]
+      },
+      "SurveyAnswerType": {
+        "type": "string",
+        "enum": ["MultipleChoice", "ShortText", "LongText", "DocumentUpload"]
+      },
+      "SurveyChoiceOption": {
+        "type": "object",
+        "required": ["uid", "text"],
+        "properties": {
+          "uid": { "type": "string", "format": "uuid" },
+          "text": { "type": "string" }
+        }
+      },
+      "SurveyConditionalBranch": {
+        "type": "object",
+        "required": ["parentChoiceUid", "questions"],
+        "properties": {
+          "parentChoiceUid": { "type": "string", "format": "uuid" },
+          "questions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SurveyQuestionNode" }
+          }
+        }
+      },
+      "SurveyQuestionNode": {
+        "type": "object",
+        "required": ["uid", "text", "answerType", "isRequired"],
+        "properties": {
+          "uid": { "type": "string", "format": "uuid" },
+          "text": { "type": "string" },
+          "answerType": { "$ref": "#/components/schemas/SurveyAnswerType" },
+          "isRequired": { "type": "boolean" },
+          "choices": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SurveyChoiceOption" },
+            "nullable": true
+          },
+          "branches": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SurveyConditionalBranch" },
+            "nullable": true
+          }
+        }
+      },
+      "SurveyQuestionTreeDocument": {
+        "type": "object",
+        "required": ["questions"],
+        "properties": {
+          "questions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SurveyQuestionNode" }
+          }
+        }
+      },
+      "SurveyAnswerEntry": {
+        "type": "object",
+        "required": ["questionUid", "answerType"],
+        "properties": {
+          "questionUid": { "type": "string", "format": "uuid" },
+          "answerType": { "$ref": "#/components/schemas/SurveyAnswerType" },
+          "selectedChoiceUid": { "type": "string", "format": "uuid", "nullable": true },
+          "textValue": { "type": "string", "nullable": true },
+          "documentUid": { "type": "string", "format": "uuid", "nullable": true }
+        }
+      },
+      "CreateSurveyRequest": {
+        "type": "object",
+        "required": ["title", "isPublic", "questionTree"],
+        "properties": {
+          "title": { "type": "string", "maxLength": 200 },
+          "isPublic": { "type": "boolean" },
+          "questionTree": { "$ref": "#/components/schemas/SurveyQuestionTreeDocument" }
+        }
+      },
+      "UpdateSurveyQuestionsRequest": {
+        "type": "object",
+        "required": ["questionTree"],
+        "properties": {
+          "questionTree": { "$ref": "#/components/schemas/SurveyQuestionTreeDocument" }
+        }
+      },
+      "ChangeSurveyStatusRequest": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": { "$ref": "#/components/schemas/SurveyStatus" }
+        }
+      },
+      "SaveSurveyResponseRequest": {
+        "type": "object",
+        "required": ["answers", "isSubmitting"],
+        "properties": {
+          "answers": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SurveyAnswerEntry" }
+          },
+          "isSubmitting": { "type": "boolean" }
+        }
+      },
+      "SurveyDetailResponse": {
+        "type": "object",
+        "required": ["surveyUid", "title", "isPublic", "status", "questionTree", "createdOn", "isCreator"],
+        "properties": {
+          "surveyUid": { "type": "string", "format": "uuid" },
+          "title": { "type": "string" },
+          "isPublic": { "type": "boolean" },
+          "status": { "$ref": "#/components/schemas/SurveyStatus" },
+          "questionTree": { "$ref": "#/components/schemas/SurveyQuestionTreeDocument" },
+          "createdOn": { "type": "string", "format": "date-time" },
+          "isCreator": { "type": "boolean" }
+        }
+      },
+      "SurveyFeedItem": {
+        "type": "object",
+        "required": ["surveyUid", "title", "isPublic", "status", "creatorUsername", "questionCount", "createdOn"],
+        "properties": {
+          "surveyUid": { "type": "string", "format": "uuid" },
+          "title": { "type": "string" },
+          "isPublic": { "type": "boolean" },
+          "status": { "$ref": "#/components/schemas/SurveyStatus" },
+          "creatorUsername": { "type": "string" },
+          "questionCount": { "type": "integer" },
+          "createdOn": { "type": "string", "format": "date-time" },
+          "invitedAt": { "type": "string", "format": "date-time", "nullable": true }
+        }
+      },
+      "SurveyFeedResponse": {
+        "type": "object",
+        "required": ["items", "totalCount", "page", "pageSize"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SurveyFeedItem" }
+          },
+          "totalCount": { "type": "integer" },
+          "page": { "type": "integer" },
+          "pageSize": { "type": "integer" }
+        }
+      },
+      "SurveyResponseStatusResponse": {
+        "type": "object",
+        "required": ["responseUid", "isComplete"],
+        "properties": {
+          "responseUid": { "type": "string", "format": "uuid" },
+          "isComplete": { "type": "boolean" },
+          "submittedAt": { "type": "string", "format": "date-time", "nullable": true }
+        }
+      },
+      "SurveyDocumentResponse": {
+        "type": "object",
+        "required": ["documentUid", "fileName", "fileSizeBytes"],
+        "properties": {
+          "documentUid": { "type": "string", "format": "uuid" },
+          "fileName": { "type": "string" },
+          "fileSizeBytes": { "type": "integer", "format": "int64" }
+        }
+      },
+      "SurveyChoiceTally": {
+        "type": "object",
+        "required": ["choiceUid", "text", "count"],
+        "properties": {
+          "choiceUid": { "type": "string", "format": "uuid" },
+          "text": { "type": "string" },
+          "count": { "type": "integer" }
+        }
+      },
+      "SurveyQuestionSummary": {
+        "type": "object",
+        "required": ["questionUid", "text", "answerType", "responseCount", "choiceTallies", "textAnswers", "documentCount"],
+        "properties": {
+          "questionUid": { "type": "string", "format": "uuid" },
+          "text": { "type": "string" },
+          "answerType": { "$ref": "#/components/schemas/SurveyAnswerType" },
+          "responseCount": { "type": "integer" },
+          "choiceTallies": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SurveyChoiceTally" }
+          },
+          "textAnswers": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "documentCount": { "type": "integer" }
+        }
+      },
+      "SurveyResultsResponse": {
+        "type": "object",
+        "required": ["surveyUid", "title", "status", "totalResponses", "completeResponses", "questionSummaries"],
+        "properties": {
+          "surveyUid": { "type": "string", "format": "uuid" },
+          "title": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/SurveyStatus" },
+          "totalResponses": { "type": "integer" },
+          "completeResponses": { "type": "integer" },
+          "questionSummaries": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SurveyQuestionSummary" }
+          }
+        }
+      },
+      "PollResultsResponse": {
+        "type": "object",
+        "required": ["pollUid", "title", "status", "questions"],
+        "properties": {
+          "pollUid": { "type": "string", "format": "uuid" },
+          "title": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/PollStatus" },
+          "questions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PollResultsQuestionResponse" }
+          }
+        }
+      },
+      "CreateInvitationRequest": {
+        "type": "object",
+        "required": ["targetUsername"],
+        "properties": {
+          "targetUsername": { "type": "string", "maxLength": 60 }
+        }
+      },
+      "InvitationResponse": {
+        "type": "object",
+        "required": ["invitationUid", "targetUsername", "targetUserUid", "createdOn"],
+        "properties": {
+          "invitationUid": { "type": "string", "format": "uuid" },
+          "targetUsername": { "type": "string" },
+          "targetUserUid": { "type": "string", "format": "uuid" },
+          "createdOn": { "type": "string", "format": "date-time" }
+        }
+      },
+      "NotificationInvitationDetail": {
+        "type": "object",
+        "required": ["invitationUid", "inviterUsername"],
+        "properties": {
+          "invitationUid": { "type": "string", "format": "uuid" },
+          "inviterUsername": { "type": "string" },
+          "pollUid": { "type": "string", "format": "uuid", "nullable": true },
+          "pollTitle": { "type": "string", "nullable": true },
+          "surveyUid": { "type": "string", "format": "uuid", "nullable": true },
+          "surveyTitle": { "type": "string", "nullable": true }
+        }
+      },
+      "NotificationItem": {
+        "type": "object",
+        "required": ["notificationUid", "isRead", "createdOn", "invitation"],
+        "properties": {
+          "notificationUid": { "type": "string", "format": "uuid" },
+          "isRead": { "type": "boolean" },
+          "createdOn": { "type": "string", "format": "date-time" },
+          "invitation": { "$ref": "#/components/schemas/NotificationInvitationDetail" }
+        }
+      },
+      "NotificationListResponse": {
+        "type": "object",
+        "required": ["unreadCount", "items", "totalCount", "page", "pageSize"],
+        "properties": {
+          "unreadCount": { "type": "integer" },
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/NotificationItem" }
+          },
+          "totalCount": { "type": "integer" },
+          "page": { "type": "integer" },
+          "pageSize": { "type": "integer" }
+        }
+      },
+      "NotificationReadResponse": {
+        "type": "object",
+        "required": ["notificationUid", "isRead", "readAt"],
+        "properties": {
+          "notificationUid": { "type": "string", "format": "uuid" },
+          "isRead": { "type": "boolean" },
+          "readAt": { "type": "string", "format": "date-time" }
         }
       }
     },

@@ -1,0 +1,34 @@
+<h2 mat-dialog-title>Invite User</h2>
+
+<mat-dialog-content>
+  @if (errorMessage) {
+    <p>{{ errorMessage }}</p>
+  }
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <mat-form-field appearance="outline">
+      <mat-label>Username</mat-label>
+      <input matInput formControlName="targetUsername" autocomplete="off" />
+      @if (form.get('targetUsername')?.hasError('required')) {
+        <mat-error>Username is required.</mat-error>
+      }
+      @if (form.get('targetUsername')?.hasError('maxlength')) {
+        <mat-error>Username must be 60 characters or fewer.</mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button
+    mat-raised-button
+    color="primary"
+    [disabled]="form.invalid || isSubmitting"
+    (click)="submit()">
+    @if (isSubmitting) {
+      <mat-spinner diameter="20"></mat-spinner>
+    } @else {
+      Send Invite
+    }
+  </button>
+</mat-dialog-actions>

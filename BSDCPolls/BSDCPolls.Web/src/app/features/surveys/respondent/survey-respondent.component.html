@@ -1,0 +1,65 @@
+@if (surveyStore.survey(); as survey) {
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ survey.title }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if (currentQuestion; as question) {
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>{{ question.text }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            @if (question.answerType === SurveyAnswerType.MultipleChoice) {
+              <mat-radio-group [(ngModel)]="selectedChoiceUid">
+                @for (choice of question.choices ?? []; track choice.uid) {
+                  <mat-radio-button [value]="choice.uid">{{ choice.text }}</mat-radio-button>
+                }
+              </mat-radio-group>
+            } @else if (question.answerType === SurveyAnswerType.ShortText) {
+              <mat-form-field appearance="outline">
+                <mat-label>Your answer</mat-label>
+                <input matInput [(ngModel)]="textValue" />
+              </mat-form-field>
+            } @else if (question.answerType === SurveyAnswerType.LongText) {
+              <mat-form-field appearance="outline">
+                <mat-label>Your answer</mat-label>
+                <textarea matInput [(ngModel)]="textValue" rows="4"></textarea>
+              </mat-form-field>
+            } @else if (question.answerType === SurveyAnswerType.DocumentUpload) {
+              <input type="file" accept=".pdf" (change)="onFileSelected($event)" />
+              @if (uploadError) {
+                <p>{{ uploadError }}</p>
+              }
+            }
+          </mat-card-content>
+          <mat-card-actions>
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="advanceOrSubmit()"
+              [disabled]="surveyStore.isSubmitting()"
+            >
+              @if (surveyStore.isSubmitting()) {
+                <mat-spinner diameter="20"></mat-spinner>
+              } @else if (isLastQuestion) {
+                Submit
+              } @else {
+                Next
+              }
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      } @else {
+        <p>No questions available.</p>
+      }
+      @if (surveyStore.error()) {
+        <p>{{ surveyStore.error() }}</p>
+      }
+    </mat-card-content>
+  </mat-card>
+} @else if (surveyStore.error()) {
+  <p>{{ surveyStore.error() }}</p>
+} @else {
+  <mat-spinner></mat-spinner>
+}

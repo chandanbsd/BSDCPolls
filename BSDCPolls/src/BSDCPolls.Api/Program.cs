@@ -1,5 +1,9 @@
 using System.Text;
 using BSDCPolls.Api.Business.Auth;
+using BSDCPolls.Api.Business.Invitations;
+using BSDCPolls.Api.Business.Notifications;
+using BSDCPolls.Api.Business.Polls;
+using BSDCPolls.Api.Business.Surveys;
 using BSDCPolls.Api.Business.UsernameGeneration;
 using BSDCPolls.Api.Data;
 using BSDCPolls.Api.Data.Infrastructure;
@@ -77,10 +81,21 @@ builder.Services.AddAuthorization();
 // ── Repositories ─────────────────────────────────────────────────────────────
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUsernameHistoryRepository, UsernameHistoryRepository>();
+builder.Services.AddScoped<IPollRepository, PollRepository>();
+builder.Services.AddScoped<IPollSubmissionRepository, PollSubmissionRepository>();
+builder.Services.AddScoped<ISurveyRepository, SurveyRepository>();
+builder.Services.AddScoped<ISurveyResponseRepository, SurveyResponseRepository>();
+builder.Services.AddScoped<ISurveyDocumentRepository, SurveyDocumentRepository>();
+builder.Services.AddScoped<IInvitationRepository, InvitationRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
 // ── Business services ─────────────────────────────────────────────────────────
 builder.Services.AddSingleton<IUsernameGenerator, UsernameGeneratorService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IPollService, PollService>();
+builder.Services.AddScoped<ISurveyService, SurveyService>();
+builder.Services.AddScoped<IInvitationService, InvitationService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 // ── GoTrue HttpClient ─────────────────────────────────────────────────────────
 var goTrueUrl = builder.Configuration["GoTrue__Url"]
@@ -89,6 +104,15 @@ var goTrueUrl = builder.Configuration["GoTrue__Url"]
 builder.Services.AddHttpClient("GoTrue", client =>
 {
     client.BaseAddress = new Uri(goTrueUrl);
+});
+
+// ── BFF internal HttpClient (for SignalR notification push) ───────────────────
+var bffInternalUrl = builder.Configuration["Bff__InternalUrl"]
+    ?? "http://localhost:5000";
+
+builder.Services.AddHttpClient("BffInternal", client =>
+{
+    client.BaseAddress = new Uri(bffInternalUrl);
 });
 
 // ── FluentValidation ──────────────────────────────────────────────────────────

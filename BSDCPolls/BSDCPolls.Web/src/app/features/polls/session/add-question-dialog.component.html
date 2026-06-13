@@ -1,0 +1,60 @@
+<h2 mat-dialog-title>Add Question</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" id="add-question-form" (ngSubmit)="onSubmit()">
+    <mat-form-field appearance="outline">
+      <mat-label>Question Text</mat-label>
+      <textarea matInput formControlName="text" rows="3" maxlength="500"></textarea>
+      @if (form.get('text')?.hasError('required')) {
+        <mat-error>Question text is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <div formArrayName="options">
+      @for (ctrl of options.controls; track $index) {
+        <div>
+          <mat-form-field appearance="outline">
+            <mat-label>Option {{ $index + 1 }}</mat-label>
+            <input matInput [formControlName]="$index" maxlength="200" />
+          </mat-form-field>
+          @if (options.length > 2) {
+            <button mat-icon-button type="button" (click)="removeOption($index)">
+              <mat-icon>remove_circle</mat-icon>
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    @if (options.length < 10) {
+      <button mat-button type="button" (click)="addOption()">
+        <mat-icon>add</mat-icon> Add Option
+      </button>
+    }
+
+    <div>
+      <mat-checkbox formControlName="pushImmediately">Push immediately</mat-checkbox>
+    </div>
+
+    @if (error) {
+      <p>{{ error }}</p>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button
+    mat-raised-button
+    color="primary"
+    form="add-question-form"
+    type="submit"
+    [disabled]="form.invalid || isLoading"
+  >
+    @if (isLoading) {
+      <mat-spinner diameter="20"></mat-spinner>
+    } @else {
+      Add Question
+    }
+  </button>
+</mat-dialog-actions>

@@ -64,11 +64,14 @@ var api = builder
     .WaitForCompletion(migrationWorker);
 
 // ── BFF (internet-facing) ─────────────────────────────────────────────────────
-builder
+var bff = builder
     .AddProject<Projects.BSDCPolls_BFF>("bsdcpolls-bff")
     .WithReference(api)
     .WithEnvironment("InternalApi__Url", api.GetEndpoint("http"))
     .WithEnvironment("Otlp__Endpoint", sigNozOtlpEndpoint)
     .WaitForCompletion(migrationWorker);
+
+// Allow the internal API to push SignalR notifications via the BFF's internal endpoint.
+api.WithEnvironment("Bff__InternalUrl", bff.GetEndpoint("http"));
 
 builder.Build().Run();
