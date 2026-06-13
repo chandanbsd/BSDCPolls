@@ -29,7 +29,8 @@ public sealed class SurveysController : ControllerBase
         [FromQuery] SurveyStatus? status,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
         var token = ExtractBearerToken();
         if (token is null)
@@ -46,7 +47,10 @@ public sealed class SurveysController : ControllerBase
     [ProducesResponseType(typeof(SurveyDetailResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Create([FromBody] CreateSurveyRequest request, CancellationToken ct)
+    public async Task<IActionResult> Create(
+        [FromBody] CreateSurveyRequest request,
+        CancellationToken ct
+    )
     {
         var token = ExtractBearerToken();
         if (token is null)
@@ -85,7 +89,8 @@ public sealed class SurveysController : ControllerBase
     public async Task<IActionResult> ChangeStatus(
         Guid surveyUid,
         [FromBody] ChangeSurveyStatusRequest request,
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
         var token = ExtractBearerToken();
         if (token is null)
@@ -106,7 +111,8 @@ public sealed class SurveysController : ControllerBase
     public async Task<IActionResult> UpdateQuestions(
         Guid surveyUid,
         [FromBody] UpdateSurveyQuestionsRequest request,
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
         var token = ExtractBearerToken();
         if (token is null)
@@ -128,7 +134,8 @@ public sealed class SurveysController : ControllerBase
     public async Task<IActionResult> SaveResponse(
         Guid surveyUid,
         [FromBody] SaveSurveyResponseRequest request,
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
         var token = ExtractBearerToken();
         if (token is null)
@@ -151,7 +158,8 @@ public sealed class SurveysController : ControllerBase
         Guid responseUid,
         [FromForm] IFormFile file,
         [FromForm] Guid questionUid,
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
         var token = ExtractBearerToken();
         if (token is null)
@@ -180,7 +188,8 @@ public sealed class SurveysController : ControllerBase
             file.Length,
             questionUid,
             token,
-            ct);
+            ct
+        );
 
         return Created(string.Empty, result);
     }
@@ -206,7 +215,10 @@ public sealed class SurveysController : ControllerBase
     {
         var authHeader = HttpContext.Request.Headers.Authorization.ToString();
 
-        if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        if (
+            string.IsNullOrEmpty(authHeader)
+            || !authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+        )
         {
             return null;
         }

@@ -24,11 +24,15 @@ public sealed class UsernameGeneratorService : IUsernameGenerator
         _nouns = LoadEmbeddedLines(assembly, "nouns.txt");
         _profanity = new HashSet<string>(
             LoadEmbeddedLines(assembly, "profanity.txt"),
-            StringComparer.OrdinalIgnoreCase);
+            StringComparer.OrdinalIgnoreCase
+        );
     }
 
     /// <inheritdoc />
-    public async Task<string> GenerateAsync(Func<string, Task<bool>> existsAsync, CancellationToken ct = default)
+    public async Task<string> GenerateAsync(
+        Func<string, Task<bool>> existsAsync,
+        CancellationToken ct = default
+    )
     {
         for (var attempt = 0; attempt < MaxRetries; attempt++)
         {
@@ -46,8 +50,9 @@ public sealed class UsernameGeneratorService : IUsernameGenerator
         }
 
         throw new InvalidOperationException(
-            $"Username generation failed after {MaxRetries} attempts. " +
-            "This is extremely unlikely — check word list sizes and uniqueness constraints.");
+            $"Username generation failed after {MaxRetries} attempts. "
+                + "This is extremely unlikely — check word list sizes and uniqueness constraints."
+        );
     }
 
     private string BuildCandidate()
@@ -63,17 +68,23 @@ public sealed class UsernameGeneratorService : IUsernameGenerator
 
     private static string[] LoadEmbeddedLines(Assembly assembly, string fileName)
     {
-        var resourceName = assembly
-            .GetManifestResourceNames()
-            .FirstOrDefault(n => n.EndsWith(fileName, StringComparison.OrdinalIgnoreCase))
+        var resourceName =
+            assembly
+                .GetManifestResourceNames()
+                .FirstOrDefault(n => n.EndsWith(fileName, StringComparison.OrdinalIgnoreCase))
             ?? throw new InvalidOperationException(
-                $"Embedded resource '{fileName}' not found in {assembly.GetName().Name}.");
+                $"Embedded resource '{fileName}' not found in {assembly.GetName().Name}."
+            );
 
-        using var stream = assembly.GetManifestResourceStream(resourceName)
-            ?? throw new InvalidOperationException($"Could not open embedded resource '{resourceName}'.");
+        using var stream =
+            assembly.GetManifestResourceStream(resourceName)
+            ?? throw new InvalidOperationException(
+                $"Could not open embedded resource '{resourceName}'."
+            );
 
         using var reader = new StreamReader(stream);
-        return reader.ReadToEnd()
+        return reader
+            .ReadToEnd()
             .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Where(line => !line.StartsWith('#'))
             .ToArray();

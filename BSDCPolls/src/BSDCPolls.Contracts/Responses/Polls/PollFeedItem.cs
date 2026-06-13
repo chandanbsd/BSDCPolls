@@ -19,4 +19,5 @@ public sealed record PollFeedItem(
     string CreatorUsername,
     int QuestionCount,
     DateTime CreatedOn,
-    DateTime? InvitedAt);
+    DateTime? InvitedAt
+);

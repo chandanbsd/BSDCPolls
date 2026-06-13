@@ -16,9 +16,7 @@
           </mat-form-field>
           <mat-slide-toggle formControlName="isPublic">Public survey</mat-slide-toggle>
           <div>
-            <button mat-raised-button color="primary" matStepperNext [disabled]="metaForm.invalid">
-              Next
-            </button>
+            <button mat-raised-button color="primary" matStepperNext [disabled]="metaForm.invalid">Next</button>
           </div>
         </form>
       </mat-step>
@@ -62,7 +60,8 @@
                       }
                     </mat-chip-grid>
                     <button mat-stroked-button (click)="addChoice($index)">
-                      <mat-icon>add</mat-icon> Add Choice
+                      <mat-icon>add</mat-icon>
+                      Add Choice
                     </button>
                   </div>
                 }
@@ -75,13 +74,23 @@
           }
 
           <button mat-stroked-button (click)="addQuestion()">
-            <mat-icon>add</mat-icon> Add Question
+            <mat-icon>add</mat-icon>
+            Add Question
           </button>
 
           <div>
             <button mat-button matStepperPrevious>Back</button>
-            <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="isLoading || questionsForm.invalid || questions.length === 0">
-              @if (isLoading) { <mat-spinner diameter="20"></mat-spinner> } @else { Create Survey }
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="onSubmit()"
+              [disabled]="isLoading || questionsForm.invalid || questions.length === 0"
+            >
+              @if (isLoading) {
+                <mat-spinner diameter="20"></mat-spinner>
+              } @else {
+                Create Survey
+              }
             </button>
           </div>
 

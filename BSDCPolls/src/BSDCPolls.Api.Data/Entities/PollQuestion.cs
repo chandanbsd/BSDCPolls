@@ -28,15 +28,15 @@ public class PollQuestion : AuditableEntity
     public DateTime? PushedAt { get; private set; }
 
     /// <summary>Answer choices for this question.</summary>
-    public virtual ICollection<PollAnswerOption> AnswerOptions { get; private set; } = new List<PollAnswerOption>();
+    public virtual ICollection<PollAnswerOption> AnswerOptions { get; private set; } =
+        new List<PollAnswerOption>();
 
     /// <summary>Participant submissions for this question.</summary>
-    public virtual ICollection<PollSubmission> Submissions { get; private set; } = new List<PollSubmission>();
+    public virtual ICollection<PollSubmission> Submissions { get; private set; } =
+        new List<PollSubmission>();
 
     /// <summary>EF Core proxy constructor.</summary>
-    protected PollQuestion()
-    {
-    }
+    protected PollQuestion() { }
 
     private PollQuestion(int pollId, string text, int orderIndex)
     {

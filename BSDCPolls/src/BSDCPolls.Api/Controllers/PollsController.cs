@@ -33,7 +33,8 @@ public sealed class PollsController : ControllerBase
         [FromQuery] PollStatus? status,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
         var user = await GetCurrentUserAsync(ct);
         if (user is null)
@@ -41,7 +42,14 @@ public sealed class PollsController : ControllerBase
             return Unauthorized();
         }
 
-        var result = await _pollService.GetFeedAsync(user.Id, showPublic: true, status, page, pageSize, ct);
+        var result = await _pollService.GetFeedAsync(
+            user.Id,
+            showPublic: true,
+            status,
+            page,
+            pageSize,
+            ct
+        );
         return Ok(result);
     }
 
@@ -50,7 +58,10 @@ public sealed class PollsController : ControllerBase
     [ProducesResponseType(typeof(PollDetailResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Create([FromBody] CreatePollRequest request, CancellationToken ct)
+    public async Task<IActionResult> Create(
+        [FromBody] CreatePollRequest request,
+        CancellationToken ct
+    )
     {
         var user = await GetCurrentUserAsync(ct);
         if (user is null)
@@ -89,7 +100,8 @@ public sealed class PollsController : ControllerBase
     public async Task<IActionResult> ChangeStatus(
         Guid pollUid,
         [FromBody] ChangePollStatusRequest request,
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
         var user = await GetCurrentUserAsync(ct);
         if (user is null)
@@ -110,7 +122,8 @@ public sealed class PollsController : ControllerBase
     public async Task<IActionResult> AddQuestion(
         Guid pollUid,
         [FromBody] AddPollQuestionRequest request,
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
         var user = await GetCurrentUserAsync(ct);
         if (user is null)
@@ -128,7 +141,11 @@ public sealed class PollsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> PushQuestion(Guid pollUid, Guid questionUid, CancellationToken ct)
+    public async Task<IActionResult> PushQuestion(
+        Guid pollUid,
+        Guid questionUid,
+        CancellationToken ct
+    )
     {
         var user = await GetCurrentUserAsync(ct);
         if (user is null)
@@ -150,7 +167,8 @@ public sealed class PollsController : ControllerBase
     public async Task<IActionResult> SubmitVote(
         Guid pollUid,
         [FromBody] SubmitPollVoteRequest request,
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
         var user = await GetCurrentUserAsync(ct);
         if (user is null)
@@ -179,7 +197,9 @@ public sealed class PollsController : ControllerBase
         return Ok(result);
     }
 
-    private async Task<BSDCPolls.Api.Data.Entities.ApplicationUser?> GetCurrentUserAsync(CancellationToken ct)
+    private async Task<BSDCPolls.Api.Data.Entities.ApplicationUser?> GetCurrentUserAsync(
+        CancellationToken ct
+    )
     {
         var supabaseUserId = User.FindFirstValue("email");
         if (string.IsNullOrEmpty(supabaseUserId))

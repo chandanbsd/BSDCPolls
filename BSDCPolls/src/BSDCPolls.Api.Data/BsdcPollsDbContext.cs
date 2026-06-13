@@ -16,9 +16,7 @@ public class BsdcPollsDbContext : DbContext
     /// <summary>Initialises a new instance with the given options.</summary>
     /// <param name="options">DbContext configuration options.</param>
     public BsdcPollsDbContext(DbContextOptions<BsdcPollsDbContext> options)
-        : base(options)
-    {
-    }
+        : base(options) { }
 
     /// <summary>All registered users (no PII — username + Supabase sub only).</summary>
     public DbSet<ApplicationUser> ApplicationUsers => Set<ApplicationUser>();
@@ -142,8 +140,7 @@ public class BsdcPollsDbContext : DbContext
             e.HasIndex(p => p.Uid).IsUnique();
             e.HasIndex(p => p.UserId).IsUnique();
 
-            e.Property(p => p.InvitePermission)
-                .HasConversion<int>();
+            e.Property(p => p.InvitePermission).HasConversion<int>();
 
             e.HasOne(p => p.User)
                 .WithOne()
@@ -200,10 +197,14 @@ public class BsdcPollsDbContext : DbContext
             e.ToTable("polls");
             e.HasKey(p => p.Id);
             e.HasIndex(p => p.Uid).IsUnique();
-            e.HasIndex(p => new { p.CreatorId, p.Status, p.IsPublic });
+            e.HasIndex(p => new
+            {
+                p.CreatorId,
+                p.Status,
+                p.IsPublic,
+            });
 
-            e.Property(p => p.Status)
-                .HasConversion<int>();
+            e.Property(p => p.Status).HasConversion<int>();
 
             e.HasOne(p => p.Creator)
                 .WithMany()
@@ -316,10 +317,14 @@ public class BsdcPollsDbContext : DbContext
             e.ToTable("surveys");
             e.HasKey(s => s.Id);
             e.HasIndex(s => s.Uid).IsUnique();
-            e.HasIndex(s => new { s.CreatorId, s.Status, s.IsPublic });
+            e.HasIndex(s => new
+            {
+                s.CreatorId,
+                s.Status,
+                s.IsPublic,
+            });
 
-            e.Property(s => s.Status)
-                .HasConversion<int>();
+            e.Property(s => s.Status).HasConversion<int>();
 
             e.Property(s => s.QuestionTree)
                 .HasConversion(new SurveyQuestionTreeConverter())
@@ -411,8 +416,7 @@ public class BsdcPollsDbContext : DbContext
             e.HasIndex(i => i.Uid).IsUnique();
             e.HasIndex(i => new { i.InviteeId, i.Status });
 
-            e.Property(i => i.Status)
-                .HasConversion<int>();
+            e.Property(i => i.Status).HasConversion<int>();
 
             e.HasOne(i => i.Inviter)
                 .WithMany()
@@ -484,11 +488,9 @@ public class BsdcPollsDbContext : DbContext
             e.ToTable("audit_logs");
             e.HasKey(a => a.Id);
 
-            e.Property(a => a.Id)
-                .ValueGeneratedOnAdd();
+            e.Property(a => a.Id).ValueGeneratedOnAdd();
 
-            e.Property(a => a.Payload)
-                .HasColumnType("jsonb");
+            e.Property(a => a.Payload).HasColumnType("jsonb");
 
             e.HasOne(a => a.PerformedBy)
                 .WithMany()
@@ -504,17 +506,21 @@ public class BsdcPollsDbContext : DbContext
         var sentinelUid = new Guid("00000000-0000-0000-0000-000000000001");
         var epoch = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        modelBuilder.Entity<ApplicationUser>().HasData(new
-        {
-            Id = 1,
-            Uid = sentinelUid,
-            Username = "system",
-            SupabaseUserId = "SYSTEM",
-            IsActive = false,
-            CreatedOn = epoch,
-            CreatedById = 1,
-            UpdatedOn = epoch,
-            UpdatedById = 1,
-        });
+        modelBuilder
+            .Entity<ApplicationUser>()
+            .HasData(
+                new
+                {
+                    Id = 1,
+                    Uid = sentinelUid,
+                    Username = "system",
+                    SupabaseUserId = "SYSTEM",
+                    IsActive = false,
+                    CreatedOn = epoch,
+                    CreatedById = 1,
+                    UpdatedOn = epoch,
+                    UpdatedById = 1,
+                }
+            );
     }
 }

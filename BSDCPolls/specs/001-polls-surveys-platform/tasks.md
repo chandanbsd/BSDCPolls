@@ -272,15 +272,15 @@ bell with real-time invitation delivery. Invite controls on polls and surveys.
 
 ### Contracts
 
-- [ ] T116 Create `src/BSDCPolls.Contracts/Requests/Invitations/CreateInvitationRequest.cs` + `CreateInvitationRequestValidator.cs`: `TargetUsername` string; `[Required][MaxLength(60)]`; XML docs
-- [ ] T117 [P] Create `src/BSDCPolls.Contracts/Responses/Notifications/`: `InvitationResponse.cs`, `NotificationListResponse.cs`, `NotificationItem.cs`, `NotificationReadResponse.cs`, `InvitationReceivedPayload.cs` (SignalR payload) — all `sealed record`; XML docs
+- [X] T116 Create `src/BSDCPolls.Contracts/Requests/Invitations/CreateInvitationRequest.cs` + `CreateInvitationRequestValidator.cs`: `TargetUsername` string; `[Required][MaxLength(60)]`; XML docs
+- [X] T117 [P] Create `src/BSDCPolls.Contracts/Responses/Notifications/`: `InvitationResponse.cs`, `NotificationListResponse.cs`, `NotificationItem.cs`, `NotificationReadResponse.cs`, `InvitationReceivedPayload.cs` (SignalR payload) — all `sealed record`; XML docs
 
 ### Api.Data — Invitation & Notification Entities
 
-- [ ] T118 Create `src/BSDCPolls.Api.Data/Entities/Invitation.cs`: extends AuditableEntity; `int InviterId`, `virtual ApplicationUser Inviter`; `int InviteeId`, `virtual ApplicationUser Invitee`; `int? PollId`, `virtual Poll? Poll`; `int? SurveyId`, `virtual Survey? Survey`; `InvitationStatus Status`; static `Create(int inviterId, int inviteeId, int? pollId, int? surveyId)` factory with validation that exactly one of pollId/surveyId is non-null; `MarkViewed(int updatedById)` instance method; XML docs
-- [ ] T119 [P] Create `src/BSDCPolls.Api.Data/Entities/Notification.cs`: extends AuditableEntity; `int RecipientId`, `virtual ApplicationUser Recipient`; `int InvitationId`, `virtual Invitation Invitation`; `bool IsRead`; `DateTime? ReadAt`; static `Create` factory; `MarkRead(int updatedById)` instance method; XML docs
-- [ ] T120 Update `src/BSDCPolls.Api.Data/BsdcPollsDbContext.cs`: add `DbSet` for Invitation and Notification; Fluent API config (unique index on notifications for recipient+invitation pair; composite index on invitations for inviteeId+status; nullable FK for PollId/SurveyId)
-- [ ] T121 Create EF Core migration for invitation/notification tables: `dotnet ef migrations add AddInvitationNotificationEntities --startup-project ../BSDCPolls.MigrationWorker`
+- [X] T118 Create `src/BSDCPolls.Api.Data/Entities/Invitation.cs`: extends AuditableEntity; `int InviterId`, `virtual ApplicationUser Inviter`; `int InviteeId`, `virtual ApplicationUser Invitee`; `int? PollId`, `virtual Poll? Poll`; `int? SurveyId`, `virtual Survey? Survey`; `InvitationStatus Status`; static `Create(int inviterId, int inviteeId, int? pollId, int? surveyId)` factory with validation that exactly one of pollId/surveyId is non-null; `MarkViewed(int updatedById)` instance method; XML docs
+- [X] T119 [P] Create `src/BSDCPolls.Api.Data/Entities/Notification.cs`: extends AuditableEntity; `int RecipientId`, `virtual ApplicationUser Recipient`; `int InvitationId`, `virtual Invitation Invitation`; `bool IsRead`; `DateTime? ReadAt`; static `Create` factory; `MarkRead(int updatedById)` instance method; XML docs
+- [X] T120 Update `src/BSDCPolls.Api.Data/BsdcPollsDbContext.cs`: add `DbSet` for Invitation and Notification; Fluent API config (unique index on notifications for recipient+invitation pair; composite index on invitations for inviteeId+status; nullable FK for PollId/SurveyId)
+- [X] T121 Create EF Core migration for invitation/notification tables: `dotnet ef migrations add AddInvitationNotificationEntities --startup-project ../BSDCPolls.MigrationWorker`
 - [X] T122 Create `src/BSDCPolls.Api.Data/Repositories/IInvitationRepository.cs` and `InvitationRepository.cs`: `CreateAsync`, `GetByUidAsync`, `IsDuplicateAsync(int inviteeId, int? pollId, int? surveyId)`, `GetForPollAsync(Guid pollUid, int inviteeId)`, `GetForSurveyAsync(Guid surveyUid, int inviteeId)`; XML docs
 - [X] T123 [P] Create `src/BSDCPolls.Api.Data/Repositories/INotificationRepository.cs` and `NotificationRepository.cs`: `CreateAsync`, `GetByRecipientAsync(int recipientId, bool unreadOnly, int page, int pageSize)`, `GetUnreadCountAsync(int recipientId)`, `MarkReadAsync(Guid notificationUid, int recipientId)`, `MarkAllReadAsync(int recipientId)`; XML docs
 
@@ -327,31 +327,31 @@ bell with real-time invitation delivery. Invite controls on polls and surveys.
 
 ### Contracts
 
-- [ ] T142 Create `src/BSDCPolls.Contracts/Requests/Privacy/UpdatePrivacySettingsRequest.cs` + `UpdatePrivacySettingsRequestValidator.cs` and `AddAllowlistEntryRequest.cs` + `AddAllowlistEntryRequestValidator.cs`; `src/BSDCPolls.Contracts/Responses/Users/PrivacySettingsResponse.cs`, `AllowlistEntryResponse.cs`, `UsernameChangeResponse.cs`, `UserProfileResponse.cs` — all `sealed record`; XML docs
+- [X] T142 Create `src/BSDCPolls.Contracts/Requests/Privacy/UpdatePrivacySettingsRequest.cs` + `UpdatePrivacySettingsRequestValidator.cs` and `AddAllowlistEntryRequest.cs` + `AddAllowlistEntryRequestValidator.cs`; `src/BSDCPolls.Contracts/Responses/Users/PrivacySettingsResponse.cs`, `AllowlistEntryResponse.cs`, `UsernameChangeResponse.cs`, `UserProfileResponse.cs` — all `sealed record`; XML docs
 
 ### Api.Business — Privacy Service
 
-- [ ] T143 Create `src/BSDCPolls.Api.Business/Privacy/IPrivacyService.cs` and `PrivacyService.cs`: `GetSettingsAsync(int userId)`, `UpdateSettingsAsync(int userId, UpdatePrivacySettingsRequest)`, `AddAllowlistEntryAsync(int ownerId, string targetUsername)` — validates target username exists before adding; `RemoveAllowlistEntryAsync(int ownerId, Guid allowedUserUid)`; uses `IUserRepository` for username→user lookup; registered as `AddScoped<IPrivacyService, PrivacyService>`; XML docs
+- [X] T143 Create `src/BSDCPolls.Api.Business/Privacy/IPrivacyService.cs` and `PrivacyService.cs`: `GetSettingsAsync(int userId)`, `UpdateSettingsAsync(int userId, UpdatePrivacySettingsRequest)`, `AddAllowlistEntryAsync(int ownerId, string targetUsername)` — validates target username exists before adding; `RemoveAllowlistEntryAsync(int ownerId, Guid allowedUserUid)`; uses `IUserRepository` for username→user lookup; registered as `AddScoped<IPrivacyService, PrivacyService>`; XML docs
 
 ### Api.Data — Privacy Repositories Update
 
-- [ ] T144 Create `src/BSDCPolls.Api.Data/Repositories/IPrivacySettingsRepository.cs` and `PrivacySettingsRepository.cs`: `GetByUserIdAsync`, `UpdateAsync`, `GetAllowlistAsync`, `AddAllowlistEntryAsync`, `RemoveAllowlistEntryAsync`; XML docs
-- [ ] T145 Update `src/BSDCPolls.Api.Data/BsdcPollsDbContext.cs`: verify `UserPrivacySettings` and `InviteAllowlistEntry` are properly configured with unique indexes and FK relationships if not already done in Phase 2
+- [X] T144 Create `src/BSDCPolls.Api.Data/Repositories/IPrivacySettingsRepository.cs` and `PrivacySettingsRepository.cs`: `GetByUserIdAsync`, `UpdateAsync`, `GetAllowlistAsync`, `AddAllowlistEntryAsync`, `RemoveAllowlistEntryAsync`; XML docs
+- [X] T145 Update `src/BSDCPolls.Api.Data/BsdcPollsDbContext.cs`: verify `UserPrivacySettings` and `InviteAllowlistEntry` are properly configured with unique indexes and FK relationships if not already done in Phase 2
 
 ### Api — Privacy & User Controllers
 
-- [ ] T146 Create `src/BSDCPolls.Api/Controllers/PrivacyController.cs` and update `UsersController.cs`: expose privacy endpoints per api-endpoints.md (`GET/PUT /api/internal/users/me/privacy`, `POST/DELETE /api/internal/users/me/privacy/allowlist`); delegates to `IPrivacyService`; XML docs
+- [X] T146 Create `src/BSDCPolls.Api/Controllers/PrivacyController.cs` and update `UsersController.cs`: expose privacy endpoints per api-endpoints.md (`GET/PUT /api/internal/users/me/privacy`, `POST/DELETE /api/internal/users/me/privacy/allowlist`); delegates to `IPrivacyService`; XML docs
 
 ### BFF — Privacy Forwarding
 
-- [ ] T147 Create `src/BSDCPolls.BFF.Business/Privacy/IBffPrivacyService.cs` and `BffPrivacyService.cs`: forwards all privacy and user profile endpoints to backend API; XML docs
-- [ ] T148 Update `src/BSDCPolls.BFF/Controllers/UsersController.cs`: add all privacy endpoints from api-endpoints.md delegating to `IBffPrivacyService`; XML docs
+- [X] T147 Create `src/BSDCPolls.BFF.Business/Privacy/IBffPrivacyService.cs` and `BffPrivacyService.cs`: forwards all privacy and user profile endpoints to backend API; XML docs
+- [X] T148 Update `src/BSDCPolls.BFF/Controllers/UsersController.cs`: add all privacy endpoints from api-endpoints.md delegating to `IBffPrivacyService`; XML docs
 
 ### Angular — Profile Feature
 
-- [ ] T149 Create `BSDCPolls.Web/src/app/features/profile/profile.routes.ts`: lazy route `/profile` → `ProfileComponent`
-- [ ] T150 Create `BSDCPolls.Web/src/app/features/profile/profile.component.ts` and `.html`: Angular Material `<mat-card>` sections: (1) username display + "Change Username" button that calls `POST /api/users/me/username/change` and shows new username in `<mat-dialog>`; (2) `<mat-slide-toggle>` for "Show Public Content"; (3) `<mat-radio-group>` for invite permission (Everyone/Nobody/Selected Users); (4) allowlist management — `<mat-form-field>` to enter username + validation call to BFF, `<mat-chip-grid>` displaying current allowlist entries with remove button; all changes persist immediately via API calls; ZERO custom CSS; JSDoc
-- [ ] T151 Update `BSDCPolls.Web/src/app/app.component.ts`: clicking user avatar/initials in `<mat-toolbar>` navigates to `/profile`; update `app.routes.ts` to include profile lazy route
+- [X] T149 Create `BSDCPolls.Web/src/app/features/profile/profile.routes.ts`: lazy route `/profile` → `ProfileComponent`
+- [X] T150 Create `BSDCPolls.Web/src/app/features/profile/profile.component.ts` and `.html`: Angular Material `<mat-card>` sections: (1) username display + "Change Username" button that calls `POST /api/users/me/username/change` and shows new username in `<mat-dialog>`; (2) `<mat-slide-toggle>` for "Show Public Content"; (3) `<mat-radio-group>` for invite permission (Everyone/Nobody/Selected Users); (4) allowlist management — `<mat-form-field>` to enter username + validation call to BFF, `<mat-chip-grid>` displaying current allowlist entries with remove button; all changes persist immediately via API calls; ZERO custom CSS; JSDoc
+- [X] T151 Update `BSDCPolls.Web/src/app/app.component.ts`: clicking user avatar/initials in `<mat-toolbar>` navigates to `/profile`; update `app.routes.ts` to include profile lazy route
 
 **Checkpoint**: Quickstart Scenario 5 (profile section) passes. All privacy controls work. `ng lint --max-warnings 0` passes.
 
@@ -361,17 +361,17 @@ bell with real-time invitation delivery. Invite controls on polls and surveys.
 
 **Purpose**: Observability verification, NSwag regeneration, code quality gates, and final end-to-end validation.
 
-- [ ] T152 Add BFF client error logging endpoint: create `src/BSDCPolls.BFF/Controllers/ClientErrorsController.cs` `[AllowAnonymous]` `POST /api/client-errors` that receives `{ message, stack, route }` and logs at `Error` level via `ILogger` with structured fields; this is the endpoint used by Angular's `GlobalErrorHandler`; XML docs
-- [ ] T153 [P] Add XML documentation comments to all remaining public/internal .NET APIs that were missed — run `dotnet build 2>&1 | grep "CS1591"` to find missing docs and add them; run `dotnet build` to confirm zero warnings
-- [ ] T154 [P] Add JSDoc comments to all exported Angular services, components, and store features that are missing them; run `ng lint --max-warnings 0` to confirm zero linting warnings
-- [ ] T155 [P] Run CSharpier formatting: `dotnet csharpier .` from repo root to format all C# files; confirm `dotnet csharpier --check .` exits with code 0
-- [ ] T156 [P] Run Prettier formatting: `cd BSDCPolls.Web && npx prettier --write .`; confirm `npx prettier --check .` exits with code 0
-- [ ] T157 Regenerate NSwag TypeScript: `cd BSDCPolls.Web && npm run generate-api`; commit updated `src/app/generated/api.ts`; verify Angular compiles with zero TypeScript errors after regeneration
-- [ ] T158 [P] Verify bundle discipline: run `ng build --stats-json` and inspect `stats.json` for unexpected bundle size regressions; confirm all 6 feature modules appear as lazy-loaded chunks
-- [ ] T159 [P] Verify no test files exist anywhere: `find . -name "*.spec.ts" -o -name "*Tests.csproj" -o -name "*Test.csproj"` must return empty
-- [ ] T160 [P] Verify Principle XV compliance: `grep -r "xunit\|jest\|jasmine\|karma\|NUnit\|MSTest\|@testing-library\|playwright" --include="*.csproj" --include="*.json" .` must return no matches
+- [X] T152 Add BFF client error logging endpoint: create `src/BSDCPolls.BFF/Controllers/ClientErrorsController.cs` `[AllowAnonymous]` `POST /api/client-errors` that receives `{ message, stack, route }` and logs at `Error` level via `ILogger` with structured fields; this is the endpoint used by Angular's `GlobalErrorHandler`; XML docs
+- [X] T153 [P] Add XML documentation comments to all remaining public/internal .NET APIs that were missed — run `dotnet build 2>&1 | grep "CS1591"` to find missing docs and add them; run `dotnet build` to confirm zero warnings
+- [X] T154 [P] Add JSDoc comments to all exported Angular services, components, and store features that are missing them; run `ng lint --max-warnings 0` to confirm zero linting warnings
+- [X] T155 [P] Run CSharpier formatting: `dotnet csharpier .` from repo root to format all C# files; confirm `dotnet csharpier --check .` exits with code 0
+- [X] T156 [P] Run Prettier formatting: `cd BSDCPolls.Web && npx prettier --write .`; confirm `npx prettier --check .` exits with code 0
+- [X] T157 Regenerate NSwag TypeScript: `cd BSDCPolls.Web && npm run generate-api`; commit updated `src/app/generated/api.ts`; verify Angular compiles with zero TypeScript errors after regeneration
+- [X] T158 [P] Verify bundle discipline: run `ng build --stats-json` and inspect `stats.json` for unexpected bundle size regressions; confirm all 6 feature modules appear as lazy-loaded chunks
+- [X] T159 [P] Verify no test files exist anywhere: `find . -name "*.spec.ts" -o -name "*Tests.csproj" -o -name "*Test.csproj"` must return empty
+- [X] T160 [P] Verify Principle XV compliance: `grep -r "xunit\|jest\|jasmine\|karma\|NUnit\|MSTest\|@testing-library\|playwright" --include="*.csproj" --include="*.json" .` must return no matches
 - [ ] T161 Run full Aspire stack and execute all 8 Quickstart scenarios from `quickstart.md` — document any failures for resolution
-- [ ] T162 [P] Update `specs/001-polls-surveys-platform/checklists/requirements.md`: verify all 12 checklist items remain passing post-implementation; add implementation completion note with date
+- [X] T162 [P] Update `specs/001-polls-surveys-platform/checklists/requirements.md`: verify all 12 checklist items remain passing post-implementation; add implementation completion note with date
 
 ---
 

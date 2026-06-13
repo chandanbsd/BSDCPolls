@@ -1,8 +1,4 @@
-import {
-  HubConnection,
-  HubConnectionBuilder,
-  LogLevel,
-} from '@microsoft/signalr';
+import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { AuthStore } from '../store/auth.store';
 
 /**

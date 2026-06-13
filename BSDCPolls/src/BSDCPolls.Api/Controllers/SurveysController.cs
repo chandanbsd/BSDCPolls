@@ -33,7 +33,8 @@ public sealed class SurveysController : ControllerBase
         [FromQuery] SurveyStatus? status,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
         var user = await GetCurrentUserAsync(ct);
         if (user is null)
@@ -41,7 +42,14 @@ public sealed class SurveysController : ControllerBase
             return Unauthorized();
         }
 
-        var result = await _surveyService.GetFeedAsync(user.Id, showPublic: true, status, page, pageSize, ct);
+        var result = await _surveyService.GetFeedAsync(
+            user.Id,
+            showPublic: true,
+            status,
+            page,
+            pageSize,
+            ct
+        );
         return Ok(result);
     }
 
@@ -50,7 +58,10 @@ public sealed class SurveysController : ControllerBase
     [ProducesResponseType(typeof(SurveyDetailResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Create([FromBody] CreateSurveyRequest request, CancellationToken ct)
+    public async Task<IActionResult> Create(
+        [FromBody] CreateSurveyRequest request,
+        CancellationToken ct
+    )
     {
         var user = await GetCurrentUserAsync(ct);
         if (user is null)
@@ -89,7 +100,8 @@ public sealed class SurveysController : ControllerBase
     public async Task<IActionResult> ChangeStatus(
         Guid surveyUid,
         [FromBody] ChangeSurveyStatusRequest request,
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
         var user = await GetCurrentUserAsync(ct);
         if (user is null)
@@ -110,7 +122,8 @@ public sealed class SurveysController : ControllerBase
     public async Task<IActionResult> UpdateQuestions(
         Guid surveyUid,
         [FromBody] UpdateSurveyQuestionsRequest request,
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
         var user = await GetCurrentUserAsync(ct);
         if (user is null)
@@ -133,7 +146,8 @@ public sealed class SurveysController : ControllerBase
     public async Task<IActionResult> SaveResponse(
         Guid surveyUid,
         [FromBody] SaveSurveyResponseRequest request,
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
         var user = await GetCurrentUserAsync(ct);
         if (user is null)
@@ -156,7 +170,8 @@ public sealed class SurveysController : ControllerBase
         Guid responseUid,
         [FromForm] IFormFile file,
         [FromForm] Guid questionUid,
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
         var user = await GetCurrentUserAsync(ct);
         if (user is null)
@@ -184,7 +199,8 @@ public sealed class SurveysController : ControllerBase
             file.Length,
             questionUid,
             user.Id,
-            ct);
+            ct
+        );
 
         return Created(string.Empty, result);
     }
@@ -206,7 +222,9 @@ public sealed class SurveysController : ControllerBase
         return Ok(result);
     }
 
-    private async Task<BSDCPolls.Api.Data.Entities.ApplicationUser?> GetCurrentUserAsync(CancellationToken ct)
+    private async Task<BSDCPolls.Api.Data.Entities.ApplicationUser?> GetCurrentUserAsync(
+        CancellationToken ct
+    )
     {
         var supabaseUserId = User.FindFirstValue("email");
         if (string.IsNullOrEmpty(supabaseUserId))

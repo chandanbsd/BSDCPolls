@@ -13,7 +13,8 @@ public interface IInvitationService
         Guid pollUid,
         string targetUsername,
         int inviterId,
-        CancellationToken ct = default);
+        CancellationToken ct = default
+    );
 
     /// <summary>
     /// Creates an invitation to a survey for <paramref name="targetUsername"/> on behalf of <paramref name="inviterId"/>.
@@ -23,5 +24,6 @@ public interface IInvitationService
         Guid surveyUid,
         string targetUsername,
         int inviterId,
-        CancellationToken ct = default);
+        CancellationToken ct = default
+    );
 }

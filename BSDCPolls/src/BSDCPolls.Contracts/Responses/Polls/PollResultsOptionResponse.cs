@@ -9,4 +9,5 @@ public sealed record PollResultsOptionResponse(
     Guid OptionUid,
     string Text,
     int VoteCount,
-    decimal Percentage);
+    decimal Percentage
+);

@@ -12,9 +12,6 @@ const initialState: AuthState = {
   username: null,
 };
 
-export const AuthStore = signalStore(
-  { providedIn: 'root' },
-  withState(initialState),
-);
+export const AuthStore = signalStore({ providedIn: 'root' }, withState(initialState));
 
 export type AuthStore = InstanceType<typeof AuthStore>;

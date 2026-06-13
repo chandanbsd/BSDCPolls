@@ -10,4 +10,5 @@ namespace BSDCPolls.Contracts.Requests.Surveys;
 public sealed record CreateSurveyRequest(
     [Required] [MaxLength(200)] string Title,
     bool IsPublic,
-    [Required] SurveyQuestionTreeDocument QuestionTree);
+    [Required] SurveyQuestionTreeDocument QuestionTree
+);

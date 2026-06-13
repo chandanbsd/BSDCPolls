@@ -14,7 +14,9 @@ interface UsernameDialogData {
     <h2 mat-dialog-title>Your username</h2>
     <mat-dialog-content>
       <p>Your unique username has been generated:</p>
-      <p><strong>{{ data.username }}</strong></p>
+      <p>
+        <strong>{{ data.username }}</strong>
+      </p>
       <p>Save this — you will need it to log in. It cannot be recovered if lost.</p>
     </mat-dialog-content>
     <mat-dialog-actions align="end">

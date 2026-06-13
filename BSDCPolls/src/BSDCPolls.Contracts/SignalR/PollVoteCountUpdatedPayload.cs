@@ -9,4 +9,5 @@ namespace BSDCPolls.Contracts.SignalR;
 public sealed record PollVoteCountUpdatedPayload(
     Guid PollUid,
     Guid QuestionUid,
-    IReadOnlyList<PollResultsOptionResponse> Options);
+    IReadOnlyList<PollResultsOptionResponse> Options
+);

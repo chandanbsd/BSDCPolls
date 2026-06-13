@@ -13,4 +13,5 @@ public sealed record NotificationInvitationDetail(
     Guid? PollUid,
     string? PollTitle,
     Guid? SurveyUid,
-    string? SurveyTitle);
+    string? SurveyTitle
+);

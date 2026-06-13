@@ -9,4 +9,5 @@ namespace BSDCPolls.Contracts.Responses.Users;
 public sealed record PrivacySettingsResponse(
     bool ShowPublicContent,
     InvitePermission InvitePermission,
-    IReadOnlyList<AllowlistEntryResponse> Allowlist);
+    IReadOnlyList<AllowlistEntryResponse> Allowlist
+);

@@ -6,7 +6,10 @@ namespace BSDCPolls.Api.Data.Repositories;
 public interface IUserRepository
 {
     /// <summary>Returns the user whose <see cref="ApplicationUser.SupabaseUserId"/> matches <paramref name="supabaseUserId"/>, or <c>null</c>.</summary>
-    Task<ApplicationUser?> GetBySupabaseIdAsync(string supabaseUserId, CancellationToken ct = default);
+    Task<ApplicationUser?> GetBySupabaseIdAsync(
+        string supabaseUserId,
+        CancellationToken ct = default
+    );
 
     /// <summary>Returns the user with the given <paramref name="username"/>, or <c>null</c>.</summary>
     Task<ApplicationUser?> GetByUsernameAsync(string username, CancellationToken ct = default);

@@ -13,5 +13,8 @@ public interface IUsernameGenerator
     /// <param name="ct">Cancellation token.</param>
     /// <returns>A unique, safe username string.</returns>
     /// <exception cref="InvalidOperationException">Thrown when all retry attempts are exhausted.</exception>
-    Task<string> GenerateAsync(Func<string, Task<bool>> existsAsync, CancellationToken ct = default);
+    Task<string> GenerateAsync(
+        Func<string, Task<bool>> existsAsync,
+        CancellationToken ct = default
+    );
 }

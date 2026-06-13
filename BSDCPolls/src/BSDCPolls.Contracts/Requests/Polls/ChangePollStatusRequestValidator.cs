@@ -12,6 +12,8 @@ public sealed class ChangePollStatusRequestValidator : AbstractValidator<ChangeP
         RuleFor(x => x.Status)
             .IsInEnum()
             .Must(s => s == PollStatus.Active || s == PollStatus.Closed)
-            .WithMessage("Status must be Active or Closed (Draft is the initial state; use create endpoint).");
+            .WithMessage(
+                "Status must be Active or Closed (Draft is the initial state; use create endpoint)."
+            );
     }
 }

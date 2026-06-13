@@ -17,7 +17,8 @@ public interface IUsernameHistoryRepository
         string username,
         int userId,
         int days,
-        CancellationToken ct = default);
+        CancellationToken ct = default
+    );
 
     /// <summary>
     /// Returns the count of username changes made by <paramref name="userId"/> within

@@ -1,27 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
   <ItemGroup>
     <ProjectReference Include="..\BSDCPolls.Api.Business\BSDCPolls.Api.Business.csproj" />
     <ProjectReference Include="..\BSDCPolls.Api.Data\BSDCPolls.Api.Data.csproj" />
     <ProjectReference Include="..\BSDCPolls.Contracts\BSDCPolls.Contracts.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.*" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.*" />
     <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.16.0" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.16.0" />
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.2" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.10.0-beta.1" />
+    <PackageReference
+      Include="OpenTelemetry.Instrumentation.EntityFrameworkCore"
+      Version="1.10.0-beta.1"
+    />
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
   </ItemGroup>
-
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
 </Project>

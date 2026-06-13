@@ -11,4 +11,5 @@ public sealed record PollResultsResponse(
     Guid PollUid,
     string Title,
     PollStatus Status,
-    IReadOnlyList<PollResultsQuestionResponse> Questions);
+    IReadOnlyList<PollResultsQuestionResponse> Questions
+);

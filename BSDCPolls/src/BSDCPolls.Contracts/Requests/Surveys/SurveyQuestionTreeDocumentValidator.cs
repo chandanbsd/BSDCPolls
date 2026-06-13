@@ -4,7 +4,8 @@ using FluentValidation;
 namespace BSDCPolls.Contracts.Requests.Surveys;
 
 /// <summary>Validates a <see cref="SurveyQuestionTreeDocument"/> including each top-level node.</summary>
-public sealed class SurveyQuestionTreeDocumentValidator : AbstractValidator<SurveyQuestionTreeDocument>
+public sealed class SurveyQuestionTreeDocumentValidator
+    : AbstractValidator<SurveyQuestionTreeDocument>
 {
     /// <summary>Initializes all validation rules.</summary>
     public SurveyQuestionTreeDocumentValidator()

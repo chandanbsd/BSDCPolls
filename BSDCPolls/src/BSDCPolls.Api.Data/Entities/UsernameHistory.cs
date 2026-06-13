@@ -23,9 +23,7 @@ public class UsernameHistory : AuditableEntity
     public DateTime RetiredAt { get; private set; }
 
     /// <summary>EF Core proxy constructor.</summary>
-    protected UsernameHistory()
-    {
-    }
+    protected UsernameHistory() { }
 
     private UsernameHistory(int userId, string username, DateTime retiredAt)
     {

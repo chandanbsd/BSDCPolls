@@ -18,8 +18,10 @@ public class TraceIdMiddleware
     /// <summary>Invokes the middleware pipeline.</summary>
     public async Task InvokeAsync(HttpContext context)
     {
-        if (context.Request.Headers.TryGetValue("traceparent", out var traceparent)
-            && !string.IsNullOrWhiteSpace(traceparent))
+        if (
+            context.Request.Headers.TryGetValue("traceparent", out var traceparent)
+            && !string.IsNullOrWhiteSpace(traceparent)
+        )
         {
             context.TraceIdentifier = traceparent.ToString();
         }

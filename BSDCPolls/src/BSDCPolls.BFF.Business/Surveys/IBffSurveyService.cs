@@ -8,22 +8,51 @@ namespace BSDCPolls.BFF.Business.Surveys;
 public interface IBffSurveyService
 {
     /// <summary>Forwards a create-survey request to the internal API.</summary>
-    Task<SurveyDetailResponse> CreateAsync(CreateSurveyRequest request, string bearerToken, CancellationToken ct = default);
+    Task<SurveyDetailResponse> CreateAsync(
+        CreateSurveyRequest request,
+        string bearerToken,
+        CancellationToken ct = default
+    );
 
     /// <summary>Forwards a get-survey-by-uid request to the internal API.</summary>
-    Task<SurveyDetailResponse> GetByUidAsync(Guid surveyUid, string bearerToken, CancellationToken ct = default);
+    Task<SurveyDetailResponse> GetByUidAsync(
+        Guid surveyUid,
+        string bearerToken,
+        CancellationToken ct = default
+    );
 
     /// <summary>Forwards a get-survey-feed request to the internal API.</summary>
-    Task<SurveyFeedResponse> GetFeedAsync(SurveyStatus? status, int page, int pageSize, string bearerToken, CancellationToken ct = default);
+    Task<SurveyFeedResponse> GetFeedAsync(
+        SurveyStatus? status,
+        int page,
+        int pageSize,
+        string bearerToken,
+        CancellationToken ct = default
+    );
 
     /// <summary>Forwards a change-status request to the internal API.</summary>
-    Task<SurveyDetailResponse> ChangeStatusAsync(Guid surveyUid, ChangeSurveyStatusRequest request, string bearerToken, CancellationToken ct = default);
+    Task<SurveyDetailResponse> ChangeStatusAsync(
+        Guid surveyUid,
+        ChangeSurveyStatusRequest request,
+        string bearerToken,
+        CancellationToken ct = default
+    );
 
     /// <summary>Forwards an update-questions request to the internal API.</summary>
-    Task<SurveyDetailResponse> UpdateQuestionsAsync(Guid surveyUid, UpdateSurveyQuestionsRequest request, string bearerToken, CancellationToken ct = default);
+    Task<SurveyDetailResponse> UpdateQuestionsAsync(
+        Guid surveyUid,
+        UpdateSurveyQuestionsRequest request,
+        string bearerToken,
+        CancellationToken ct = default
+    );
 
     /// <summary>Forwards a save-response request to the internal API.</summary>
-    Task<SurveyResponseStatusResponse> SaveResponseAsync(Guid surveyUid, SaveSurveyResponseRequest request, string bearerToken, CancellationToken ct = default);
+    Task<SurveyResponseStatusResponse> SaveResponseAsync(
+        Guid surveyUid,
+        SaveSurveyResponseRequest request,
+        string bearerToken,
+        CancellationToken ct = default
+    );
 
     /// <summary>
     /// Forwards a document upload to the internal API using multipart/form-data.
@@ -37,8 +66,13 @@ public interface IBffSurveyService
         long fileSize,
         Guid questionUid,
         string bearerToken,
-        CancellationToken ct = default);
+        CancellationToken ct = default
+    );
 
     /// <summary>Forwards a get-results request to the internal API.</summary>
-    Task<SurveyResultsResponse> GetResultsAsync(Guid surveyUid, string bearerToken, CancellationToken ct = default);
+    Task<SurveyResultsResponse> GetResultsAsync(
+        Guid surveyUid,
+        string bearerToken,
+        CancellationToken ct = default
+    );
 }

@@ -9,4 +9,5 @@ public sealed record NotificationItem(
     Guid NotificationUid,
     bool IsRead,
     DateTime CreatedOn,
-    NotificationInvitationDetail Invitation);
+    NotificationInvitationDetail Invitation
+);

@@ -6,10 +6,20 @@ namespace BSDCPolls.BFF.Business.Notifications;
 public interface IBffNotificationService
 {
     /// <summary>Returns a paginated list of notifications for the current user.</summary>
-    Task<NotificationListResponse> GetNotificationsAsync(bool unreadOnly, int page, int pageSize, string bearerToken, CancellationToken ct = default);
+    Task<NotificationListResponse> GetNotificationsAsync(
+        bool unreadOnly,
+        int page,
+        int pageSize,
+        string bearerToken,
+        CancellationToken ct = default
+    );
 
     /// <summary>Marks a specific notification as read.</summary>
-    Task<NotificationReadResponse> MarkReadAsync(Guid notificationUid, string bearerToken, CancellationToken ct = default);
+    Task<NotificationReadResponse> MarkReadAsync(
+        Guid notificationUid,
+        string bearerToken,
+        CancellationToken ct = default
+    );
 
     /// <summary>Marks all notifications as read for the current user.</summary>
     Task MarkAllReadAsync(string bearerToken, CancellationToken ct = default);

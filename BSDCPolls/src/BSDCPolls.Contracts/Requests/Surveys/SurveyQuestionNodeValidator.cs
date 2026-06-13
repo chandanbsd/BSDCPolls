@@ -16,31 +16,37 @@ public sealed class SurveyQuestionNodeValidator : AbstractValidator<SurveyQuesti
         RuleFor(x => x.Choices)
             .Must(
                 (node, choices) =>
-                    node.AnswerType != SurveyAnswerType.MultipleChoice ||
-                    (choices != null && choices.Count >= 2))
+                    node.AnswerType != SurveyAnswerType.MultipleChoice
+                    || (choices != null && choices.Count >= 2)
+            )
             .WithMessage("Multiple-choice questions must have at least 2 choices.");
 
         RuleFor(x => x.Choices)
             .Must(
                 (node, choices) =>
-                    node.AnswerType == SurveyAnswerType.MultipleChoice ||
-                    choices == null ||
-                    choices.Count == 0)
+                    node.AnswerType == SurveyAnswerType.MultipleChoice
+                    || choices == null
+                    || choices.Count == 0
+            )
             .WithMessage("Non-multiple-choice questions must not define answer choices.");
 
         RuleFor(x => x.Branches)
             .Must(
                 (node, branches) =>
-                    node.AnswerType != SurveyAnswerType.DocumentUpload ||
-                    branches == null ||
-                    branches.Count == 0)
+                    node.AnswerType != SurveyAnswerType.DocumentUpload
+                    || branches == null
+                    || branches.Count == 0
+            )
             .WithMessage("Document-upload questions may not have conditional branches.");
 
-        RuleForEach(x => x.Branches).ChildRules(branch =>
-        {
-            branch.RuleFor(b => b.ParentChoiceUid).NotEmpty();
-            branch.RuleFor(b => b.Questions).NotNull().NotEmpty();
-            branch.RuleForEach(b => b.Questions).SetValidator(new SurveyQuestionNodeValidator());
-        });
+        RuleForEach(x => x.Branches)
+            .ChildRules(branch =>
+            {
+                branch.RuleFor(b => b.ParentChoiceUid).NotEmpty();
+                branch.RuleFor(b => b.Questions).NotNull().NotEmpty();
+                branch
+                    .RuleForEach(b => b.Questions)
+                    .SetValidator(new SurveyQuestionNodeValidator());
+            });
     }
 }

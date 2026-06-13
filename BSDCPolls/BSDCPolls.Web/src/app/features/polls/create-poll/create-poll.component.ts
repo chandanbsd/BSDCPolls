@@ -43,9 +43,7 @@ export class CreatePollComponent {
     this.isLoading = true;
     this.error = null;
     try {
-      const poll = await firstValueFrom(
-        this.apiClient.polls_Create(this.form.getRawValue()),
-      );
+      const poll = await firstValueFrom(this.apiClient.polls_Create(this.form.getRawValue()));
       await this.router.navigate(['/polls', poll.pollUid]);
     } catch (err: unknown) {
       this.error = err instanceof Error ? err.message : 'Failed to create poll.';

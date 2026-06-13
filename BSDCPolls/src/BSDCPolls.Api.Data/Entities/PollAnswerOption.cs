@@ -22,12 +22,11 @@ public class PollAnswerOption : AuditableEntity
     public int OrderIndex { get; private set; }
 
     /// <summary>Submissions that selected this option.</summary>
-    public virtual ICollection<PollSubmission> Submissions { get; private set; } = new List<PollSubmission>();
+    public virtual ICollection<PollSubmission> Submissions { get; private set; } =
+        new List<PollSubmission>();
 
     /// <summary>EF Core proxy constructor.</summary>
-    protected PollAnswerOption()
-    {
-    }
+    protected PollAnswerOption() { }
 
     private PollAnswerOption(int pollQuestionId, string text, int orderIndex)
     {

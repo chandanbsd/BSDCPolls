@@ -25,7 +25,8 @@ public interface ISurveyRepository
         SurveyStatus? status,
         int page,
         int pageSize,
-        CancellationToken ct = default);
+        CancellationToken ct = default
+    );
 
     /// <summary>
     /// Returns the survey with all responses for results aggregation, restricted to the creator.

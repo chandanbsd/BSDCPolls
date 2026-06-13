@@ -11,4 +11,5 @@ public sealed record PollQuestionResponse(
     string Text,
     int OrderIndex,
     DateTime? PushedAt,
-    IReadOnlyList<PollAnswerOptionResponse> Options);
+    IReadOnlyList<PollAnswerOptionResponse> Options
+);

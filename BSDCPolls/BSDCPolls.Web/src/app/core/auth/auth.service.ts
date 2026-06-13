@@ -28,14 +28,10 @@ export class AuthService {
   private readonly http = inject(HttpClient);
 
   register(request: RegisterRequest): Promise<RegisterResponse> {
-    return firstValueFrom(
-      this.http.post<RegisterResponse>('/api/auth/register', request),
-    );
+    return firstValueFrom(this.http.post<RegisterResponse>('/api/auth/register', request));
   }
 
   login(request: LoginRequest): Promise<LoginResponse> {
-    return firstValueFrom(
-      this.http.post<LoginResponse>('/api/auth/login', request),
-    );
+    return firstValueFrom(this.http.post<LoginResponse>('/api/auth/login', request));
   }
 }

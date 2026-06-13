@@ -11,12 +11,7 @@ import { firstValueFrom } from 'rxjs';
 @Component({
   selector: 'app-survey-results',
   standalone: true,
-  imports: [
-    MatBadgeModule,
-    MatCardModule,
-    MatProgressSpinnerModule,
-    MatTableModule,
-  ],
+  imports: [MatBadgeModule, MatCardModule, MatProgressSpinnerModule, MatTableModule],
   templateUrl: './survey-results.component.html',
 })
 export class SurveyResultsComponent implements OnInit {

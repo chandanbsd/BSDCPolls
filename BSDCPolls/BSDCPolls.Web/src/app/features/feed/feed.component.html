@@ -9,7 +9,8 @@
       }
       <div>
         <button mat-raised-button color="primary" (click)="createPoll()">
-          <mat-icon>add</mat-icon> New Poll
+          <mat-icon>add</mat-icon>
+          New Poll
         </button>
       </div>
       @for (poll of store.polls(); track poll.pollUid) {
@@ -41,7 +42,8 @@
       }
       <div>
         <button mat-raised-button color="primary" (click)="createSurvey()">
-          <mat-icon>add</mat-icon> New Survey
+          <mat-icon>add</mat-icon>
+          New Survey
         </button>
       </div>
       @for (survey of store.surveys(); track survey.surveyUid) {

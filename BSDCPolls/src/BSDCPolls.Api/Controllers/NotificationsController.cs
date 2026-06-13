@@ -17,7 +17,10 @@ public sealed class NotificationsController : ControllerBase
     private readonly IUserRepository _userRepository;
 
     /// <summary>Initialises the controller with the notification service and user repository.</summary>
-    public NotificationsController(INotificationService notificationService, IUserRepository userRepository)
+    public NotificationsController(
+        INotificationService notificationService,
+        IUserRepository userRepository
+    )
     {
         _notificationService = notificationService;
         _userRepository = userRepository;
@@ -31,7 +34,8 @@ public sealed class NotificationsController : ControllerBase
         [FromQuery] bool unreadOnly = false,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
         var user = await GetCurrentUserAsync(ct);
         if (user is null)
@@ -39,7 +43,13 @@ public sealed class NotificationsController : ControllerBase
             return Unauthorized();
         }
 
-        var result = await _notificationService.GetNotificationsAsync(user.Id, unreadOnly, page, pageSize, ct);
+        var result = await _notificationService.GetNotificationsAsync(
+            user.Id,
+            unreadOnly,
+            page,
+            pageSize,
+            ct
+        );
         return Ok(result);
     }
 
@@ -81,7 +91,9 @@ public sealed class NotificationsController : ControllerBase
         return NoContent();
     }
 
-    private async Task<BSDCPolls.Api.Data.Entities.ApplicationUser?> GetCurrentUserAsync(CancellationToken ct)
+    private async Task<BSDCPolls.Api.Data.Entities.ApplicationUser?> GetCurrentUserAsync(
+        CancellationToken ct
+    )
     {
         var supabaseUserId = User.FindFirstValue("email");
         if (string.IsNullOrEmpty(supabaseUserId))

@@ -43,7 +43,9 @@ To use a component, add it to the `imports` array of the consuming component and
 @Component({
   selector: 'app-root',
   imports: [Profile],
-  template: `<app-profile />`,
+  template: `
+    <app-profile />
+  `,
 })
 export class App {}
 ```
@@ -95,8 +97,13 @@ The `@for` block iterates over collections. The `track` expression is **required
 The `@switch` block renders content based on a value. It uses strict equality (`===`) and has **no fallthrough**.
 
 ```html
-@switch (status()) { @case ('loading') { <app-spinner /> } @case ('error') { <app-error-msg /> }
-@case ('success') { <app-data-grid /> } @default {
+@switch (status()) { @case ('loading') {
+<app-spinner />
+} @case ('error') {
+<app-error-msg />
+} @case ('success') {
+<app-data-grid />
+} @default {
 <p>Unknown status</p>
 } }
 ```
@@ -104,8 +111,8 @@ The `@switch` block renders content based on a value. It uses strict equality (`
 **Exhaustive Type Checking**: Use `@default never;` to ensure all cases of a union type are handled.
 
 ```html
-@switch (state) { @case ('on') { ... } @case ('off') { ... } @default never; // Errors if a new
-state like 'standby' is added }
+@switch (state) { @case ('on') { ... } @case ('off') { ... } @default never; // Errors if a new state like 'standby' is
+added }
 ```
 
 ## Core Concepts

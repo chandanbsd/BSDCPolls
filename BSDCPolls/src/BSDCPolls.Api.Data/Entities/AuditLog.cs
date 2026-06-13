@@ -44,9 +44,7 @@ public class AuditLog
     public string? Payload { get; private set; }
 
     /// <summary>EF Core proxy constructor.</summary>
-    protected AuditLog()
-    {
-    }
+    protected AuditLog() { }
 
     private AuditLog(
         string entityName,
@@ -55,7 +53,8 @@ public class AuditLog
         string operation,
         int performedById,
         DateTime performedOn,
-        string? payload)
+        string? payload
+    )
     {
         EntityName = entityName;
         EntityId = entityId;
@@ -82,8 +81,17 @@ public class AuditLog
         string operation,
         int performedById,
         DateTime performedOn,
-        string? payload = null)
+        string? payload = null
+    )
     {
-        return new AuditLog(entityName, entityId, entityUid, operation, performedById, performedOn, payload);
+        return new AuditLog(
+            entityName,
+            entityId,
+            entityUid,
+            operation,
+            performedById,
+            performedOn,
+            payload
+        );
     }
 }

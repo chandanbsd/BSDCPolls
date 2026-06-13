@@ -23,7 +23,8 @@ public sealed class SurveyService : ISurveyService
         ISurveyRepository surveyRepository,
         ISurveyResponseRepository responseRepository,
         ISurveyDocumentRepository documentRepository,
-        ILogger<SurveyService> logger)
+        ILogger<SurveyService> logger
+    )
     {
         _surveyRepository = surveyRepository;
         _responseRepository = responseRepository;
@@ -32,26 +33,46 @@ public sealed class SurveyService : ISurveyService
     }
 
     /// <inheritdoc />
-    public async Task<SurveyDetailResponse> CreateAsync(CreateSurveyRequest request, int creatorId, CancellationToken ct = default)
+    public async Task<SurveyDetailResponse> CreateAsync(
+        CreateSurveyRequest request,
+        int creatorId,
+        CancellationToken ct = default
+    )
     {
-        var survey = Survey.Create(request.Title, request.IsPublic, creatorId, request.QuestionTree);
+        var survey = Survey.Create(
+            request.Title,
+            request.IsPublic,
+            creatorId,
+            request.QuestionTree
+        );
         await _surveyRepository.CreateAsync(survey, ct);
 
-        _logger.LogInformation("Survey {SurveyUid} created by user {UserId}", survey.Uid, creatorId);
+        _logger.LogInformation(
+            "Survey {SurveyUid} created by user {UserId}",
+            survey.Uid,
+            creatorId
+        );
 
         return MapToDetailResponse(survey, isCreator: true);
     }
 
     /// <inheritdoc />
-    public async Task<SurveyDetailResponse> GetByUidAsync(Guid uid, int requestingUserId, CancellationToken ct = default)
+    public async Task<SurveyDetailResponse> GetByUidAsync(
+        Guid uid,
+        int requestingUserId,
+        CancellationToken ct = default
+    )
     {
-        var survey = await _surveyRepository.GetByUidAsync(uid, requestingUserId, ct)
+        var survey =
+            await _surveyRepository.GetByUidAsync(uid, requestingUserId, ct)
             ?? throw new KeyNotFoundException($"Survey {uid} not found.");
 
         var isCreator = survey.CreatorId == requestingUserId;
         if (!isCreator && !survey.IsPublic)
         {
-            throw new UnauthorizedAccessException($"User {requestingUserId} is not authorized to view survey {uid}.");
+            throw new UnauthorizedAccessException(
+                $"User {requestingUserId} is not authorized to view survey {uid}."
+            );
         }
 
         return MapToDetailResponse(survey, isCreator);
@@ -64,32 +85,51 @@ public sealed class SurveyService : ISurveyService
         SurveyStatus? status,
         int page,
         int pageSize,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
-        var (items, totalCount) = await _surveyRepository.GetFeedAsync(userId, showPublic, status, page, pageSize, ct);
+        var (items, totalCount) = await _surveyRepository.GetFeedAsync(
+            userId,
+            showPublic,
+            status,
+            page,
+            pageSize,
+            ct
+        );
 
-        var feedItems = items.Select(s => new SurveyFeedItem(
-            s.Uid,
-            s.Title,
-            s.IsPublic,
-            s.Status,
-            s.Creator.Username,
-            s.QuestionTree.Questions.Count,
-            s.CreatedOn,
-            null)).ToList();
+        var feedItems = items
+            .Select(s => new SurveyFeedItem(
+                s.Uid,
+                s.Title,
+                s.IsPublic,
+                s.Status,
+                s.Creator.Username,
+                s.QuestionTree.Questions.Count,
+                s.CreatedOn,
+                null
+            ))
+            .ToList();
 
         return new SurveyFeedResponse(feedItems, totalCount, page, pageSize);
     }
 
     /// <inheritdoc />
-    public async Task<SurveyDetailResponse> ChangeStatusAsync(Guid surveyUid, SurveyStatus newStatus, int creatorId, CancellationToken ct = default)
+    public async Task<SurveyDetailResponse> ChangeStatusAsync(
+        Guid surveyUid,
+        SurveyStatus newStatus,
+        int creatorId,
+        CancellationToken ct = default
+    )
     {
-        var survey = await _surveyRepository.GetByUidAsync(surveyUid, creatorId, ct)
+        var survey =
+            await _surveyRepository.GetByUidAsync(surveyUid, creatorId, ct)
             ?? throw new KeyNotFoundException($"Survey {surveyUid} not found.");
 
         if (survey.CreatorId != creatorId)
         {
-            throw new UnauthorizedAccessException($"User {creatorId} is not the creator of survey {surveyUid}.");
+            throw new UnauthorizedAccessException(
+                $"User {creatorId} is not the creator of survey {surveyUid}."
+            );
         }
 
         if (newStatus == SurveyStatus.Published)
@@ -107,26 +147,39 @@ public sealed class SurveyService : ISurveyService
             "Survey {SurveyUid} status changed to {Status} by user {UserId}",
             surveyUid,
             newStatus,
-            creatorId);
+            creatorId
+        );
 
         return MapToDetailResponse(survey, isCreator: true);
     }
 
     /// <inheritdoc />
-    public async Task<SurveyDetailResponse> UpdateQuestionsAsync(Guid surveyUid, UpdateSurveyQuestionsRequest request, int creatorId, CancellationToken ct = default)
+    public async Task<SurveyDetailResponse> UpdateQuestionsAsync(
+        Guid surveyUid,
+        UpdateSurveyQuestionsRequest request,
+        int creatorId,
+        CancellationToken ct = default
+    )
     {
-        var survey = await _surveyRepository.GetByUidAsync(surveyUid, creatorId, ct)
+        var survey =
+            await _surveyRepository.GetByUidAsync(surveyUid, creatorId, ct)
             ?? throw new KeyNotFoundException($"Survey {surveyUid} not found.");
 
         if (survey.CreatorId != creatorId)
         {
-            throw new UnauthorizedAccessException($"User {creatorId} is not the creator of survey {surveyUid}.");
+            throw new UnauthorizedAccessException(
+                $"User {creatorId} is not the creator of survey {surveyUid}."
+            );
         }
 
         survey.UpdateQuestionTree(request.QuestionTree);
         await _surveyRepository.UpdateAsync(survey, ct);
 
-        _logger.LogInformation("Survey {SurveyUid} question tree updated by user {UserId}", surveyUid, creatorId);
+        _logger.LogInformation(
+            "Survey {SurveyUid} question tree updated by user {UserId}",
+            surveyUid,
+            creatorId
+        );
 
         return MapToDetailResponse(survey, isCreator: true);
     }
@@ -136,9 +189,11 @@ public sealed class SurveyService : ISurveyService
         Guid surveyUid,
         SaveSurveyResponseRequest request,
         int respondentId,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
-        var survey = await _surveyRepository.GetByUidAsync(surveyUid, respondentId, ct)
+        var survey =
+            await _surveyRepository.GetByUidAsync(surveyUid, respondentId, ct)
             ?? throw new KeyNotFoundException($"Survey {surveyUid} not found.");
 
         if (survey.Status != SurveyStatus.Published)
@@ -167,7 +222,9 @@ public sealed class SurveyService : ISurveyService
         {
             if (response.IsComplete)
             {
-                throw new InvalidOperationException($"Survey response for survey {surveyUid} has already been submitted.");
+                throw new InvalidOperationException(
+                    $"Survey response for survey {surveyUid} has already been submitted."
+                );
             }
 
             if (request.IsSubmitting)
@@ -187,9 +244,14 @@ public sealed class SurveyService : ISurveyService
             response.Uid,
             surveyUid,
             respondentId,
-            request.IsSubmitting);
+            request.IsSubmitting
+        );
 
-        return new SurveyResponseStatusResponse(response.Uid, response.IsComplete, response.SubmittedAt);
+        return new SurveyResponseStatusResponse(
+            response.Uid,
+            response.IsComplete,
+            response.SubmittedAt
+        );
     }
 
     /// <inheritdoc />
@@ -201,26 +263,38 @@ public sealed class SurveyService : ISurveyService
         long fileSize,
         Guid questionUid,
         int respondentId,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
         if (fileSize > MaxFileSizeBytes)
         {
-            throw new InvalidOperationException($"File size {fileSize} bytes exceeds the 10 MB limit.");
+            throw new InvalidOperationException(
+                $"File size {fileSize} bytes exceeds the 10 MB limit."
+            );
         }
 
-        var response = await _responseRepository.GetByRespondentAsync(surveyUid, respondentId, ct)
+        var response =
+            await _responseRepository.GetByRespondentAsync(surveyUid, respondentId, ct)
             ?? throw new KeyNotFoundException($"Survey response not found for survey {surveyUid}.");
 
         if (response.Uid != responseUid)
         {
-            throw new UnauthorizedAccessException($"User {respondentId} does not own response {responseUid}.");
+            throw new UnauthorizedAccessException(
+                $"User {respondentId} does not own response {responseUid}."
+            );
         }
 
         using var ms = new MemoryStream();
         await pdfStream.CopyToAsync(ms, ct);
         var fileData = ms.ToArray();
 
-        var document = SurveyDocument.Create(response.Id, questionUid, fileName, fileSize, fileData);
+        var document = SurveyDocument.Create(
+            response.Id,
+            questionUid,
+            fileName,
+            fileSize,
+            fileData
+        );
         await _documentRepository.CreateAsync(document, ct);
 
         _logger.LogInformation(
@@ -228,16 +302,24 @@ public sealed class SurveyService : ISurveyService
             document.Uid,
             questionUid,
             surveyUid,
-            respondentId);
+            respondentId
+        );
 
         return new SurveyDocumentResponse(document.Uid, document.FileName, document.FileSizeBytes);
     }
 
     /// <inheritdoc />
-    public async Task<SurveyResultsResponse> GetResultsAsync(Guid surveyUid, int requestingUserId, CancellationToken ct = default)
+    public async Task<SurveyResultsResponse> GetResultsAsync(
+        Guid surveyUid,
+        int requestingUserId,
+        CancellationToken ct = default
+    )
     {
-        var survey = await _surveyRepository.GetResultsAsync(surveyUid, requestingUserId, ct)
-            ?? throw new UnauthorizedAccessException($"Survey {surveyUid} not found or user {requestingUserId} is not the creator.");
+        var survey =
+            await _surveyRepository.GetResultsAsync(surveyUid, requestingUserId, ct)
+            ?? throw new UnauthorizedAccessException(
+                $"Survey {surveyUid} not found or user {requestingUserId} is not the creator."
+            );
 
         var allResponses = survey.Responses.ToList();
         var totalResponses = allResponses.Count;
@@ -251,12 +333,14 @@ public sealed class SurveyService : ISurveyService
             survey.Status,
             totalResponses,
             completeResponses,
-            summaries);
+            summaries
+        );
     }
 
     private static IReadOnlyList<SurveyQuestionSummary> BuildQuestionSummaries(
         IReadOnlyList<SurveyQuestionNode> questions,
-        IReadOnlyList<Data.Entities.SurveyResponse> responses)
+        IReadOnlyList<Data.Entities.SurveyResponse> responses
+    )
     {
         var summaries = new List<SurveyQuestionSummary>();
 
@@ -279,11 +363,16 @@ public sealed class SurveyService : ISurveyService
                     choiceTallies.Add(new SurveyChoiceTally(choice.Uid, choice.Text, count));
                 }
             }
-            else if (node.AnswerType == SurveyAnswerType.ShortText || node.AnswerType == SurveyAnswerType.LongText)
+            else if (
+                node.AnswerType == SurveyAnswerType.ShortText
+                || node.AnswerType == SurveyAnswerType.LongText
+            )
             {
-                textAnswers.AddRange(allAnswers
-                    .Where(a => !string.IsNullOrWhiteSpace(a.TextValue))
-                    .Select(a => a.TextValue!));
+                textAnswers.AddRange(
+                    allAnswers
+                        .Where(a => !string.IsNullOrWhiteSpace(a.TextValue))
+                        .Select(a => a.TextValue!)
+                );
             }
             else if (node.AnswerType == SurveyAnswerType.DocumentUpload)
             {
@@ -292,14 +381,17 @@ public sealed class SurveyService : ISurveyService
                     .Count(d => d.QuestionUid == node.Uid);
             }
 
-            summaries.Add(new SurveyQuestionSummary(
-                node.Uid,
-                node.Text,
-                node.AnswerType,
-                allAnswers.Count,
-                choiceTallies,
-                textAnswers,
-                documentCount));
+            summaries.Add(
+                new SurveyQuestionSummary(
+                    node.Uid,
+                    node.Text,
+                    node.AnswerType,
+                    allAnswers.Count,
+                    choiceTallies,
+                    textAnswers,
+                    documentCount
+                )
+            );
 
             if (node.Branches != null)
             {
@@ -321,5 +413,6 @@ public sealed class SurveyService : ISurveyService
             survey.Status,
             survey.QuestionTree,
             survey.CreatedOn,
-            isCreator);
+            isCreator
+        );
 }

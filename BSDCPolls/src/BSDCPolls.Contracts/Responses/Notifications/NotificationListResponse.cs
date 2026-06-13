@@ -11,4 +11,5 @@ public sealed record NotificationListResponse(
     IReadOnlyList<NotificationItem> Items,
     int TotalCount,
     int Page,
-    int PageSize);
+    int PageSize
+);

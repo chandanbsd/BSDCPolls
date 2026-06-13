@@ -14,10 +14,15 @@ public interface INotificationService
         bool unreadOnly,
         int page,
         int pageSize,
-        CancellationToken ct = default);
+        CancellationToken ct = default
+    );
 
     /// <summary>Marks a single notification as read. Returns <c>null</c> if not found or not owned by the recipient.</summary>
-    Task<NotificationReadResponse?> MarkReadAsync(Guid notificationUid, int recipientId, CancellationToken ct = default);
+    Task<NotificationReadResponse?> MarkReadAsync(
+        Guid notificationUid,
+        int recipientId,
+        CancellationToken ct = default
+    );
 
     /// <summary>Marks all notifications as read for <paramref name="recipientId"/>. Returns the count of notifications updated.</summary>
     Task<int> MarkAllReadAsync(int recipientId, CancellationToken ct = default);

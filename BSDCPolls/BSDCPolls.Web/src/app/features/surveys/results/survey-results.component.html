@@ -31,7 +31,9 @@
                 <tr mat-header-row *matHeaderRowDef="choiceTallyColumns"></tr>
                 <tr mat-row *matRowDef="let row; columns: choiceTallyColumns"></tr>
               </table>
-            } @else if (summary.answerType === SurveyAnswerType.ShortText || summary.answerType === SurveyAnswerType.LongText) {
+            } @else if (
+              summary.answerType === SurveyAnswerType.ShortText || summary.answerType === SurveyAnswerType.LongText
+            ) {
               @for (answer of summary.textAnswers; track $index) {
                 <p>{{ answer }}</p>
               }

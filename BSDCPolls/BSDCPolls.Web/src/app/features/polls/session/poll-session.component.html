@@ -16,15 +16,21 @@
         <div>
           @if (poll.status === PollStatus.Draft) {
             <button mat-raised-button color="primary" (click)="activatePoll()" [disabled]="isActivating">
-              @if (isActivating) { <mat-spinner diameter="20"></mat-spinner> } @else { Start Session }
+              @if (isActivating) {
+                <mat-spinner diameter="20"></mat-spinner>
+              } @else {
+                Start Session
+              }
             </button>
           }
           @if (poll.status === PollStatus.Active) {
-            <button mat-raised-button color="accent" (click)="openAddQuestionDialog()">
-              Add Question
-            </button>
+            <button mat-raised-button color="accent" (click)="openAddQuestionDialog()">Add Question</button>
             <button mat-raised-button color="warn" (click)="closePoll()" [disabled]="isClosing">
-              @if (isClosing) { <mat-spinner diameter="20"></mat-spinner> } @else { Close Poll }
+              @if (isClosing) {
+                <mat-spinner diameter="20"></mat-spinner>
+              } @else {
+                Close Poll
+              }
             </button>
           }
           <button mat-stroked-button (click)="openInviteDialog()">Invite User</button>
@@ -66,12 +72,7 @@
               }
             </mat-card-content>
             <mat-card-actions>
-              <button
-                mat-raised-button
-                color="primary"
-                (click)="submitVote()"
-                [disabled]="!selectedOptionUid"
-              >
+              <button mat-raised-button color="primary" (click)="submitVote()" [disabled]="!selectedOptionUid">
                 Submit Vote
               </button>
             </mat-card-actions>

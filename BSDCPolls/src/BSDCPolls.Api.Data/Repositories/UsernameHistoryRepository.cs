@@ -26,20 +26,23 @@ public sealed class UsernameHistoryRepository : IUsernameHistoryRepository
         string username,
         int userId,
         int days,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
         var cutoff = DateTime.UtcNow.AddDays(-days);
-        return _db.UsernameHistories
-            .AnyAsync(
-                h => h.UserId == userId && h.Username == username && h.RetiredAt >= cutoff,
-                ct);
+        return _db.UsernameHistories.AnyAsync(
+            h => h.UserId == userId && h.Username == username && h.RetiredAt >= cutoff,
+            ct
+        );
     }
 
     /// <inheritdoc />
     public Task<int> CountRecentChangesAsync(int userId, int days, CancellationToken ct = default)
     {
         var cutoff = DateTime.UtcNow.AddDays(-days);
-        return _db.UsernameHistories
-            .CountAsync(h => h.UserId == userId && h.RetiredAt >= cutoff, ct);
+        return _db.UsernameHistories.CountAsync(
+            h => h.UserId == userId && h.RetiredAt >= cutoff,
+            ct
+        );
     }
 }

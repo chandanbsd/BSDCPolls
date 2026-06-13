@@ -22,9 +22,7 @@ public class ApplicationUser : AuditableEntity
     public string SupabaseUserId { get; private set; } = string.Empty;
 
     /// <summary>EF Core proxy constructor. Do not use in application code.</summary>
-    protected ApplicationUser()
-    {
-    }
+    protected ApplicationUser() { }
 
     private ApplicationUser(string username, string supabaseUserId)
     {
@@ -50,7 +48,10 @@ public class ApplicationUser : AuditableEntity
 
         if (string.IsNullOrWhiteSpace(supabaseUserId))
         {
-            throw new ArgumentException("Supabase user ID must not be empty.", nameof(supabaseUserId));
+            throw new ArgumentException(
+                "Supabase user ID must not be empty.",
+                nameof(supabaseUserId)
+            );
         }
 
         return new ApplicationUser(username, supabaseUserId);

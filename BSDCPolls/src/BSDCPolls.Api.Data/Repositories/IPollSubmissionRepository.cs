@@ -12,7 +12,10 @@ public interface IPollSubmissionRepository
     /// Returns per-option vote counts for <paramref name="questionId"/>
     /// as a dictionary keyed by option GUID.
     /// </summary>
-    Task<IReadOnlyDictionary<Guid, int>> GetVoteCountsAsync(int questionId, CancellationToken ct = default);
+    Task<IReadOnlyDictionary<Guid, int>> GetVoteCountsAsync(
+        int questionId,
+        CancellationToken ct = default
+    );
 
     /// <summary>Persists a new submission and returns the tracked instance.</summary>
     Task<PollSubmission> CreateAsync(PollSubmission submission, CancellationToken ct = default);

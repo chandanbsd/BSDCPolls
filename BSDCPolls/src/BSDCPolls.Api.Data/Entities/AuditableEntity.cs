@@ -38,9 +38,7 @@ public abstract class AuditableEntity
     /// Protected constructor for EF Core proxy support.
     /// Subclasses must also provide a private full constructor called only by their static factory method.
     /// </summary>
-    protected AuditableEntity()
-    {
-    }
+    protected AuditableEntity() { }
 
     /// <summary>
     /// Initialises the immutable identity fields. Called only from subclass factory methods.

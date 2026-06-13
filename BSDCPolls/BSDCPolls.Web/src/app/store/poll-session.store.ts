@@ -1,6 +1,12 @@
 import { inject } from '@angular/core';
 import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
-import { BsdcPollsApiClient, PollDetailResponse, PollQuestionResponse, PollResultsOptionResponse, PollStatus } from '../generated/api';
+import {
+  BsdcPollsApiClient,
+  PollDetailResponse,
+  PollQuestionResponse,
+  PollResultsOptionResponse,
+  PollStatus,
+} from '../generated/api';
 import { firstValueFrom } from 'rxjs';
 
 interface PollSessionState {

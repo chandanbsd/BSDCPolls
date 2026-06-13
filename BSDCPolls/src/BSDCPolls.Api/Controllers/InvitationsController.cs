@@ -18,7 +18,10 @@ public sealed class InvitationsController : ControllerBase
     private readonly IUserRepository _userRepository;
 
     /// <summary>Initialises the controller with the invitation service and user repository.</summary>
-    public InvitationsController(IInvitationService invitationService, IUserRepository userRepository)
+    public InvitationsController(
+        IInvitationService invitationService,
+        IUserRepository userRepository
+    )
     {
         _invitationService = invitationService;
         _userRepository = userRepository;
@@ -31,7 +34,11 @@ public sealed class InvitationsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> CreatePollInvitation(Guid pollUid, [FromBody] CreateInvitationRequest request, CancellationToken ct)
+    public async Task<IActionResult> CreatePollInvitation(
+        Guid pollUid,
+        [FromBody] CreateInvitationRequest request,
+        CancellationToken ct
+    )
     {
         var user = await GetCurrentUserAsync(ct);
         if (user is null)
@@ -39,7 +46,12 @@ public sealed class InvitationsController : ControllerBase
             return Unauthorized();
         }
 
-        var result = await _invitationService.CreatePollInvitationAsync(pollUid, request.TargetUsername, user.Id, ct);
+        var result = await _invitationService.CreatePollInvitationAsync(
+            pollUid,
+            request.TargetUsername,
+            user.Id,
+            ct
+        );
         return CreatedAtAction(nameof(CreatePollInvitation), result);
     }
 
@@ -50,7 +62,11 @@ public sealed class InvitationsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> CreateSurveyInvitation(Guid surveyUid, [FromBody] CreateInvitationRequest request, CancellationToken ct)
+    public async Task<IActionResult> CreateSurveyInvitation(
+        Guid surveyUid,
+        [FromBody] CreateInvitationRequest request,
+        CancellationToken ct
+    )
     {
         var user = await GetCurrentUserAsync(ct);
         if (user is null)
@@ -58,11 +74,18 @@ public sealed class InvitationsController : ControllerBase
             return Unauthorized();
         }
 
-        var result = await _invitationService.CreateSurveyInvitationAsync(surveyUid, request.TargetUsername, user.Id, ct);
+        var result = await _invitationService.CreateSurveyInvitationAsync(
+            surveyUid,
+            request.TargetUsername,
+            user.Id,
+            ct
+        );
         return CreatedAtAction(nameof(CreateSurveyInvitation), result);
     }
 
-    private async Task<BSDCPolls.Api.Data.Entities.ApplicationUser?> GetCurrentUserAsync(CancellationToken ct)
+    private async Task<BSDCPolls.Api.Data.Entities.ApplicationUser?> GetCurrentUserAsync(
+        CancellationToken ct
+    )
     {
         var supabaseUserId = User.FindFirstValue("email");
         if (string.IsNullOrEmpty(supabaseUserId))

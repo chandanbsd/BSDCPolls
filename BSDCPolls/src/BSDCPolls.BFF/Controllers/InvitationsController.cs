@@ -26,7 +26,11 @@ public sealed class InvitationsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> CreatePollInvitation(Guid pollUid, [FromBody] CreateInvitationRequest request, CancellationToken ct)
+    public async Task<IActionResult> CreatePollInvitation(
+        Guid pollUid,
+        [FromBody] CreateInvitationRequest request,
+        CancellationToken ct
+    )
     {
         var token = ExtractBearerToken();
         if (token is null)
@@ -34,7 +38,12 @@ public sealed class InvitationsController : ControllerBase
             return Unauthorized();
         }
 
-        var result = await _invitationService.CreatePollInvitationAsync(pollUid, request, token, ct);
+        var result = await _invitationService.CreatePollInvitationAsync(
+            pollUid,
+            request,
+            token,
+            ct
+        );
         return CreatedAtAction(nameof(CreatePollInvitation), result);
     }
 
@@ -45,7 +54,11 @@ public sealed class InvitationsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> CreateSurveyInvitation(Guid surveyUid, [FromBody] CreateInvitationRequest request, CancellationToken ct)
+    public async Task<IActionResult> CreateSurveyInvitation(
+        Guid surveyUid,
+        [FromBody] CreateInvitationRequest request,
+        CancellationToken ct
+    )
     {
         var token = ExtractBearerToken();
         if (token is null)
@@ -53,14 +66,22 @@ public sealed class InvitationsController : ControllerBase
             return Unauthorized();
         }
 
-        var result = await _invitationService.CreateSurveyInvitationAsync(surveyUid, request, token, ct);
+        var result = await _invitationService.CreateSurveyInvitationAsync(
+            surveyUid,
+            request,
+            token,
+            ct
+        );
         return CreatedAtAction(nameof(CreateSurveyInvitation), result);
     }
 
     private string? ExtractBearerToken()
     {
         var authHeader = HttpContext.Request.Headers.Authorization.ToString();
-        if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        if (
+            string.IsNullOrEmpty(authHeader)
+            || !authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+        )
         {
             return null;
         }

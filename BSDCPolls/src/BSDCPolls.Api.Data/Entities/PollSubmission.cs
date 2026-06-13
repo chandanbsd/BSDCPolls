@@ -25,9 +25,7 @@ public class PollSubmission : AuditableEntity
     public virtual ApplicationUser Respondent { get; private set; } = null!;
 
     /// <summary>EF Core proxy constructor.</summary>
-    protected PollSubmission()
-    {
-    }
+    protected PollSubmission() { }
 
     private PollSubmission(int pollQuestionId, int selectedOptionId, int respondentId)
     {

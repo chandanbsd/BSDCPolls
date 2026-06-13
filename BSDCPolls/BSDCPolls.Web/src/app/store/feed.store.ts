@@ -1,10 +1,6 @@
 import { inject } from '@angular/core';
 import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
-import {
-  BsdcPollsApiClient,
-  PollFeedItem,
-  SurveyFeedItem,
-} from '../generated/api';
+import { BsdcPollsApiClient, PollFeedItem, SurveyFeedItem } from '../generated/api';
 import { firstValueFrom } from 'rxjs';
 
 interface FeedState {
@@ -41,9 +37,7 @@ export const FeedStore = signalStore(
       async loadPolls(page = 1, pageSize = 20): Promise<void> {
         patchState(store, { isLoading: true, error: null });
         try {
-          const result = await firstValueFrom(
-            apiClient.polls_GetFeed(undefined, page, pageSize),
-          );
+          const result = await firstValueFrom(apiClient.polls_GetFeed(undefined, page, pageSize));
           patchState(store, {
             polls: result.items ?? [],
             pollsTotal: result.totalCount ?? 0,
@@ -60,9 +54,7 @@ export const FeedStore = signalStore(
       async loadSurveys(page = 1, pageSize = 20): Promise<void> {
         patchState(store, { isLoading: true, error: null });
         try {
-          const result = await firstValueFrom(
-            apiClient.surveys_GetFeed(undefined, page, pageSize),
-          );
+          const result = await firstValueFrom(apiClient.surveys_GetFeed(undefined, page, pageSize));
           patchState(store, {
             surveys: result.items ?? [],
             surveysTotal: result.totalCount ?? 0,

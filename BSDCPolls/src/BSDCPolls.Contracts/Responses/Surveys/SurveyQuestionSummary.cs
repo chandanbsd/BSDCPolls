@@ -17,4 +17,5 @@ public sealed record SurveyQuestionSummary(
     int ResponseCount,
     IReadOnlyList<SurveyChoiceTally> ChoiceTallies,
     IReadOnlyList<string> TextAnswers,
-    int DocumentCount);
+    int DocumentCount
+);

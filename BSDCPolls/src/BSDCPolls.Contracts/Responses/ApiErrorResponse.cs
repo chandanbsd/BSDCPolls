@@ -12,4 +12,5 @@ public sealed record ApiErrorResponse(
     string TraceId,
     int Status,
     string Message,
-    IReadOnlyList<ApiFieldError>? Errors = null);
+    IReadOnlyList<ApiFieldError>? Errors = null
+);

@@ -4,7 +4,4 @@ namespace BSDCPolls.Contracts.Responses.Surveys;
 /// <param name="DocumentUid">Public GUID of the stored document; used in the response answers.</param>
 /// <param name="FileName">Original filename from the browser upload.</param>
 /// <param name="FileSizeBytes">File size in bytes.</param>
-public sealed record SurveyDocumentResponse(
-    Guid DocumentUid,
-    string FileName,
-    long FileSizeBytes);
+public sealed record SurveyDocumentResponse(Guid DocumentUid, string FileName, long FileSizeBytes);

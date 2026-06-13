@@ -8,8 +8,7 @@ namespace BSDCPolls.Api.Data.ValueConverters;
 /// EF Core value converter that serialises/deserialises <see cref="SurveyAnswersDocument"/>
 /// to/from a JSON string for storage as a PostgreSQL JSONB column.
 /// </summary>
-public sealed class SurveyAnswersConverter
-    : ValueConverter<SurveyAnswersDocument, string>
+public sealed class SurveyAnswersConverter : ValueConverter<SurveyAnswersDocument, string>
 {
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
@@ -21,8 +20,8 @@ public sealed class SurveyAnswersConverter
     public SurveyAnswersConverter()
         : base(
             v => JsonSerializer.Serialize(v, SerializerOptions),
-            v => JsonSerializer.Deserialize<SurveyAnswersDocument>(v, SerializerOptions)
-                 ?? new SurveyAnswersDocument(new List<SurveyAnswerEntry>()))
-    {
-    }
+            v =>
+                JsonSerializer.Deserialize<SurveyAnswersDocument>(v, SerializerOptions)
+                ?? new SurveyAnswersDocument(new List<SurveyAnswerEntry>())
+        ) { }
 }

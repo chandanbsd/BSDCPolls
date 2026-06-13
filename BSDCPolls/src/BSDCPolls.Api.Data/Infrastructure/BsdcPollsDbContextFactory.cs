@@ -14,7 +14,8 @@ public sealed class BsdcPollsDbContextFactory : IDesignTimeDbContextFactory<Bsdc
     /// <inheritdoc />
     public BsdcPollsDbContext CreateDbContext(string[] args)
     {
-        var connectionString = Environment.GetEnvironmentVariable("BSDCPOLLS_DB")
+        var connectionString =
+            Environment.GetEnvironmentVariable("BSDCPOLLS_DB")
             ?? "Host=localhost;Port=5432;Database=bsdcpolls;Username=postgres;Password=postgres";
 
         var services = new ServiceCollection();

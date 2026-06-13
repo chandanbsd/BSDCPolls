@@ -20,9 +20,7 @@ public class InviteAllowlistEntry : AuditableEntity
     public virtual ApplicationUser AllowedUser { get; private set; } = null!;
 
     /// <summary>EF Core proxy constructor.</summary>
-    protected InviteAllowlistEntry()
-    {
-    }
+    protected InviteAllowlistEntry() { }
 
     private InviteAllowlistEntry(int ownerId, int allowedUserId)
     {

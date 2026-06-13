@@ -16,9 +16,7 @@
       </mat-form-field>
 
       <div>
-        <mat-slide-toggle formControlName="isPublic">
-          Public poll (visible to all users)
-        </mat-slide-toggle>
+        <mat-slide-toggle formControlName="isPublic">Public poll (visible to all users)</mat-slide-toggle>
       </div>
 
       @if (error) {
@@ -29,9 +27,7 @@
         @if (isLoading) {
           <mat-spinner diameter="24"></mat-spinner>
         } @else {
-          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
-            Create Poll
-          </button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Create Poll</button>
         }
       </div>
     </form>

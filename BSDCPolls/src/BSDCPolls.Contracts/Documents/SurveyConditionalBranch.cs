@@ -7,4 +7,5 @@ namespace BSDCPolls.Contracts.Documents;
 /// <param name="Questions">Sub-questions shown only when this branch is triggered.</param>
 public sealed record SurveyConditionalBranch(
     Guid ParentChoiceUid,
-    IReadOnlyList<SurveyQuestionNode> Questions);
+    IReadOnlyList<SurveyQuestionNode> Questions
+);

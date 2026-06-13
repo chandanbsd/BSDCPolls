@@ -9,4 +9,5 @@ public sealed record PollFeedResponse(
     IReadOnlyList<PollFeedItem> Items,
     int TotalCount,
     int Page,
-    int PageSize);
+    int PageSize
+);

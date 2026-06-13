@@ -20,7 +20,8 @@ public class Worker : BackgroundService
     public Worker(
         IServiceScopeFactory scopeFactory,
         IHostApplicationLifetime lifetime,
-        ILogger<Worker> logger)
+        ILogger<Worker> logger
+    )
     {
         _scopeFactory = scopeFactory;
         _lifetime = lifetime;

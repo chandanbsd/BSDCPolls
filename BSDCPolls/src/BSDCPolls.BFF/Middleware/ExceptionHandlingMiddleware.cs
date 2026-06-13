@@ -19,7 +19,10 @@ public class ExceptionHandlingMiddleware
     private readonly ILogger<ExceptionHandlingMiddleware> _logger;
 
     /// <summary>Initialises a new instance of <see cref="ExceptionHandlingMiddleware"/>.</summary>
-    public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
+    public ExceptionHandlingMiddleware(
+        RequestDelegate next,
+        ILogger<ExceptionHandlingMiddleware> logger
+    )
     {
         _next = next;
         _logger = logger;
@@ -34,7 +37,12 @@ public class ExceptionHandlingMiddleware
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled exception on {Method} {Path}", context.Request.Method, context.Request.Path);
+            _logger.LogError(
+                ex,
+                "Unhandled exception on {Method} {Path}",
+                context.Request.Method,
+                context.Request.Path
+            );
             await WriteErrorAsync(context, ex);
         }
     }

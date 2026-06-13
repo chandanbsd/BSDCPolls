@@ -18,28 +18,35 @@ public sealed class SurveyResponseRepository : ISurveyResponseRepository
     public Task<SurveyResponse?> GetByRespondentAsync(
         Guid surveyUid,
         int respondentId,
-        CancellationToken ct = default) =>
-        _db.SurveyResponses
-            .Include(r => r.Documents)
+        CancellationToken ct = default
+    ) =>
+        _db
+            .SurveyResponses.Include(r => r.Documents)
             .FirstOrDefaultAsync(
                 r => r.Survey.Uid == surveyUid && r.RespondentId == respondentId && r.IsActive,
-                ct);
+                ct
+            );
 
     /// <inheritdoc />
     public Task<bool> HasCompletedAsync(
         Guid surveyUid,
         int respondentId,
-        CancellationToken ct = default) =>
-        _db.SurveyResponses
-            .AnyAsync(
-                r => r.Survey.Uid == surveyUid &&
-                     r.RespondentId == respondentId &&
-                     r.IsComplete &&
-                     r.IsActive,
-                ct);
+        CancellationToken ct = default
+    ) =>
+        _db.SurveyResponses.AnyAsync(
+            r =>
+                r.Survey.Uid == surveyUid
+                && r.RespondentId == respondentId
+                && r.IsComplete
+                && r.IsActive,
+            ct
+        );
 
     /// <inheritdoc />
-    public async Task<SurveyResponse> CreateAsync(SurveyResponse response, CancellationToken ct = default)
+    public async Task<SurveyResponse> CreateAsync(
+        SurveyResponse response,
+        CancellationToken ct = default
+    )
     {
         _db.SurveyResponses.Add(response);
         await _db.SaveChangesAsync(ct);

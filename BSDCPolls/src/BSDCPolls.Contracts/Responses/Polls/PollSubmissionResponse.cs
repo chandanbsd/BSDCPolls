@@ -9,4 +9,5 @@ public sealed record PollSubmissionResponse(
     Guid SubmissionUid,
     Guid QuestionUid,
     Guid SelectedOptionUid,
-    DateTime SubmittedAt);
+    DateTime SubmittedAt
+);

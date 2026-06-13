@@ -24,7 +24,8 @@ public class SurveyResponse : AuditableEntity
     /// Answered question UIDs with their values, stored as a JSONB document.
     /// Mapped via <c>SurveyAnswersConverter</c> value converter.
     /// </summary>
-    public SurveyAnswersDocument AnswersJson { get; private set; } = new(new List<SurveyAnswerEntry>());
+    public SurveyAnswersDocument AnswersJson { get; private set; } =
+        new(new List<SurveyAnswerEntry>());
 
     /// <summary>False while the respondent is still filling in the survey; true after explicit submission.</summary>
     public bool IsComplete { get; private set; }
@@ -33,12 +34,11 @@ public class SurveyResponse : AuditableEntity
     public DateTime? SubmittedAt { get; private set; }
 
     /// <summary>PDF files uploaded as answers to document-upload questions.</summary>
-    public virtual ICollection<SurveyDocument> Documents { get; private set; } = new List<SurveyDocument>();
+    public virtual ICollection<SurveyDocument> Documents { get; private set; } =
+        new List<SurveyDocument>();
 
     /// <summary>EF Core proxy constructor.</summary>
-    protected SurveyResponse()
-    {
-    }
+    protected SurveyResponse() { }
 
     private SurveyResponse(int surveyId, int respondentId)
     {

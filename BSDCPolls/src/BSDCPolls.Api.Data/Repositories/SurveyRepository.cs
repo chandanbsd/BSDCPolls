@@ -16,9 +16,13 @@ public sealed class SurveyRepository : ISurveyRepository
     }
 
     /// <inheritdoc />
-    public Task<Survey?> GetByUidAsync(Guid uid, int? requestingUserId, CancellationToken ct = default) =>
-        _db.Surveys
-            .Include(s => s.Creator)
+    public Task<Survey?> GetByUidAsync(
+        Guid uid,
+        int? requestingUserId,
+        CancellationToken ct = default
+    ) =>
+        _db
+            .Surveys.Include(s => s.Creator)
             .FirstOrDefaultAsync(s => s.Uid == uid && s.IsActive, ct);
 
     /// <inheritdoc />
@@ -28,14 +32,21 @@ public sealed class SurveyRepository : ISurveyRepository
         SurveyStatus? status,
         int page,
         int pageSize,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
-        var query = _db.Surveys
-            .Include(s => s.Creator)
-            .Where(s => s.IsActive && (
-                s.CreatorId == userId
-                || (showPublic && s.IsPublic)
-                || _db.Invitations.Any(i => i.SurveyId == s.Id && i.InviteeId == userId && i.IsActive)));
+        var query = _db
+            .Surveys.Include(s => s.Creator)
+            .Where(s =>
+                s.IsActive
+                && (
+                    s.CreatorId == userId
+                    || (showPublic && s.IsPublic)
+                    || _db.Invitations.Any(i =>
+                        i.SurveyId == s.Id && i.InviteeId == userId && i.IsActive
+                    )
+                )
+            );
 
         if (status.HasValue)
         {
@@ -53,11 +64,18 @@ public sealed class SurveyRepository : ISurveyRepository
     }
 
     /// <inheritdoc />
-    public Task<Survey?> GetResultsAsync(Guid surveyUid, int creatorId, CancellationToken ct = default) =>
-        _db.Surveys
-            .Include(s => s.Responses)
-                .ThenInclude(r => r.Documents)
-            .FirstOrDefaultAsync(s => s.Uid == surveyUid && s.CreatorId == creatorId && s.IsActive, ct);
+    public Task<Survey?> GetResultsAsync(
+        Guid surveyUid,
+        int creatorId,
+        CancellationToken ct = default
+    ) =>
+        _db
+            .Surveys.Include(s => s.Responses)
+            .ThenInclude(r => r.Documents)
+            .FirstOrDefaultAsync(
+                s => s.Uid == surveyUid && s.CreatorId == creatorId && s.IsActive,
+                ct
+            );
 
     /// <inheritdoc />
     public async Task<Survey> CreateAsync(Survey survey, CancellationToken ct = default)

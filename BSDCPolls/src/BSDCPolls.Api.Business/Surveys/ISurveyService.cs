@@ -8,10 +8,18 @@ namespace BSDCPolls.Api.Business.Surveys;
 public interface ISurveyService
 {
     /// <summary>Creates a new survey in Draft status owned by <paramref name="creatorId"/>.</summary>
-    Task<SurveyDetailResponse> CreateAsync(CreateSurveyRequest request, int creatorId, CancellationToken ct = default);
+    Task<SurveyDetailResponse> CreateAsync(
+        CreateSurveyRequest request,
+        int creatorId,
+        CancellationToken ct = default
+    );
 
     /// <summary>Returns full survey details if the requesting user is authorized to view it.</summary>
-    Task<SurveyDetailResponse> GetByUidAsync(Guid uid, int requestingUserId, CancellationToken ct = default);
+    Task<SurveyDetailResponse> GetByUidAsync(
+        Guid uid,
+        int requestingUserId,
+        CancellationToken ct = default
+    );
 
     /// <summary>Returns a paginated feed of surveys visible to <paramref name="userId"/>.</summary>
     Task<SurveyFeedResponse> GetFeedAsync(
@@ -20,13 +28,24 @@ public interface ISurveyService
         SurveyStatus? status,
         int page,
         int pageSize,
-        CancellationToken ct = default);
+        CancellationToken ct = default
+    );
 
     /// <summary>Changes the survey status (Published or Closed).</summary>
-    Task<SurveyDetailResponse> ChangeStatusAsync(Guid surveyUid, SurveyStatus newStatus, int creatorId, CancellationToken ct = default);
+    Task<SurveyDetailResponse> ChangeStatusAsync(
+        Guid surveyUid,
+        SurveyStatus newStatus,
+        int creatorId,
+        CancellationToken ct = default
+    );
 
     /// <summary>Replaces the question tree on a Draft survey.</summary>
-    Task<SurveyDetailResponse> UpdateQuestionsAsync(Guid surveyUid, UpdateSurveyQuestionsRequest request, int creatorId, CancellationToken ct = default);
+    Task<SurveyDetailResponse> UpdateQuestionsAsync(
+        Guid surveyUid,
+        UpdateSurveyQuestionsRequest request,
+        int creatorId,
+        CancellationToken ct = default
+    );
 
     /// <summary>
     /// Saves progress or submits a respondent's answers.
@@ -36,7 +55,8 @@ public interface ISurveyService
         Guid surveyUid,
         SaveSurveyResponseRequest request,
         int respondentId,
-        CancellationToken ct = default);
+        CancellationToken ct = default
+    );
 
     /// <summary>
     /// Stores an uploaded PDF for a document-upload question.
@@ -50,8 +70,13 @@ public interface ISurveyService
         long fileSize,
         Guid questionUid,
         int respondentId,
-        CancellationToken ct = default);
+        CancellationToken ct = default
+    );
 
     /// <summary>Returns aggregated survey results. Only accessible to the creator.</summary>
-    Task<SurveyResultsResponse> GetResultsAsync(Guid surveyUid, int requestingUserId, CancellationToken ct = default);
+    Task<SurveyResultsResponse> GetResultsAsync(
+        Guid surveyUid,
+        int requestingUserId,
+        CancellationToken ct = default
+    );
 }

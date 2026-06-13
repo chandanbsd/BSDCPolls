@@ -12,16 +12,24 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserContext, CurrentUserContext>();
 builder.Services.AddSingleton<AuditInterceptor>();
 
-builder.Services.AddDbContext<BsdcPollsDbContext>((sp, options) =>
-{
-    var connectionString = builder.Configuration.GetConnectionString("BsdcPollsDb")
-        ?? throw new InvalidOperationException("Connection string 'BsdcPollsDb' is not configured.");
+builder.Services.AddDbContext<BsdcPollsDbContext>(
+    (sp, options) =>
+    {
+        var connectionString =
+            builder.Configuration.GetConnectionString("BsdcPollsDb")
+            ?? throw new InvalidOperationException(
+                "Connection string 'BsdcPollsDb' is not configured."
+            );
 
-    options
-        .UseNpgsql(connectionString, npgsql => npgsql.MigrationsAssembly(typeof(BsdcPollsDbContext).Assembly.FullName))
-        .UseLazyLoadingProxies()
-        .AddInterceptors(sp.GetRequiredService<AuditInterceptor>());
-});
+        options
+            .UseNpgsql(
+                connectionString,
+                npgsql => npgsql.MigrationsAssembly(typeof(BsdcPollsDbContext).Assembly.FullName)
+            )
+            .UseLazyLoadingProxies()
+            .AddInterceptors(sp.GetRequiredService<AuditInterceptor>());
+    }
+);
 
 builder.Services.AddHostedService<Worker>();
 

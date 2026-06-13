@@ -39,9 +39,7 @@ public class Invitation : AuditableEntity
     public virtual Notification? Notification { get; private set; }
 
     /// <summary>EF Core proxy constructor.</summary>
-    protected Invitation()
-    {
-    }
+    protected Invitation() { }
 
     private Invitation(int inviterId, int inviteeId, int? pollId, int? surveyId)
     {

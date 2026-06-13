@@ -9,4 +9,5 @@ public sealed record SurveyFeedResponse(
     IReadOnlyList<SurveyFeedItem> Items,
     int TotalCount,
     int Page,
-    int PageSize);
+    int PageSize
+);

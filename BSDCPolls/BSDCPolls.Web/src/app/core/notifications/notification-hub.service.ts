@@ -31,30 +31,33 @@ export class NotificationHubService {
       .configureLogging(LogLevel.Warning)
       .build();
 
-    this.connection.on('InvitationReceived', (payload: {
-      notificationUid: string;
-      inviterUsername: string;
-      pollUid: string | null;
-      pollTitle: string | null;
-      surveyUid: string | null;
-      surveyTitle: string | null;
-      createdOn: string;
-    }) => {
-      const item: NotificationItem = {
-        notificationUid: payload.notificationUid,
-        isRead: false,
-        createdOn: payload.createdOn,
-        invitation: {
-          invitationUid: payload.notificationUid,
-          inviterUsername: payload.inviterUsername,
-          pollUid: payload.pollUid ?? undefined,
-          pollTitle: payload.pollTitle ?? undefined,
-          surveyUid: payload.surveyUid ?? undefined,
-          surveyTitle: payload.surveyTitle ?? undefined,
-        },
-      };
-      this.notificationsStore.addNotification(item);
-    });
+    this.connection.on(
+      'InvitationReceived',
+      (payload: {
+        notificationUid: string;
+        inviterUsername: string;
+        pollUid: string | null;
+        pollTitle: string | null;
+        surveyUid: string | null;
+        surveyTitle: string | null;
+        createdOn: string;
+      }) => {
+        const item: NotificationItem = {
+          notificationUid: payload.notificationUid,
+          isRead: false,
+          createdOn: payload.createdOn,
+          invitation: {
+            invitationUid: payload.notificationUid,
+            inviterUsername: payload.inviterUsername,
+            pollUid: payload.pollUid ?? undefined,
+            pollTitle: payload.pollTitle ?? undefined,
+            surveyUid: payload.surveyUid ?? undefined,
+            surveyTitle: payload.surveyTitle ?? undefined,
+          },
+        };
+        this.notificationsStore.addNotification(item);
+      },
+    );
 
     await this.connection.start();
   }

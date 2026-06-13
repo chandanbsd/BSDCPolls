@@ -29,7 +29,8 @@ public sealed class PollsController : ControllerBase
         [FromQuery] PollStatus? status,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
         var token = ExtractBearerToken();
         if (token is null)
@@ -46,7 +47,10 @@ public sealed class PollsController : ControllerBase
     [ProducesResponseType(typeof(PollDetailResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Create([FromBody] CreatePollRequest request, CancellationToken ct)
+    public async Task<IActionResult> Create(
+        [FromBody] CreatePollRequest request,
+        CancellationToken ct
+    )
     {
         var token = ExtractBearerToken();
         if (token is null)
@@ -85,7 +89,8 @@ public sealed class PollsController : ControllerBase
     public async Task<IActionResult> ChangeStatus(
         Guid pollUid,
         [FromBody] ChangePollStatusRequest request,
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
         var token = ExtractBearerToken();
         if (token is null)
@@ -106,7 +111,8 @@ public sealed class PollsController : ControllerBase
     public async Task<IActionResult> AddQuestion(
         Guid pollUid,
         [FromBody] AddPollQuestionRequest request,
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
         var token = ExtractBearerToken();
         if (token is null)
@@ -124,7 +130,11 @@ public sealed class PollsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> PushQuestion(Guid pollUid, Guid questionUid, CancellationToken ct)
+    public async Task<IActionResult> PushQuestion(
+        Guid pollUid,
+        Guid questionUid,
+        CancellationToken ct
+    )
     {
         var token = ExtractBearerToken();
         if (token is null)
@@ -157,7 +167,10 @@ public sealed class PollsController : ControllerBase
     {
         var authHeader = HttpContext.Request.Headers.Authorization.ToString();
 
-        if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        if (
+            string.IsNullOrEmpty(authHeader)
+            || !authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+        )
         {
             return null;
         }

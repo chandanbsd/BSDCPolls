@@ -23,5 +23,8 @@ public interface IBffAuthService
     /// Forwards a username-change request to the internal API on behalf of the authenticated user.
     /// <paramref name="bearerToken"/> is the GoTrue JWT sourced from the BFF request context.
     /// </summary>
-    Task<UsernameChangeResponse> ChangeUsernameAsync(string bearerToken, CancellationToken ct = default);
+    Task<UsernameChangeResponse> ChangeUsernameAsync(
+        string bearerToken,
+        CancellationToken ct = default
+    );
 }

@@ -3,6 +3,7 @@ using BSDCPolls.BFF.Business.Auth;
 using BSDCPolls.BFF.Business.Invitations;
 using BSDCPolls.BFF.Business.Notifications;
 using BSDCPolls.BFF.Business.Polls;
+using BSDCPolls.BFF.Business.Privacy;
 using BSDCPolls.BFF.Business.Surveys;
 using BSDCPolls.BFF.Hubs;
 using BSDCPolls.BFF.Middleware;
@@ -18,32 +19,35 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 // ── Serilog ───────────────────────────────────────────────────────────────────
-builder.Host.UseSerilog((ctx, lc) => lc
-    .ReadFrom.Configuration(ctx.Configuration)
-    .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .WriteTo.File("logs/bff-.log", rollingInterval: RollingInterval.Day));
+builder.Host.UseSerilog(
+    (ctx, lc) =>
+        lc
+            .ReadFrom.Configuration(ctx.Configuration)
+            .Enrich.FromLogContext()
+            .WriteTo.Console()
+            .WriteTo.File("logs/bff-.log", rollingInterval: RollingInterval.Day)
+);
 
 // ── OpenTelemetry ─────────────────────────────────────────────────────────────
 var otlpEndpoint = builder.Configuration["Otlp:Endpoint"] ?? "http://localhost:4317";
 
-builder.Services
-    .AddOpenTelemetry()
+builder
+    .Services.AddOpenTelemetry()
     .ConfigureResource(r => r.AddService("BSDCPolls.BFF"))
-    .WithTracing(t => t
-        .AddAspNetCoreInstrumentation()
-        .AddHttpClientInstrumentation()
-        .AddOtlpExporter(o => o.Endpoint = new Uri(otlpEndpoint)))
-    .WithMetrics(m => m
-        .AddAspNetCoreInstrumentation()
-        .AddOtlpExporter(o => o.Endpoint = new Uri(otlpEndpoint)));
+    .WithTracing(t =>
+        t.AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddOtlpExporter(o => o.Endpoint = new Uri(otlpEndpoint))
+    )
+    .WithMetrics(m =>
+        m.AddAspNetCoreInstrumentation().AddOtlpExporter(o => o.Endpoint = new Uri(otlpEndpoint))
+    );
 
 // ── Authentication (Supabase GoTrue JWT — symmetric key validation) ───────────
-var jwtSecret = builder.Configuration["GoTrue__JwtSecret"]
-    ?? "super-secret-jwt-token-for-dev-only";
+var jwtSecret = builder.Configuration["GoTrue__JwtSecret"] ?? "super-secret-jwt-token-for-dev-only";
 
-builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder
+    .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.RequireHttpsMetadata = false;
@@ -82,6 +86,7 @@ builder.Services.AddScoped<IBffPollService, BffPollService>();
 builder.Services.AddScoped<IBffSurveyService, BffSurveyService>();
 builder.Services.AddScoped<IBffInvitationService, BffInvitationService>();
 builder.Services.AddScoped<IBffNotificationService, BffNotificationService>();
+builder.Services.AddScoped<IBffPrivacyService, BffPrivacyService>();
 builder.Services.AddSingleton<IPollSessionTracker, PollSessionTracker>();
 
 // ── SignalR ────────────────────────────────────────────────────────────────────
@@ -91,28 +96,31 @@ builder.Services.AddSignalR();
 var angularOrigin = builder.Configuration["AllowedOrigins:Angular"] ?? "http://localhost:4200";
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AngularPolicy", policy =>
-    {
-        policy
-            .WithOrigins(angularOrigin)
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials(); // required for SignalR WebSocket
-    });
+    options.AddPolicy(
+        "AngularPolicy",
+        policy =>
+        {
+            policy.WithOrigins(angularOrigin).AllowAnyHeader().AllowAnyMethod().AllowCredentials(); // required for SignalR WebSocket
+        }
+    );
 });
 
 // ── HTTP client (BFF → internal API forwarding) ───────────────────────────────
-var internalApiUrl = builder.Configuration["InternalApi:Url"]
+var internalApiUrl =
+    builder.Configuration["InternalApi:Url"]
     ?? throw new InvalidOperationException("InternalApi:Url configuration is required.");
 
-builder.Services.AddHttpClient("InternalApi", client =>
-{
-    client.BaseAddress = new Uri(internalApiUrl);
-});
+builder.Services.AddHttpClient(
+    "InternalApi",
+    client =>
+    {
+        client.BaseAddress = new Uri(internalApiUrl);
+    }
+);
 
 // ── FluentValidation ──────────────────────────────────────────────────────────
-builder.Services
-    .AddFluentValidationAutoValidation()
+builder
+    .Services.AddFluentValidationAutoValidation()
     .AddValidatorsFromAssemblyContaining<BSDCPolls.Contracts.AssemblyMarker>();
 
 // ── NSwag / OpenAPI ───────────────────────────────────────────────────────────
@@ -139,6 +147,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUi();
 }
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -146,5 +157,8 @@ app.MapControllers();
 
 app.MapHub<PollHub>("/hubs/poll");
 app.MapHub<NotificationHub>("/hubs/notifications");
+
+// SPA fallback — lets Angular's client-side router handle all non-API routes.
+app.MapFallbackToFile("index.html");
 
 app.Run();

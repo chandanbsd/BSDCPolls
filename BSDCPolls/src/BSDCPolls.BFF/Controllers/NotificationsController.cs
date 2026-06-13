@@ -27,7 +27,8 @@ public sealed class NotificationsController : ControllerBase
         [FromQuery] bool unreadOnly = false,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
         var token = ExtractBearerToken();
         if (token is null)
@@ -35,7 +36,13 @@ public sealed class NotificationsController : ControllerBase
             return Unauthorized();
         }
 
-        var result = await _notificationService.GetNotificationsAsync(unreadOnly, page, pageSize, token, ct);
+        var result = await _notificationService.GetNotificationsAsync(
+            unreadOnly,
+            page,
+            pageSize,
+            token,
+            ct
+        );
         return Ok(result);
     }
 
@@ -75,7 +82,10 @@ public sealed class NotificationsController : ControllerBase
     private string? ExtractBearerToken()
     {
         var authHeader = HttpContext.Request.Headers.Authorization.ToString();
-        if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        if (
+            string.IsNullOrEmpty(authHeader)
+            || !authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+        )
         {
             return null;
         }

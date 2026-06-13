@@ -8,4 +8,5 @@ namespace BSDCPolls.Contracts.Requests.Surveys;
 /// <param name="IsSubmitting">When true, finalises the response and prevents further edits.</param>
 public sealed record SaveSurveyResponseRequest(
     [Required] IReadOnlyList<SurveyAnswerEntry> Answers,
-    bool IsSubmitting);
+    bool IsSubmitting
+);

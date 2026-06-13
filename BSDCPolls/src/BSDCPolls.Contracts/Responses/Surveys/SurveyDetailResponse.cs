@@ -18,4 +18,5 @@ public sealed record SurveyDetailResponse(
     SurveyStatus Status,
     SurveyQuestionTreeDocument QuestionTree,
     DateTime CreatedOn,
-    bool IsCreator);
+    bool IsCreator
+);

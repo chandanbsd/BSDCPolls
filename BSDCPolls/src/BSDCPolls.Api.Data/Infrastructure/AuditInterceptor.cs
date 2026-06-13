@@ -25,7 +25,8 @@ public sealed class AuditInterceptor : SaveChangesInterceptor
     /// <inheritdoc />
     public override InterceptionResult<int> SavingChanges(
         DbContextEventData eventData,
-        InterceptionResult<int> result)
+        InterceptionResult<int> result
+    )
     {
         StampAuditFields(eventData.Context);
         return base.SavingChanges(eventData, result);
@@ -35,7 +36,8 @@ public sealed class AuditInterceptor : SaveChangesInterceptor
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
         InterceptionResult<int> result,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         StampAuditFields(eventData.Context);
         return base.SavingChangesAsync(eventData, result, cancellationToken);
@@ -89,7 +91,8 @@ public sealed class AuditInterceptor : SaveChangesInterceptor
     private static void SetProperty(
         Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<AuditableEntity> entry,
         string propertyName,
-        object value)
+        object value
+    )
     {
         entry.Property(propertyName).CurrentValue = value;
     }
@@ -98,14 +101,18 @@ public sealed class AuditInterceptor : SaveChangesInterceptor
         Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<AuditableEntity> entry,
         string operation,
         int performedById,
-        DateTime performedOn)
+        DateTime performedOn
+    )
     {
         var entityId = (int)(entry.Property(nameof(AuditableEntity.Id)).CurrentValue ?? 0);
-        var entityUid = (Guid)(entry.Property(nameof(AuditableEntity.Uid)).CurrentValue ?? Guid.Empty);
+        var entityUid = (Guid)(
+            entry.Property(nameof(AuditableEntity.Uid)).CurrentValue ?? Guid.Empty
+        );
 
         var payload = JsonSerializer.Serialize(
             entry.CurrentValues.ToObject(),
-            new JsonSerializerOptions { WriteIndented = false });
+            new JsonSerializerOptions { WriteIndented = false }
+        );
 
         return AuditLog.Create(
             entityName: entry.Entity.GetType().Name,
@@ -114,6 +121,7 @@ public sealed class AuditInterceptor : SaveChangesInterceptor
             operation: operation,
             performedById: performedById,
             performedOn: performedOn,
-            payload: payload);
+            payload: payload
+        );
     }
 }

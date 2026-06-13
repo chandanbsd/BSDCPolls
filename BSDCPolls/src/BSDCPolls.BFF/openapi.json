@@ -616,6 +616,109 @@
         },
         "security": [{ "Bearer": [] }]
       }
+    },
+    "/api/users/me/privacy": {
+      "get": {
+        "tags": ["Users"],
+        "operationId": "Users_GetPrivacySettings",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PrivacySettingsResponse" }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        },
+        "security": [{ "Bearer": [] }]
+      },
+      "put": {
+        "tags": ["Users"],
+        "operationId": "Users_UpdatePrivacySettings",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdatePrivacySettingsRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PrivacySettingsResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad Request" },
+          "401": { "description": "Unauthorized" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    },
+    "/api/users/me/privacy/allowlist": {
+      "post": {
+        "tags": ["Users"],
+        "operationId": "Users_AddAllowlistEntry",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AddAllowlistEntryRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AllowlistEntryResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad Request" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    },
+    "/api/users/me/privacy/allowlist/{allowedUserUid}": {
+      "delete": {
+        "tags": ["Users"],
+        "operationId": "Users_RemoveAllowlistEntry",
+        "parameters": [
+          { "name": "allowedUserUid", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "204": { "description": "No Content" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Not Found" }
+        },
+        "security": [{ "Bearer": [] }]
+      }
+    },
+    "/api/client-errors": {
+      "post": {
+        "tags": ["ClientErrors"],
+        "operationId": "ClientErrors_Report",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ClientErrorReport" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": { "description": "No Content" }
+        }
+      }
     }
   },
   "components": {
@@ -1076,6 +1179,55 @@
           "notificationUid": { "type": "string", "format": "uuid" },
           "isRead": { "type": "boolean" },
           "readAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "InvitePermission": {
+        "type": "integer",
+        "enum": [0, 1, 2],
+        "x-enumNames": ["Everyone", "AllowlistOnly", "Nobody"]
+      },
+      "AllowlistEntryResponse": {
+        "type": "object",
+        "required": ["userUid", "username"],
+        "properties": {
+          "userUid": { "type": "string", "format": "uuid" },
+          "username": { "type": "string" }
+        }
+      },
+      "PrivacySettingsResponse": {
+        "type": "object",
+        "required": ["showPublicContent", "invitePermission", "allowlist"],
+        "properties": {
+          "showPublicContent": { "type": "boolean" },
+          "invitePermission": { "$ref": "#/components/schemas/InvitePermission" },
+          "allowlist": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/AllowlistEntryResponse" }
+          }
+        }
+      },
+      "UpdatePrivacySettingsRequest": {
+        "type": "object",
+        "required": ["showPublicContent", "invitePermission"],
+        "properties": {
+          "showPublicContent": { "type": "boolean" },
+          "invitePermission": { "$ref": "#/components/schemas/InvitePermission" }
+        }
+      },
+      "AddAllowlistEntryRequest": {
+        "type": "object",
+        "required": ["username"],
+        "properties": {
+          "username": { "type": "string", "maxLength": 60 }
+        }
+      },
+      "ClientErrorReport": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string", "nullable": true },
+          "stack": { "type": "string", "nullable": true },
+          "route": { "type": "string", "nullable": true },
+          "component": { "type": "string", "nullable": true }
         }
       }
     },

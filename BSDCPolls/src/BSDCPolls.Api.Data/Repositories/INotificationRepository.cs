@@ -17,13 +17,18 @@ public interface INotificationRepository
         bool unreadOnly,
         int page,
         int pageSize,
-        CancellationToken ct = default);
+        CancellationToken ct = default
+    );
 
     /// <summary>Returns the total number of unread notifications for <paramref name="recipientId"/>.</summary>
     Task<int> GetUnreadCountAsync(int recipientId, CancellationToken ct = default);
 
     /// <summary>Marks the notification with the given <paramref name="notificationUid"/> as read, if owned by <paramref name="recipientId"/>.</summary>
-    Task<Notification?> MarkReadAsync(Guid notificationUid, int recipientId, CancellationToken ct = default);
+    Task<Notification?> MarkReadAsync(
+        Guid notificationUid,
+        int recipientId,
+        CancellationToken ct = default
+    );
 
     /// <summary>Marks all unread notifications for <paramref name="recipientId"/> as read. Returns the count of notifications marked.</summary>
     Task<int> MarkAllReadAsync(int recipientId, CancellationToken ct = default);

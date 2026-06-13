@@ -27,7 +27,8 @@ public sealed class PollHub : Hub
     public PollHub(
         IPollSessionTracker sessionTracker,
         IHttpClientFactory httpClientFactory,
-        ILogger<PollHub> logger)
+        ILogger<PollHub> logger
+    )
     {
         _sessionTracker = sessionTracker;
         _httpClientFactory = httpClientFactory;
@@ -70,7 +71,8 @@ public sealed class PollHub : Hub
             "Client {ConnectionId} joined poll {PollUid} (isCreator={IsCreator})",
             Context.ConnectionId,
             pollUid,
-            pollDetail.IsCreator);
+            pollDetail.IsCreator
+        );
 
         await base.OnConnectedAsync();
     }
@@ -107,7 +109,8 @@ public sealed class PollHub : Hub
         var client = _httpClientFactory.CreateClient("InternalApi");
         using var requestMessage = new HttpRequestMessage(
             HttpMethod.Post,
-            $"/api/internal/polls/{pollUid}/submissions");
+            $"/api/internal/polls/{pollUid}/submissions"
+        );
 
         requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
         requestMessage.Content = JsonContent.Create(new { questionUid, selectedOptionUid });
@@ -140,7 +143,11 @@ public sealed class PollHub : Hub
 
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogWarning("Vote submission returned {Status} for poll {PollUid}", response.StatusCode, pollUid);
+            _logger.LogWarning(
+                "Vote submission returned {Status} for poll {PollUid}",
+                response.StatusCode,
+                pollUid
+            );
             throw new HubException(InternalError);
         }
 
@@ -151,24 +158,36 @@ public sealed class PollHub : Hub
             var results = await GetPollResultsAsync(pollUid, bearerToken);
             if (results is not null)
             {
-                var questionResult = results.Questions.FirstOrDefault(q => q.QuestionUid == questionUid);
+                var questionResult = results.Questions.FirstOrDefault(q =>
+                    q.QuestionUid == questionUid
+                );
                 if (questionResult is not null)
                 {
-                    var payload = new PollVoteCountUpdatedPayload(pollUid, questionUid, questionResult.Options);
-                    await Clients.Client(creatorConnectionId).SendAsync("VoteCountUpdated", payload);
+                    var payload = new PollVoteCountUpdatedPayload(
+                        pollUid,
+                        questionUid,
+                        questionResult.Options
+                    );
+                    await Clients
+                        .Client(creatorConnectionId)
+                        .SendAsync("VoteCountUpdated", payload);
                 }
             }
         }
     }
 
     private string? GetBearerToken() =>
-        Context.GetHttpContext()?.Request.Query["access_token"].ToString()
-            is { Length: > 0 } token ? token : null;
+        Context.GetHttpContext()?.Request.Query["access_token"].ToString() is { Length: > 0 } token
+            ? token
+            : null;
 
     private async Task<PollDetailResponse?> GetPollDetailAsync(Guid pollUid, string bearerToken)
     {
         var client = _httpClientFactory.CreateClient("InternalApi");
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"/api/internal/polls/{pollUid}");
+        using var request = new HttpRequestMessage(
+            HttpMethod.Get,
+            $"/api/internal/polls/{pollUid}"
+        );
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
 
         var response = await client.SendAsync(request);
@@ -183,7 +202,10 @@ public sealed class PollHub : Hub
     private async Task<PollResultsResponse?> GetPollResultsAsync(Guid pollUid, string bearerToken)
     {
         var client = _httpClientFactory.CreateClient("InternalApi");
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"/api/internal/polls/{pollUid}/results");
+        using var request = new HttpRequestMessage(
+            HttpMethod.Get,
+            $"/api/internal/polls/{pollUid}/results"
+        );
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
 
         var response = await client.SendAsync(request);

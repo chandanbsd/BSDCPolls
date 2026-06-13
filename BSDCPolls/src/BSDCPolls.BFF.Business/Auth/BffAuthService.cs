@@ -24,7 +24,10 @@ public sealed class BffAuthService : IBffAuthService
     }
 
     /// <inheritdoc />
-    public async Task<RegisterResponse> RegisterAsync(RegisterRequest request, CancellationToken ct = default)
+    public async Task<RegisterResponse> RegisterAsync(
+        RegisterRequest request,
+        CancellationToken ct = default
+    )
     {
         var client = _httpClientFactory.CreateClient("InternalApi");
         var response = await client.PostAsJsonAsync("/api/internal/auth/register", request, ct);
@@ -32,16 +35,27 @@ public sealed class BffAuthService : IBffAuthService
         if (!response.IsSuccessStatusCode)
         {
             var body = await response.Content.ReadAsStringAsync(ct);
-            _logger.LogWarning("Register forwarding failed ({Status}): {Body}", (int)response.StatusCode, body);
-            throw new InvalidOperationException($"Registration failed ({(int)response.StatusCode}).");
+            _logger.LogWarning(
+                "Register forwarding failed ({Status}): {Body}",
+                (int)response.StatusCode,
+                body
+            );
+            throw new InvalidOperationException(
+                $"Registration failed ({(int)response.StatusCode})."
+            );
         }
 
         return await response.Content.ReadFromJsonAsync<RegisterResponse>(ct)
-            ?? throw new InvalidOperationException("Internal API returned empty register response.");
+            ?? throw new InvalidOperationException(
+                "Internal API returned empty register response."
+            );
     }
 
     /// <inheritdoc />
-    public async Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken ct = default)
+    public async Task<LoginResponse> LoginAsync(
+        LoginRequest request,
+        CancellationToken ct = default
+    )
     {
         var client = _httpClientFactory.CreateClient("InternalApi");
         var response = await client.PostAsJsonAsync("/api/internal/auth/login", request, ct);
@@ -56,7 +70,10 @@ public sealed class BffAuthService : IBffAuthService
     }
 
     /// <inheritdoc />
-    public async Task<UserProfileResponse> GetProfileAsync(string bearerToken, CancellationToken ct = default)
+    public async Task<UserProfileResponse> GetProfileAsync(
+        string bearerToken,
+        CancellationToken ct = default
+    )
     {
         var client = _httpClientFactory.CreateClient("InternalApi");
         using var requestMessage = new HttpRequestMessage(HttpMethod.Get, "/api/internal/users/me");
@@ -76,10 +93,14 @@ public sealed class BffAuthService : IBffAuthService
     /// <inheritdoc />
     public async Task<UsernameChangeResponse> ChangeUsernameAsync(
         string bearerToken,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
         var client = _httpClientFactory.CreateClient("InternalApi");
-        using var requestMessage = new HttpRequestMessage(HttpMethod.Post, "/api/internal/auth/change-username");
+        using var requestMessage = new HttpRequestMessage(
+            HttpMethod.Post,
+            "/api/internal/auth/change-username"
+        );
         requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
 
         var response = await client.SendAsync(requestMessage, ct);
@@ -88,10 +109,13 @@ public sealed class BffAuthService : IBffAuthService
         {
             var body = await response.Content.ReadAsStringAsync(ct);
             throw new InvalidOperationException(
-                $"Username change failed ({(int)response.StatusCode}): {body}");
+                $"Username change failed ({(int)response.StatusCode}): {body}"
+            );
         }
 
         return await response.Content.ReadFromJsonAsync<UsernameChangeResponse>(ct)
-            ?? throw new InvalidOperationException("Internal API returned empty username-change response.");
+            ?? throw new InvalidOperationException(
+                "Internal API returned empty username-change response."
+            );
     }
 }

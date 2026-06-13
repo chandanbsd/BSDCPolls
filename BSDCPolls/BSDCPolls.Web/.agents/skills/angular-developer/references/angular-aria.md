@@ -33,7 +33,9 @@ Organizes related content into expandable/collapsible sections.
 @Component({
   selector: 'app-cmp',
   imports: [AccordionContent, AccordionGroup, AccordionPanel, AccordionTrigger],
-  template: `...`,
+  template: `
+    ...
+  `,
   styles: [],
 })
 export class App {
@@ -88,7 +90,9 @@ A foundational directive for displaying a list of options. Used for visible sele
 @Component({
   selector: 'app-cmp',
   imports: [Listbox, Option],
-  template: `...`,
+  template: `
+    ...
+  `,
   styles: [],
 })
 export class App {
@@ -135,8 +139,8 @@ These patterns combine the `ngCombobox` directive (applied directly to the trigg
 **Imports:**
 
 ```ts
-import {Combobox, ComboboxPopup, ComboboxWidget} from '@angular/aria/combobox';
-import {Listbox, Option} from '@angular/aria/listbox';
+import { Combobox, ComboboxPopup, ComboboxWidget } from '@angular/aria/combobox';
+import { Listbox, Option } from '@angular/aria/listbox';
 ```
 
 **Directives:** `ngCombobox`, `ngComboboxPopup`, `ngComboboxWidget`, `ngListbox`, `ngOption`.
@@ -453,10 +457,10 @@ Angular Aria provides standard Component Harnesses (based on `@angular/cdk/testi
 **Imports:**
 
 ```ts
-import {HarnessLoader} from '@angular/cdk/testing';
-import {TestbedHarnessEnvironment} from '@angular/cdk/testing/testbed';
-import {AccordionGroupHarness, AccordionHarness} from '@angular/aria/accordion/testing';
-import {ListboxHarness, ListboxOptionHarness} from '@angular/aria/listbox/testing';
+import { HarnessLoader } from '@angular/cdk/testing';
+import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
+import { AccordionGroupHarness, AccordionHarness } from '@angular/aria/accordion/testing';
+import { ListboxHarness, ListboxOptionHarness } from '@angular/aria/listbox/testing';
 ```
 
 ### Example: Testing an Accordion with Harnesses
@@ -474,7 +478,7 @@ describe('MyAccordionComponent', () => {
 
   it('should expand accordion on toggle', async () => {
     // Get the harness by its trigger title
-    const accordion = await loader.getHarness(AccordionHarness.with({title: 'Section 1'}));
+    const accordion = await loader.getHarness(AccordionHarness.with({ title: 'Section 1' }));
 
     expect(await accordion.isExpanded()).toBeFalse();
 
@@ -495,9 +499,9 @@ The `[formField]` directive automatically detects directives like `ngCombobox` o
 **Imports:**
 
 ```ts
-import {form, schema, required} from '@angular/forms/signals';
-import {Combobox, ComboboxPopup, ComboboxWidget} from '@angular/aria/combobox';
-import {Listbox, Option} from '@angular/aria/listbox';
+import { form, schema, required } from '@angular/forms/signals';
+import { Combobox, ComboboxPopup, ComboboxWidget } from '@angular/aria/combobox';
+import { Listbox, Option } from '@angular/aria/listbox';
 ```
 
 ### Example 1: Autocomplete Combobox inside a Form

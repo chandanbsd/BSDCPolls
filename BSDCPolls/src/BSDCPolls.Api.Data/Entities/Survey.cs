@@ -24,7 +24,8 @@ public class Survey : AuditableEntity
     /// Full conditional question tree stored as a JSONB document.
     /// Mapped via <c>SurveyQuestionTreeConverter</c> value converter.
     /// </summary>
-    public SurveyQuestionTreeDocument QuestionTree { get; private set; } = new(new List<SurveyQuestionNode>());
+    public SurveyQuestionTreeDocument QuestionTree { get; private set; } =
+        new(new List<SurveyQuestionNode>());
 
     /// <summary>FK to the creator. Also the user who controls publication state.</summary>
     public int CreatorId { get; private set; }
@@ -33,17 +34,22 @@ public class Survey : AuditableEntity
     public virtual ApplicationUser Creator { get; private set; } = null!;
 
     /// <summary>Respondent answer submissions for this survey.</summary>
-    public virtual ICollection<SurveyResponse> Responses { get; private set; } = new List<SurveyResponse>();
+    public virtual ICollection<SurveyResponse> Responses { get; private set; } =
+        new List<SurveyResponse>();
 
     /// <summary>Directed invitations to this survey (for invite-only surveys).</summary>
-    public virtual ICollection<Invitation> Invitations { get; private set; } = new List<Invitation>();
+    public virtual ICollection<Invitation> Invitations { get; private set; } =
+        new List<Invitation>();
 
     /// <summary>EF Core proxy constructor.</summary>
-    protected Survey()
-    {
-    }
+    protected Survey() { }
 
-    private Survey(string title, bool isPublic, int creatorId, SurveyQuestionTreeDocument questionTree)
+    private Survey(
+        string title,
+        bool isPublic,
+        int creatorId,
+        SurveyQuestionTreeDocument questionTree
+    )
     {
         InitialiseIdentity(Guid.NewGuid());
         Title = title;
@@ -63,7 +69,8 @@ public class Survey : AuditableEntity
         string title,
         bool isPublic,
         int creatorId,
-        SurveyQuestionTreeDocument questionTree)
+        SurveyQuestionTreeDocument questionTree
+    )
     {
         if (string.IsNullOrWhiteSpace(title))
             throw new ArgumentException("Title must not be empty.", nameof(title));
@@ -76,7 +83,9 @@ public class Survey : AuditableEntity
     public void UpdateQuestionTree(SurveyQuestionTreeDocument questionTree)
     {
         if (Status != SurveyStatus.Draft)
-            throw new InvalidOperationException("Question tree can only be updated while the survey is in Draft state.");
+            throw new InvalidOperationException(
+                "Question tree can only be updated while the survey is in Draft state."
+            );
 
         QuestionTree = questionTree;
     }

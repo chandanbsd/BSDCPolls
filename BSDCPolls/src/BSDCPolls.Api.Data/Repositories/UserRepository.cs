@@ -15,27 +15,34 @@ public sealed class UserRepository : IUserRepository
     }
 
     /// <inheritdoc />
-    public Task<ApplicationUser?> GetBySupabaseIdAsync(string supabaseUserId, CancellationToken ct = default) =>
-        _db.ApplicationUsers
-            .FirstOrDefaultAsync(u => u.SupabaseUserId == supabaseUserId && u.IsActive, ct);
+    public Task<ApplicationUser?> GetBySupabaseIdAsync(
+        string supabaseUserId,
+        CancellationToken ct = default
+    ) =>
+        _db.ApplicationUsers.FirstOrDefaultAsync(
+            u => u.SupabaseUserId == supabaseUserId && u.IsActive,
+            ct
+        );
 
     /// <inheritdoc />
-    public Task<ApplicationUser?> GetByUsernameAsync(string username, CancellationToken ct = default) =>
-        _db.ApplicationUsers
-            .FirstOrDefaultAsync(u => u.Username == username && u.IsActive, ct);
+    public Task<ApplicationUser?> GetByUsernameAsync(
+        string username,
+        CancellationToken ct = default
+    ) => _db.ApplicationUsers.FirstOrDefaultAsync(u => u.Username == username && u.IsActive, ct);
 
     /// <inheritdoc />
     public Task<ApplicationUser?> GetByUidAsync(Guid uid, CancellationToken ct = default) =>
-        _db.ApplicationUsers
-            .FirstOrDefaultAsync(u => u.Uid == uid && u.IsActive, ct);
+        _db.ApplicationUsers.FirstOrDefaultAsync(u => u.Uid == uid && u.IsActive, ct);
 
     /// <inheritdoc />
     public Task<bool> UsernameExistsAsync(string username, CancellationToken ct = default) =>
-        _db.ApplicationUsers
-            .AnyAsync(u => u.Username == username && u.IsActive, ct);
+        _db.ApplicationUsers.AnyAsync(u => u.Username == username && u.IsActive, ct);
 
     /// <inheritdoc />
-    public async Task<ApplicationUser> CreateAsync(ApplicationUser user, CancellationToken ct = default)
+    public async Task<ApplicationUser> CreateAsync(
+        ApplicationUser user,
+        CancellationToken ct = default
+    )
     {
         _db.ApplicationUsers.Add(user);
         await _db.SaveChangesAsync(ct);

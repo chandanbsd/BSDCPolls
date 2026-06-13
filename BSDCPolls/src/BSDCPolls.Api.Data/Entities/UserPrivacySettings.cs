@@ -24,9 +24,7 @@ public class UserPrivacySettings : AuditableEntity
     public InvitePermission InvitePermission { get; private set; }
 
     /// <summary>EF Core proxy constructor.</summary>
-    protected UserPrivacySettings()
-    {
-    }
+    protected UserPrivacySettings() { }
 
     private UserPrivacySettings(int userId)
     {

@@ -15,11 +15,20 @@ public interface IInvitationRepository
     /// Returns <c>true</c> if an active invitation already exists for the given invitee
     /// and the specified poll or survey.
     /// </summary>
-    Task<bool> IsDuplicateAsync(int inviteeId, int? pollId, int? surveyId, CancellationToken ct = default);
+    Task<bool> IsDuplicateAsync(
+        int inviteeId,
+        int? pollId,
+        int? surveyId,
+        CancellationToken ct = default
+    );
 
     /// <summary>Returns the invitation for a specific poll and invitee, or <c>null</c>.</summary>
     Task<Invitation?> GetForPollAsync(Guid pollUid, int inviteeId, CancellationToken ct = default);
 
     /// <summary>Returns the invitation for a specific survey and invitee, or <c>null</c>.</summary>
-    Task<Invitation?> GetForSurveyAsync(Guid surveyUid, int inviteeId, CancellationToken ct = default);
+    Task<Invitation?> GetForSurveyAsync(
+        Guid surveyUid,
+        int inviteeId,
+        CancellationToken ct = default
+    );
 }

@@ -17,4 +17,5 @@ public sealed record SurveyQuestionNode(
     SurveyAnswerType AnswerType,
     bool IsRequired,
     IReadOnlyList<SurveyChoiceOption>? Choices,
-    IReadOnlyList<SurveyConditionalBranch>? Branches);
+    IReadOnlyList<SurveyConditionalBranch>? Branches
+);

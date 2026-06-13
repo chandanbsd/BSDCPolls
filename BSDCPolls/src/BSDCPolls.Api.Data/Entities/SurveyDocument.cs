@@ -33,16 +33,15 @@ public class SurveyDocument : AuditableEntity
     public byte[] FileData { get; private set; } = Array.Empty<byte>();
 
     /// <summary>EF Core proxy constructor.</summary>
-    protected SurveyDocument()
-    {
-    }
+    protected SurveyDocument() { }
 
     private SurveyDocument(
         int surveyResponseId,
         Guid questionUid,
         string fileName,
         long fileSizeBytes,
-        byte[] fileData)
+        byte[] fileData
+    )
     {
         InitialiseIdentity(Guid.NewGuid());
         SurveyResponseId = surveyResponseId;
@@ -64,7 +63,8 @@ public class SurveyDocument : AuditableEntity
         Guid questionUid,
         string fileName,
         long fileSizeBytes,
-        byte[] fileData)
+        byte[] fileData
+    )
     {
         if (string.IsNullOrWhiteSpace(fileName))
             throw new ArgumentException("File name must not be empty.", nameof(fileName));

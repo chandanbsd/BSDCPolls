@@ -26,15 +26,15 @@ public class Poll : AuditableEntity
     public virtual ApplicationUser Creator { get; private set; } = null!;
 
     /// <summary>Questions pushed during the live session.</summary>
-    public virtual ICollection<PollQuestion> Questions { get; private set; } = new List<PollQuestion>();
+    public virtual ICollection<PollQuestion> Questions { get; private set; } =
+        new List<PollQuestion>();
 
     /// <summary>Directed invitations to this poll (for invite-only polls).</summary>
-    public virtual ICollection<Invitation> Invitations { get; private set; } = new List<Invitation>();
+    public virtual ICollection<Invitation> Invitations { get; private set; } =
+        new List<Invitation>();
 
     /// <summary>EF Core proxy constructor.</summary>
-    protected Poll()
-    {
-    }
+    protected Poll() { }
 
     private Poll(string title, bool isPublic, int creatorId)
     {

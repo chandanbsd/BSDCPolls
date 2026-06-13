@@ -12,14 +12,7 @@ import { NotificationsStore } from '../../store/notifications.store';
 @Component({
   selector: 'app-notification-bell',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatIconModule,
-    MatButtonModule,
-    MatBadgeModule,
-    MatMenuModule,
-    MatDividerModule,
-  ],
+  imports: [CommonModule, MatIconModule, MatButtonModule, MatBadgeModule, MatMenuModule, MatDividerModule],
   templateUrl: './notification-bell.component.html',
 })
 export class NotificationBellComponent implements OnInit {

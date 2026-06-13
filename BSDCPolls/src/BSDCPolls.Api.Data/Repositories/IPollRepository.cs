@@ -26,12 +26,17 @@ public interface IPollRepository
         PollStatus? status,
         int page,
         int pageSize,
-        CancellationToken ct = default);
+        CancellationToken ct = default
+    );
 
     /// <summary>
     /// Returns the poll with vote counts for all questions, restricted to the creator.
     /// </summary>
-    Task<Poll?> GetWithSubmissionsAsync(Guid pollUid, int creatorId, CancellationToken ct = default);
+    Task<Poll?> GetWithSubmissionsAsync(
+        Guid pollUid,
+        int creatorId,
+        CancellationToken ct = default
+    );
 
     /// <summary>Persists a newly created <paramref name="poll"/> and returns the tracked instance.</summary>
     Task<Poll> CreateAsync(Poll poll, CancellationToken ct = default);

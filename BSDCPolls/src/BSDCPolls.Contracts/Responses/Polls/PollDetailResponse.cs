@@ -17,4 +17,5 @@ public sealed record PollDetailResponse(
     PollStatus Status,
     DateTime CreatedOn,
     bool IsCreator,
-    IReadOnlyList<PollQuestionResponse> Questions);
+    IReadOnlyList<PollQuestionResponse> Questions
+);

@@ -12,7 +12,10 @@ public sealed class BffNotificationService : IBffNotificationService
     private readonly ILogger<BffNotificationService> _logger;
 
     /// <summary>Initialises the service with the HTTP client factory and logger.</summary>
-    public BffNotificationService(IHttpClientFactory httpClientFactory, ILogger<BffNotificationService> logger)
+    public BffNotificationService(
+        IHttpClientFactory httpClientFactory,
+        ILogger<BffNotificationService> logger
+    )
     {
         _httpClientFactory = httpClientFactory;
         _logger = logger;
@@ -24,20 +27,30 @@ public sealed class BffNotificationService : IBffNotificationService
         int page,
         int pageSize,
         string bearerToken,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
         var client = CreateAuthenticatedClient(bearerToken);
-        var query = $"/api/internal/notifications?unreadOnly={unreadOnly}&page={page}&pageSize={pageSize}";
+        var query =
+            $"/api/internal/notifications?unreadOnly={unreadOnly}&page={page}&pageSize={pageSize}";
         var response = await client.GetAsync(query, ct);
         await EnsureSuccessAsync(response, "Get notifications", ct);
         return (await response.Content.ReadFromJsonAsync<NotificationListResponse>(ct))!;
     }
 
     /// <inheritdoc />
-    public async Task<NotificationReadResponse> MarkReadAsync(Guid notificationUid, string bearerToken, CancellationToken ct = default)
+    public async Task<NotificationReadResponse> MarkReadAsync(
+        Guid notificationUid,
+        string bearerToken,
+        CancellationToken ct = default
+    )
     {
         var client = CreateAuthenticatedClient(bearerToken);
-        var response = await client.PatchAsync($"/api/internal/notifications/{notificationUid}/read", null, ct);
+        var response = await client.PatchAsync(
+            $"/api/internal/notifications/{notificationUid}/read",
+            null,
+            ct
+        );
         await EnsureSuccessAsync(response, "Mark notification read", ct);
         return (await response.Content.ReadFromJsonAsync<NotificationReadResponse>(ct))!;
     }
@@ -53,18 +66,31 @@ public sealed class BffNotificationService : IBffNotificationService
     /// <inheritdoc />
     public async Task<int> GetUnreadCountAsync(string bearerToken, CancellationToken ct = default)
     {
-        var list = await GetNotificationsAsync(unreadOnly: true, page: 1, pageSize: 1, bearerToken, ct);
+        var list = await GetNotificationsAsync(
+            unreadOnly: true,
+            page: 1,
+            pageSize: 1,
+            bearerToken,
+            ct
+        );
         return list.UnreadCount;
     }
 
     private HttpClient CreateAuthenticatedClient(string bearerToken)
     {
         var client = _httpClientFactory.CreateClient("InternalApi");
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+            "Bearer",
+            bearerToken
+        );
         return client;
     }
 
-    private async Task EnsureSuccessAsync(HttpResponseMessage response, string operation, CancellationToken ct)
+    private async Task EnsureSuccessAsync(
+        HttpResponseMessage response,
+        string operation,
+        CancellationToken ct
+    )
     {
         if (response.IsSuccessStatusCode)
         {
@@ -72,7 +98,12 @@ public sealed class BffNotificationService : IBffNotificationService
         }
 
         var body = await response.Content.ReadAsStringAsync(ct);
-        _logger.LogWarning("{Operation} failed ({Status}): {Body}", operation, (int)response.StatusCode, body);
+        _logger.LogWarning(
+            "{Operation} failed ({Status}): {Body}",
+            operation,
+            (int)response.StatusCode,
+            body
+        );
         response.EnsureSuccessStatusCode();
     }
 }

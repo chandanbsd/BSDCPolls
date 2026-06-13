@@ -7,4 +7,5 @@ namespace BSDCPolls.Contracts.Responses.Surveys;
 public sealed record SurveyResponseStatusResponse(
     Guid ResponseUid,
     bool IsComplete,
-    DateTime? SubmittedAt);
+    DateTime? SubmittedAt
+);

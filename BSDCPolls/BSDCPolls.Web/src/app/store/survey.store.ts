@@ -30,10 +30,7 @@ const initialState: SurveyState = {
 };
 
 /** Resolves the flat list of visible question UIDs based on the current answer map. */
-function resolveQuestionPath(
-  questions: SurveyQuestionNode[],
-  answers: Map<string, SurveyAnswerEntry>,
-): string[] {
+function resolveQuestionPath(questions: SurveyQuestionNode[], answers: Map<string, SurveyAnswerEntry>): string[] {
   const path: string[] = [];
   for (const node of questions) {
     path.push(node.uid);

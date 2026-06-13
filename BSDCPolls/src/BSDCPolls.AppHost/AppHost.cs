@@ -8,7 +8,6 @@ var pgPassword = builder.AddParameter("postgres-password", secret: true);
 var postgres = builder
     .AddPostgres("bsdcpolls-postgres", password: pgPassword)
     .WithEnvironment("POSTGRES_DB", "bsdcpolls")
-
     // Mounts postgres-init/ so PostgreSQL runs 01-create-auth-schema.sql on first startup,
     // pre-creating the auth schema that GoTrue requires before it can run its own migrations.
     .WithBindMount("postgres-init", "/docker-entrypoint-initdb.d")
@@ -18,7 +17,8 @@ var db = postgres.AddDatabase("BsdcPollsDb", "bsdcpolls");
 
 // GoTrue DB URL constructed from the same Aspire parameter — password resolved at runtime.
 var goTrueDbUrl = ReferenceExpression.Create(
-    $"postgres://postgres:{pgPassword.Resource}@bsdcpolls-postgres:5432/bsdcpolls");
+    $"postgres://postgres:{pgPassword.Resource}@bsdcpolls-postgres:5432/bsdcpolls"
+);
 
 // ── Supabase GoTrue (auth) ────────────────────────────────────────────────────
 // Self-hosted GoTrue. MAILER_AUTOCONFIRM=true disables the email confirmation
@@ -73,5 +73,10 @@ var bff = builder
 
 // Allow the internal API to push SignalR notifications via the BFF's internal endpoint.
 api.WithEnvironment("Bff__InternalUrl", bff.GetEndpoint("http"));
+
+// ── Angular dev server ────────────────────────────────────────────────────────
+builder
+    .AddNpmApp("bsdcpolls-web", "../BSDCPolls.Web", "start")
+    .WaitFor(bff);
 
 builder.Build().Run();

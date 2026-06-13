@@ -10,6 +10,8 @@ public sealed class CreateSurveyRequestValidator : AbstractValidator<CreateSurve
     {
         RuleFor(x => x.Title).NotEmpty().MaximumLength(200);
         RuleFor(x => x.IsPublic).NotNull();
-        RuleFor(x => x.QuestionTree).NotNull().SetValidator(new SurveyQuestionTreeDocumentValidator());
+        RuleFor(x => x.QuestionTree)
+            .NotNull()
+            .SetValidator(new SurveyQuestionTreeDocumentValidator());
     }
 }

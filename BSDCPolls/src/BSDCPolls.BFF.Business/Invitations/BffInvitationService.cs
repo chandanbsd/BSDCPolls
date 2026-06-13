@@ -13,7 +13,10 @@ public sealed class BffInvitationService : IBffInvitationService
     private readonly ILogger<BffInvitationService> _logger;
 
     /// <summary>Initialises the service with the HTTP client factory and logger.</summary>
-    public BffInvitationService(IHttpClientFactory httpClientFactory, ILogger<BffInvitationService> logger)
+    public BffInvitationService(
+        IHttpClientFactory httpClientFactory,
+        ILogger<BffInvitationService> logger
+    )
     {
         _httpClientFactory = httpClientFactory;
         _logger = logger;
@@ -24,10 +27,15 @@ public sealed class BffInvitationService : IBffInvitationService
         Guid pollUid,
         CreateInvitationRequest request,
         string bearerToken,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
         var client = CreateAuthenticatedClient(bearerToken);
-        var response = await client.PostAsJsonAsync($"/api/internal/polls/{pollUid}/invitations", request, ct);
+        var response = await client.PostAsJsonAsync(
+            $"/api/internal/polls/{pollUid}/invitations",
+            request,
+            ct
+        );
         await EnsureSuccessAsync(response, "Create poll invitation", ct);
         return (await response.Content.ReadFromJsonAsync<InvitationResponse>(ct))!;
     }
@@ -37,10 +45,15 @@ public sealed class BffInvitationService : IBffInvitationService
         Guid surveyUid,
         CreateInvitationRequest request,
         string bearerToken,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
         var client = CreateAuthenticatedClient(bearerToken);
-        var response = await client.PostAsJsonAsync($"/api/internal/surveys/{surveyUid}/invitations", request, ct);
+        var response = await client.PostAsJsonAsync(
+            $"/api/internal/surveys/{surveyUid}/invitations",
+            request,
+            ct
+        );
         await EnsureSuccessAsync(response, "Create survey invitation", ct);
         return (await response.Content.ReadFromJsonAsync<InvitationResponse>(ct))!;
     }
@@ -48,11 +61,18 @@ public sealed class BffInvitationService : IBffInvitationService
     private HttpClient CreateAuthenticatedClient(string bearerToken)
     {
         var client = _httpClientFactory.CreateClient("InternalApi");
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+            "Bearer",
+            bearerToken
+        );
         return client;
     }
 
-    private async Task EnsureSuccessAsync(HttpResponseMessage response, string operation, CancellationToken ct)
+    private async Task EnsureSuccessAsync(
+        HttpResponseMessage response,
+        string operation,
+        CancellationToken ct
+    )
     {
         if (response.IsSuccessStatusCode)
         {
@@ -60,7 +80,12 @@ public sealed class BffInvitationService : IBffInvitationService
         }
 
         var body = await response.Content.ReadAsStringAsync(ct);
-        _logger.LogWarning("{Operation} failed ({Status}): {Body}", operation, (int)response.StatusCode, body);
+        _logger.LogWarning(
+            "{Operation} failed ({Status}): {Body}",
+            operation,
+            (int)response.StatusCode,
+            body
+        );
         response.EnsureSuccessStatusCode();
     }
 }

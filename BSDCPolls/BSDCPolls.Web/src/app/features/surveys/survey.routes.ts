@@ -4,17 +4,14 @@ import { Routes } from '@angular/router';
 export const surveyRoutes: Routes = [
   {
     path: 'new',
-    loadComponent: () =>
-      import('./builder/survey-builder.component').then((m) => m.SurveyBuilderComponent),
+    loadComponent: () => import('./builder/survey-builder.component').then((m) => m.SurveyBuilderComponent),
   },
   {
     path: ':surveyUid',
-    loadComponent: () =>
-      import('./respondent/survey-respondent.component').then((m) => m.SurveyRespondentComponent),
+    loadComponent: () => import('./respondent/survey-respondent.component').then((m) => m.SurveyRespondentComponent),
   },
   {
     path: ':surveyUid/results',
-    loadComponent: () =>
-      import('./results/survey-results.component').then((m) => m.SurveyResultsComponent),
+    loadComponent: () => import('./results/survey-results.component').then((m) => m.SurveyResultsComponent),
   },
 ];

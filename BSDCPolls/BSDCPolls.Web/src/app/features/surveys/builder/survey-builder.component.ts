@@ -99,9 +99,7 @@ export class SurveyBuilderComponent {
     try {
       const questionTree = this.buildQuestionTree();
       const { title, isPublic } = this.metaForm.getRawValue();
-      const survey = await firstValueFrom(
-        this.apiClient.surveys_Create({ title, isPublic, questionTree }),
-      );
+      const survey = await firstValueFrom(this.apiClient.surveys_Create({ title, isPublic, questionTree }));
       await this.router.navigate(['/surveys', survey.surveyUid]);
     } catch (err: unknown) {
       this.error = err instanceof Error ? err.message : 'Failed to create survey.';
@@ -126,9 +124,7 @@ export class SurveyBuilderComponent {
         choices: Array<{ uid: string; text: string }>;
       };
       const choiceOptions: SurveyChoiceOption[] | undefined =
-        answerType === SurveyAnswerType.MultipleChoice
-          ? choices.map((c) => ({ uid: c.uid, text: c.text }))
-          : undefined;
+        answerType === SurveyAnswerType.MultipleChoice ? choices.map((c) => ({ uid: c.uid, text: c.text })) : undefined;
       return {
         uid: crypto.randomUUID(),
         text,

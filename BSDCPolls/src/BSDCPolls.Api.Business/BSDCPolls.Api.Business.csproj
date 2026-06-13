@@ -1,24 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <ItemGroup>
     <ProjectReference Include="..\BSDCPolls.Api.Data\BSDCPolls.Api.Data.csproj" />
     <ProjectReference Include="..\BSDCPolls.Contracts\BSDCPolls.Contracts.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.9" />
   </ItemGroup>
-
   <ItemGroup>
     <EmbeddedResource Include="UsernameGeneration\Resources\adjectives.txt" />
     <EmbeddedResource Include="UsernameGeneration\Resources\nouns.txt" />
     <EmbeddedResource Include="UsernameGeneration\Resources\profanity.txt" />
   </ItemGroup>
-
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
 </Project>

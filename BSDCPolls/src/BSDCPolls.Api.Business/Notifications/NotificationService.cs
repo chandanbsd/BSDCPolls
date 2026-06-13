@@ -12,7 +12,10 @@ public sealed class NotificationService : INotificationService
     private readonly ILogger<NotificationService> _logger;
 
     /// <summary>Initialises the service with required repositories and logger.</summary>
-    public NotificationService(INotificationRepository notificationRepository, ILogger<NotificationService> logger)
+    public NotificationService(
+        INotificationRepository notificationRepository,
+        ILogger<NotificationService> logger
+    )
     {
         _notificationRepository = notificationRepository;
         _logger = logger;
@@ -24,38 +27,65 @@ public sealed class NotificationService : INotificationService
         bool unreadOnly,
         int page,
         int pageSize,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
-        var (items, totalCount, unreadCount) = await _notificationRepository
-            .GetByRecipientAsync(recipientId, unreadOnly, page, pageSize, ct);
+        var (items, totalCount, unreadCount) = await _notificationRepository.GetByRecipientAsync(
+            recipientId,
+            unreadOnly,
+            page,
+            pageSize,
+            ct
+        );
 
         return new NotificationListResponse(
             unreadCount,
             items.Select(MapToItem).ToList(),
             totalCount,
             page,
-            pageSize);
+            pageSize
+        );
     }
 
     /// <inheritdoc />
-    public async Task<NotificationReadResponse?> MarkReadAsync(Guid notificationUid, int recipientId, CancellationToken ct = default)
+    public async Task<NotificationReadResponse?> MarkReadAsync(
+        Guid notificationUid,
+        int recipientId,
+        CancellationToken ct = default
+    )
     {
-        var notification = await _notificationRepository.MarkReadAsync(notificationUid, recipientId, ct);
+        var notification = await _notificationRepository.MarkReadAsync(
+            notificationUid,
+            recipientId,
+            ct
+        );
 
         if (notification is null)
         {
             return null;
         }
 
-        _logger.LogInformation("Notification {NotificationUid} marked read by user {UserId}", notificationUid, recipientId);
-        return new NotificationReadResponse(notification.Uid, notification.IsRead, notification.ReadAt!.Value);
+        _logger.LogInformation(
+            "Notification {NotificationUid} marked read by user {UserId}",
+            notificationUid,
+            recipientId
+        );
+        return new NotificationReadResponse(
+            notification.Uid,
+            notification.IsRead,
+            notification.ReadAt!.Value
+        );
     }
 
     /// <inheritdoc />
     public async Task<int> MarkAllReadAsync(int recipientId, CancellationToken ct = default)
     {
         var count = await _notificationRepository.MarkAllReadAsync(recipientId, ct);
-        _logger.LogInformation("All notifications marked read for user {UserId} ({Count} updated)", recipientId, count);
+        _logger.LogInformation(
+            "All notifications marked read for user {UserId} ({Count} updated)",
+            recipientId,
+            count
+        );
         return count;
     }
 
@@ -78,6 +108,8 @@ public sealed class NotificationService : INotificationService
                 invitation.Poll?.Uid,
                 invitation.Poll?.Title,
                 invitation.Survey?.Uid,
-                invitation.Survey?.Title));
+                invitation.Survey?.Title
+            )
+        );
     }
 }

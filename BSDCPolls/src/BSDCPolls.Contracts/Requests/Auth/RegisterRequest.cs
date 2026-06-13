@@ -10,5 +10,4 @@ namespace BSDCPolls.Contracts.Requests.Auth;
 /// The user's chosen password. Must be at least 12 characters and contain at least one
 /// uppercase letter, one lowercase letter, one digit, and one special character.
 /// </param>
-public sealed record RegisterRequest(
-    [Required] [MinLength(12)] string Password);
+public sealed record RegisterRequest([Required] [MinLength(12)] string Password);

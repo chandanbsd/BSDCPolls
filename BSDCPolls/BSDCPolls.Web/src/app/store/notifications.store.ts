@@ -35,9 +35,7 @@ export const NotificationsStore = signalStore(
       async loadNotifications(page = 1, pageSize = 20): Promise<void> {
         patchState(store, { isLoading: true, error: null });
         try {
-          const result = await firstValueFrom(
-            apiClient.notifications_GetNotifications(false, page, pageSize),
-          );
+          const result = await firstValueFrom(apiClient.notifications_GetNotifications(false, page, pageSize));
           patchState(store, {
             items: result.items ?? [],
             unreadCount: result.unreadCount ?? 0,
@@ -54,9 +52,7 @@ export const NotificationsStore = signalStore(
       async markRead(notificationUid: string): Promise<void> {
         await firstValueFrom(apiClient.notifications_MarkRead(notificationUid));
         patchState(store, {
-          items: store.items().map((n) =>
-            n.notificationUid === notificationUid ? { ...n, isRead: true } : n,
-          ),
+          items: store.items().map((n) => (n.notificationUid === notificationUid ? { ...n, isRead: true } : n)),
           unreadCount: Math.max(0, store.unreadCount() - 1),
         });
       },

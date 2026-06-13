@@ -31,7 +31,8 @@ public sealed class AuthService : IAuthService
         IUsernameGenerator usernameGenerator,
         IUserRepository userRepository,
         IUsernameHistoryRepository usernameHistoryRepository,
-        ILogger<AuthService> logger)
+        ILogger<AuthService> logger
+    )
     {
         _httpClientFactory = httpClientFactory;
         _usernameGenerator = usernameGenerator;
@@ -41,7 +42,10 @@ public sealed class AuthService : IAuthService
     }
 
     /// <inheritdoc />
-    public async Task<RegisterResponse> RegisterAsync(RegisterRequest request, CancellationToken ct = default)
+    public async Task<RegisterResponse> RegisterAsync(
+        RegisterRequest request,
+        CancellationToken ct = default
+    )
     {
         // Synthetic email is never shown to users — it is the internal GoTrue credential key.
         var syntheticEmail = $"{Guid.NewGuid():N}@internal.bsdcpolls";
@@ -50,7 +54,8 @@ public sealed class AuthService : IAuthService
 
         var username = await _usernameGenerator.GenerateAsync(
             candidate => _userRepository.UsernameExistsAsync(candidate, ct),
-            ct);
+            ct
+        );
 
         var user = ApplicationUser.Create(username, syntheticEmail);
         await _userRepository.CreateAsync(user, ct);
@@ -58,15 +63,20 @@ public sealed class AuthService : IAuthService
         _logger.LogInformation(
             "New user registered. UserUid={UserUid} GoTrueId={GoTrueId}",
             user.Uid,
-            goTrueUser.Id);
+            goTrueUser.Id
+        );
 
         return new RegisterResponse(user.Username, user.Uid);
     }
 
     /// <inheritdoc />
-    public async Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken ct = default)
+    public async Task<LoginResponse> LoginAsync(
+        LoginRequest request,
+        CancellationToken ct = default
+    )
     {
-        var user = await _userRepository.GetByUsernameAsync(request.Username, ct)
+        var user =
+            await _userRepository.GetByUsernameAsync(request.Username, ct)
             ?? throw new UnauthorizedAccessException("Invalid username or password.");
 
         var token = await GetGoTrueTokenAsync(user.SupabaseUserId, request.Password, ct);
@@ -78,25 +88,36 @@ public sealed class AuthService : IAuthService
     }
 
     /// <inheritdoc />
-    public async Task<string> ChangeUsernameAsync(string supabaseUserId, CancellationToken ct = default)
+    public async Task<string> ChangeUsernameAsync(
+        string supabaseUserId,
+        CancellationToken ct = default
+    )
     {
-        var user = await _userRepository.GetBySupabaseIdAsync(supabaseUserId, ct)
-            ?? throw new KeyNotFoundException($"User with supabase ID '{supabaseUserId}' not found.");
+        var user =
+            await _userRepository.GetBySupabaseIdAsync(supabaseUserId, ct)
+            ?? throw new KeyNotFoundException(
+                $"User with supabase ID '{supabaseUserId}' not found."
+            );
 
-        var recentChanges = await _usernameHistoryRepository
-            .CountRecentChangesAsync(user.Id, UsernameChangeRateLimitWindowDays, ct);
+        var recentChanges = await _usernameHistoryRepository.CountRecentChangesAsync(
+            user.Id,
+            UsernameChangeRateLimitWindowDays,
+            ct
+        );
 
         if (recentChanges >= UsernameChangeRateLimitCount)
         {
             throw new InvalidOperationException(
-                "Username change limit reached. You may change your username at most 3 times per 24 hours.");
+                "Username change limit reached. You may change your username at most 3 times per 24 hours."
+            );
         }
 
         var oldUsername = user.Username;
 
         var newUsername = await _usernameGenerator.GenerateAsync(
             candidate => _userRepository.UsernameExistsAsync(candidate, ct),
-            ct);
+            ct
+        );
 
         var history = UsernameHistory.Create(user.Id, oldUsername, DateTime.UtcNow);
         await _usernameHistoryRepository.AddAsync(history, ct);
@@ -108,7 +129,8 @@ public sealed class AuthService : IAuthService
             "Username changed. UserUid={UserUid} OldUsername={OldUsername} NewUsername={NewUsername}",
             user.Uid,
             oldUsername,
-            newUsername);
+            newUsername
+        );
 
         return newUsername;
     }
@@ -116,16 +138,22 @@ public sealed class AuthService : IAuthService
     private async Task<GoTrueSignUpResponse> SignUpWithGoTrueAsync(
         string email,
         string password,
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
         var client = _httpClientFactory.CreateClient("GoTrue");
-        var response = await client.PostAsJsonAsync("/signup", new GoTrueCredential(email, password), ct);
+        var response = await client.PostAsJsonAsync(
+            "/signup",
+            new GoTrueCredential(email, password),
+            ct
+        );
 
         if (!response.IsSuccessStatusCode)
         {
             var body = await response.Content.ReadAsStringAsync(ct);
             throw new InvalidOperationException(
-                $"GoTrue signup failed ({(int)response.StatusCode}): {body}");
+                $"GoTrue signup failed ({(int)response.StatusCode}): {body}"
+            );
         }
 
         return await response.Content.ReadFromJsonAsync<GoTrueSignUpResponse>(ct)
@@ -135,31 +163,36 @@ public sealed class AuthService : IAuthService
     private async Task<GoTrueTokenResponse> GetGoTrueTokenAsync(
         string email,
         string password,
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
         var client = _httpClientFactory.CreateClient("GoTrue");
         var response = await client.PostAsJsonAsync(
             "/token?grant_type=password",
             new GoTrueCredential(email, password),
-            ct);
+            ct
+        );
 
         if (!response.IsSuccessStatusCode)
             throw new UnauthorizedAccessException("Invalid username or password.");
 
         return await response.Content.ReadFromJsonAsync<GoTrueTokenResponse>(ct)
-            ?? throw new InvalidOperationException("GoTrue token endpoint returned an empty response.");
+            ?? throw new InvalidOperationException(
+                "GoTrue token endpoint returned an empty response."
+            );
     }
 
     // ── GoTrue internal DTOs ──────────────────────────────────────────────────
 
     private sealed record GoTrueCredential(
         [property: JsonPropertyName("email")] string Email,
-        [property: JsonPropertyName("password")] string Password);
+        [property: JsonPropertyName("password")] string Password
+    );
 
-    private sealed record GoTrueSignUpResponse(
-        [property: JsonPropertyName("id")] string Id);
+    private sealed record GoTrueSignUpResponse([property: JsonPropertyName("id")] string Id);
 
     private sealed record GoTrueTokenResponse(
         [property: JsonPropertyName("access_token")] string AccessToken,
-        [property: JsonPropertyName("expires_in")] int ExpiresIn);
+        [property: JsonPropertyName("expires_in")] int ExpiresIn
+    );
 }

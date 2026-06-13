@@ -15,4 +15,5 @@ public sealed record SurveyResultsResponse(
     SurveyStatus Status,
     int TotalResponses,
     int CompleteResponses,
-    IReadOnlyList<SurveyQuestionSummary> QuestionSummaries);
+    IReadOnlyList<SurveyQuestionSummary> QuestionSummaries
+);

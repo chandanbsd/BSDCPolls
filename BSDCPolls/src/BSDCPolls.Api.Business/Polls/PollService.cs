@@ -18,7 +18,8 @@ public sealed class PollService : IPollService
     public PollService(
         IPollRepository pollRepository,
         IPollSubmissionRepository submissionRepository,
-        ILogger<PollService> logger)
+        ILogger<PollService> logger
+    )
     {
         _pollRepository = pollRepository;
         _submissionRepository = submissionRepository;
@@ -26,7 +27,11 @@ public sealed class PollService : IPollService
     }
 
     /// <inheritdoc />
-    public async Task<PollDetailResponse> CreateAsync(CreatePollRequest request, int creatorId, CancellationToken ct = default)
+    public async Task<PollDetailResponse> CreateAsync(
+        CreatePollRequest request,
+        int creatorId,
+        CancellationToken ct = default
+    )
     {
         var poll = Poll.Create(request.Title, request.IsPublic, creatorId);
         await _pollRepository.CreateAsync(poll, ct);
@@ -37,15 +42,22 @@ public sealed class PollService : IPollService
     }
 
     /// <inheritdoc />
-    public async Task<PollDetailResponse> GetByUidAsync(Guid uid, int requestingUserId, CancellationToken ct = default)
+    public async Task<PollDetailResponse> GetByUidAsync(
+        Guid uid,
+        int requestingUserId,
+        CancellationToken ct = default
+    )
     {
-        var poll = await _pollRepository.GetByUidAsync(uid, requestingUserId, ct)
+        var poll =
+            await _pollRepository.GetByUidAsync(uid, requestingUserId, ct)
             ?? throw new KeyNotFoundException($"Poll {uid} not found.");
 
         var isCreator = poll.CreatorId == requestingUserId;
         if (!isCreator && !poll.IsPublic)
         {
-            throw new UnauthorizedAccessException($"User {requestingUserId} is not authorized to view poll {uid}.");
+            throw new UnauthorizedAccessException(
+                $"User {requestingUserId} is not authorized to view poll {uid}."
+            );
         }
 
         return MapToDetailResponse(poll, isCreator);
@@ -58,19 +70,30 @@ public sealed class PollService : IPollService
         PollStatus? status,
         int page,
         int pageSize,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
-        var (items, totalCount) = await _pollRepository.GetFeedAsync(userId, showPublic, status, page, pageSize, ct);
+        var (items, totalCount) = await _pollRepository.GetFeedAsync(
+            userId,
+            showPublic,
+            status,
+            page,
+            pageSize,
+            ct
+        );
 
-        var feedItems = items.Select(p => new PollFeedItem(
-            p.Uid,
-            p.Title,
-            p.IsPublic,
-            p.Status,
-            p.Creator.Username,
-            p.Questions.Count,
-            p.CreatedOn,
-            null)).ToList();
+        var feedItems = items
+            .Select(p => new PollFeedItem(
+                p.Uid,
+                p.Title,
+                p.IsPublic,
+                p.Status,
+                p.Creator.Username,
+                p.Questions.Count,
+                p.CreatedOn,
+                null
+            ))
+            .ToList();
 
         return new PollFeedResponse(feedItems, totalCount, page, pageSize);
     }
@@ -80,14 +103,18 @@ public sealed class PollService : IPollService
         Guid pollUid,
         AddPollQuestionRequest request,
         int creatorId,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
-        var poll = await _pollRepository.GetByUidAsync(pollUid, creatorId, ct)
+        var poll =
+            await _pollRepository.GetByUidAsync(pollUid, creatorId, ct)
             ?? throw new KeyNotFoundException($"Poll {pollUid} not found.");
 
         if (poll.CreatorId != creatorId)
         {
-            throw new UnauthorizedAccessException($"User {creatorId} is not the creator of poll {pollUid}.");
+            throw new UnauthorizedAccessException(
+                $"User {creatorId} is not the creator of poll {pollUid}."
+            );
         }
 
         var orderIndex = poll.Questions.Count;
@@ -112,47 +139,74 @@ public sealed class PollService : IPollService
             question.Uid,
             pollUid,
             creatorId,
-            request.PushImmediately);
+            request.PushImmediately
+        );
 
         return MapToQuestionResponse(question);
     }
 
     /// <inheritdoc />
-    public async Task<PollQuestionResponse> PushQuestionAsync(Guid pollUid, Guid questionUid, int creatorId, CancellationToken ct = default)
+    public async Task<PollQuestionResponse> PushQuestionAsync(
+        Guid pollUid,
+        Guid questionUid,
+        int creatorId,
+        CancellationToken ct = default
+    )
     {
-        var poll = await _pollRepository.GetByUidAsync(pollUid, creatorId, ct)
+        var poll =
+            await _pollRepository.GetByUidAsync(pollUid, creatorId, ct)
             ?? throw new KeyNotFoundException($"Poll {pollUid} not found.");
 
         if (poll.CreatorId != creatorId)
         {
-            throw new UnauthorizedAccessException($"User {creatorId} is not the creator of poll {pollUid}.");
+            throw new UnauthorizedAccessException(
+                $"User {creatorId} is not the creator of poll {pollUid}."
+            );
         }
 
         if (poll.Status != PollStatus.Active)
         {
-            throw new InvalidOperationException($"Poll {pollUid} must be Active to push questions (current status: {poll.Status}).");
+            throw new InvalidOperationException(
+                $"Poll {pollUid} must be Active to push questions (current status: {poll.Status})."
+            );
         }
 
-        var question = poll.Questions.FirstOrDefault(q => q.Uid == questionUid)
-            ?? throw new KeyNotFoundException($"Question {questionUid} not found in poll {pollUid}.");
+        var question =
+            poll.Questions.FirstOrDefault(q => q.Uid == questionUid)
+            ?? throw new KeyNotFoundException(
+                $"Question {questionUid} not found in poll {pollUid}."
+            );
 
         question.MarkPushed(DateTime.UtcNow);
         await _pollRepository.UpdateAsync(poll, ct);
 
-        _logger.LogInformation("Question {QuestionUid} pushed on poll {PollUid} by user {UserId}", questionUid, pollUid, creatorId);
+        _logger.LogInformation(
+            "Question {QuestionUid} pushed on poll {PollUid} by user {UserId}",
+            questionUid,
+            pollUid,
+            creatorId
+        );
 
         return MapToQuestionResponse(question);
     }
 
     /// <inheritdoc />
-    public async Task<PollDetailResponse> ChangeStatusAsync(Guid pollUid, PollStatus newStatus, int creatorId, CancellationToken ct = default)
+    public async Task<PollDetailResponse> ChangeStatusAsync(
+        Guid pollUid,
+        PollStatus newStatus,
+        int creatorId,
+        CancellationToken ct = default
+    )
     {
-        var poll = await _pollRepository.GetByUidAsync(pollUid, creatorId, ct)
+        var poll =
+            await _pollRepository.GetByUidAsync(pollUid, creatorId, ct)
             ?? throw new KeyNotFoundException($"Poll {pollUid} not found.");
 
         if (poll.CreatorId != creatorId)
         {
-            throw new UnauthorizedAccessException($"User {creatorId} is not the creator of poll {pollUid}.");
+            throw new UnauthorizedAccessException(
+                $"User {creatorId} is not the creator of poll {pollUid}."
+            );
         }
 
         if (newStatus == PollStatus.Active)
@@ -166,15 +220,26 @@ public sealed class PollService : IPollService
 
         await _pollRepository.UpdateAsync(poll, ct);
 
-        _logger.LogInformation("Poll {PollUid} status changed to {Status} by user {UserId}", pollUid, newStatus, creatorId);
+        _logger.LogInformation(
+            "Poll {PollUid} status changed to {Status} by user {UserId}",
+            pollUid,
+            newStatus,
+            creatorId
+        );
 
         return MapToDetailResponse(poll, isCreator: true);
     }
 
     /// <inheritdoc />
-    public async Task<PollSubmissionResponse> SubmitVoteAsync(Guid pollUid, SubmitPollVoteRequest request, int respondentId, CancellationToken ct = default)
+    public async Task<PollSubmissionResponse> SubmitVoteAsync(
+        Guid pollUid,
+        SubmitPollVoteRequest request,
+        int respondentId,
+        CancellationToken ct = default
+    )
     {
-        var poll = await _pollRepository.GetByUidAsync(pollUid, respondentId, ct)
+        var poll =
+            await _pollRepository.GetByUidAsync(pollUid, respondentId, ct)
             ?? throw new KeyNotFoundException($"Poll {pollUid} not found.");
 
         if (poll.Status != PollStatus.Active)
@@ -182,21 +247,31 @@ public sealed class PollService : IPollService
             throw new InvalidOperationException($"Poll {pollUid} is not active.");
         }
 
-        var question = poll.Questions.FirstOrDefault(q => q.Uid == request.QuestionUid)
+        var question =
+            poll.Questions.FirstOrDefault(q => q.Uid == request.QuestionUid)
             ?? throw new KeyNotFoundException($"Question {request.QuestionUid} not found.");
 
         if (!question.PushedAt.HasValue)
         {
-            throw new InvalidOperationException($"Question {request.QuestionUid} has not been pushed yet.");
+            throw new InvalidOperationException(
+                $"Question {request.QuestionUid} has not been pushed yet."
+            );
         }
 
-        var option = question.AnswerOptions.FirstOrDefault(o => o.Uid == request.SelectedOptionUid)
+        var option =
+            question.AnswerOptions.FirstOrDefault(o => o.Uid == request.SelectedOptionUid)
             ?? throw new KeyNotFoundException($"Option {request.SelectedOptionUid} not found.");
 
-        var alreadySubmitted = await _submissionRepository.HasUserSubmittedAsync(question.Id, respondentId, ct);
+        var alreadySubmitted = await _submissionRepository.HasUserSubmittedAsync(
+            question.Id,
+            respondentId,
+            ct
+        );
         if (alreadySubmitted)
         {
-            throw new InvalidOperationException($"User {respondentId} has already voted on question {request.QuestionUid}.");
+            throw new InvalidOperationException(
+                $"User {respondentId} has already voted on question {request.QuestionUid}."
+            );
         }
 
         var submission = PollSubmission.Create(question.Id, option.Id, respondentId);
@@ -206,16 +281,29 @@ public sealed class PollService : IPollService
             "Vote submitted by user {UserId} on question {QuestionUid} in poll {PollUid}",
             respondentId,
             request.QuestionUid,
-            pollUid);
+            pollUid
+        );
 
-        return new PollSubmissionResponse(submission.Uid, question.Uid, option.Uid, submission.CreatedOn);
+        return new PollSubmissionResponse(
+            submission.Uid,
+            question.Uid,
+            option.Uid,
+            submission.CreatedOn
+        );
     }
 
     /// <inheritdoc />
-    public async Task<PollResultsResponse> GetResultsAsync(Guid pollUid, int requestingUserId, CancellationToken ct = default)
+    public async Task<PollResultsResponse> GetResultsAsync(
+        Guid pollUid,
+        int requestingUserId,
+        CancellationToken ct = default
+    )
     {
-        var poll = await _pollRepository.GetWithSubmissionsAsync(pollUid, requestingUserId, ct)
-            ?? throw new UnauthorizedAccessException($"Poll {pollUid} not found or user {requestingUserId} is not the creator.");
+        var poll =
+            await _pollRepository.GetWithSubmissionsAsync(pollUid, requestingUserId, ct)
+            ?? throw new UnauthorizedAccessException(
+                $"Poll {pollUid} not found or user {requestingUserId} is not the creator."
+            );
 
         var questionResults = new List<PollResultsQuestionResponse>();
 
@@ -224,22 +312,26 @@ public sealed class PollService : IPollService
             var voteCounts = await _submissionRepository.GetVoteCountsAsync(question.Id, ct);
             var totalVotes = voteCounts.Values.Sum();
 
-            var optionResults = question.AnswerOptions
-                .OrderBy(o => o.OrderIndex)
+            var optionResults = question
+                .AnswerOptions.OrderBy(o => o.OrderIndex)
                 .Select(o =>
                 {
                     var count = voteCounts.TryGetValue(o.Uid, out var c) ? c : 0;
-                    var pct = totalVotes > 0 ? Math.Round((decimal)count / totalVotes * 100, 2) : 0m;
+                    var pct =
+                        totalVotes > 0 ? Math.Round((decimal)count / totalVotes * 100, 2) : 0m;
                     return new PollResultsOptionResponse(o.Uid, o.Text, count, pct);
                 })
                 .ToList();
 
-            questionResults.Add(new PollResultsQuestionResponse(
-                question.Uid,
-                question.Text,
-                question.PushedAt,
-                totalVotes,
-                optionResults));
+            questionResults.Add(
+                new PollResultsQuestionResponse(
+                    question.Uid,
+                    question.Text,
+                    question.PushedAt,
+                    totalVotes,
+                    optionResults
+                )
+            );
         }
 
         return new PollResultsResponse(poll.Uid, poll.Title, poll.Status, questionResults);
@@ -253,7 +345,8 @@ public sealed class PollService : IPollService
             poll.Status,
             poll.CreatedOn,
             isCreator,
-            poll.Questions.OrderBy(q => q.OrderIndex).Select(MapToQuestionResponse).ToList());
+            poll.Questions.OrderBy(q => q.OrderIndex).Select(MapToQuestionResponse).ToList()
+        );
 
     private static PollQuestionResponse MapToQuestionResponse(PollQuestion q) =>
         new(
@@ -263,5 +356,6 @@ public sealed class PollService : IPollService
             q.PushedAt,
             q.AnswerOptions.OrderBy(o => o.OrderIndex)
                 .Select(o => new PollAnswerOptionResponse(o.Uid, o.Text, o.OrderIndex))
-                .ToList());
+                .ToList()
+        );
 }

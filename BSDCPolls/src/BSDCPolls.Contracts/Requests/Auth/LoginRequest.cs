@@ -9,4 +9,5 @@ namespace BSDCPolls.Contracts.Requests.Auth;
 /// <param name="Password">The user's password.</param>
 public sealed record LoginRequest(
     [Required] [MaxLength(60)] string Username,
-    [Required] string Password);
+    [Required] string Password
+);

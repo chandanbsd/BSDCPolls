@@ -7,11 +7,13 @@ Outputs allow a child component to emit custom events that a parent component ca
 Declare outputs using the `output()` function. This returns an `OutputEmitterRef`.
 
 ```ts
-import {Component, output} from '@angular/core';
+import { Component, output } from '@angular/core';
 
 @Component({
   selector: 'custom-slider',
-  template: `<button (click)="changeValue(50)">Set to 50</button>`,
+  template: `
+    <button (click)="changeValue(50)">Set to 50</button>
+  `,
 })
 export class CustomSlider {
   // Output without event data

@@ -15,4 +15,5 @@ public sealed record InvitationReceivedPayload(
     string? PollTitle,
     Guid? SurveyUid,
     string? SurveyTitle,
-    DateTime CreatedOn);
+    DateTime CreatedOn
+);

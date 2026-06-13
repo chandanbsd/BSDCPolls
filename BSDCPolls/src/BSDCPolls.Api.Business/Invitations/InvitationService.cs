@@ -30,7 +30,8 @@ public sealed class InvitationService : IInvitationService
         INotificationRepository notificationRepository,
         BsdcPollsDbContext db,
         IHttpClientFactory httpClientFactory,
-        ILogger<InvitationService> logger)
+        ILogger<InvitationService> logger
+    )
     {
         _userRepository = userRepository;
         _pollRepository = pollRepository;
@@ -47,9 +48,11 @@ public sealed class InvitationService : IInvitationService
         Guid pollUid,
         string targetUsername,
         int inviterId,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
-        var poll = await _pollRepository.GetByUidAsync(pollUid, inviterId, ct)
+        var poll =
+            await _pollRepository.GetByUidAsync(pollUid, inviterId, ct)
             ?? throw new KeyNotFoundException($"Poll {pollUid} not found.");
 
         if (poll.CreatorId != inviterId)
@@ -66,13 +69,15 @@ public sealed class InvitationService : IInvitationService
             pollTitle: poll.Title,
             surveyUid: null,
             surveyTitle: null,
-            ct);
+            ct
+        );
 
         _logger.LogInformation(
             "User {InviterId} invited {InviteeUsername} to poll {PollUid}",
             inviterId,
             targetUsername,
-            pollUid);
+            pollUid
+        );
 
         return result;
     }
@@ -82,9 +87,11 @@ public sealed class InvitationService : IInvitationService
         Guid surveyUid,
         string targetUsername,
         int inviterId,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
-        var survey = await _surveyRepository.GetByUidAsync(surveyUid, inviterId, ct)
+        var survey =
+            await _surveyRepository.GetByUidAsync(surveyUid, inviterId, ct)
             ?? throw new KeyNotFoundException($"Survey {surveyUid} not found.");
 
         if (survey.CreatorId != inviterId)
@@ -101,13 +108,15 @@ public sealed class InvitationService : IInvitationService
             pollTitle: null,
             surveyUid: survey.Uid,
             surveyTitle: survey.Title,
-            ct);
+            ct
+        );
 
         _logger.LogInformation(
             "User {InviterId} invited {InviteeUsername} to survey {SurveyUid}",
             inviterId,
             targetUsername,
-            surveyUid);
+            surveyUid
+        );
 
         return result;
     }
@@ -121,9 +130,11 @@ public sealed class InvitationService : IInvitationService
         string? pollTitle,
         Guid? surveyUid,
         string? surveyTitle,
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
-        var invitee = await _userRepository.GetByUsernameAsync(targetUsername, ct)
+        var invitee =
+            await _userRepository.GetByUsernameAsync(targetUsername, ct)
             ?? throw new KeyNotFoundException($"User '{targetUsername}' not found.");
 
         if (invitee.Id == inviterId)
@@ -133,14 +144,21 @@ public sealed class InvitationService : IInvitationService
 
         await CheckPrivacyPermissionAsync(invitee.Id, inviterId, ct);
 
-        var isDuplicate = await _invitationRepository.IsDuplicateAsync(invitee.Id, pollId, surveyId, ct);
+        var isDuplicate = await _invitationRepository.IsDuplicateAsync(
+            invitee.Id,
+            pollId,
+            surveyId,
+            ct
+        );
         if (isDuplicate)
         {
-            throw new InvalidOperationException($"User '{targetUsername}' has already been invited.");
+            throw new InvalidOperationException(
+                $"User '{targetUsername}' has already been invited."
+            );
         }
 
-        var inviter = await _db.ApplicationUsers
-            .FirstOrDefaultAsync(u => u.Id == inviterId && u.IsActive, ct)
+        var inviter =
+            await _db.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == inviterId && u.IsActive, ct)
             ?? throw new InvalidOperationException("Inviter not found.");
 
         var invitation = pollId.HasValue
@@ -161,16 +179,29 @@ public sealed class InvitationService : IInvitationService
                 pollTitle,
                 surveyUid,
                 surveyTitle,
-                notification.CreatedOn),
-            ct);
+                notification.CreatedOn
+            ),
+            ct
+        );
 
-        return new InvitationResponse(invitation.Uid, invitee.Username, invitee.Uid, invitation.CreatedOn);
+        return new InvitationResponse(
+            invitation.Uid,
+            invitee.Username,
+            invitee.Uid,
+            invitation.CreatedOn
+        );
     }
 
-    private async Task CheckPrivacyPermissionAsync(int inviteeId, int inviterId, CancellationToken ct)
+    private async Task CheckPrivacyPermissionAsync(
+        int inviteeId,
+        int inviterId,
+        CancellationToken ct
+    )
     {
-        var settings = await _db.UserPrivacySettings
-            .FirstOrDefaultAsync(p => p.UserId == inviteeId && p.IsActive, ct);
+        var settings = await _db.UserPrivacySettings.FirstOrDefaultAsync(
+            p => p.UserId == inviteeId && p.IsActive,
+            ct
+        );
 
         if (settings is null)
         {
@@ -184,12 +215,16 @@ public sealed class InvitationService : IInvitationService
 
         if (settings.InvitePermission == InvitePermission.AllowlistOnly)
         {
-            var isAllowed = await _db.InviteAllowlistEntries
-                .AnyAsync(e => e.OwnerId == inviteeId && e.AllowedUserId == inviterId && e.IsActive, ct);
+            var isAllowed = await _db.InviteAllowlistEntries.AnyAsync(
+                e => e.OwnerId == inviteeId && e.AllowedUserId == inviterId && e.IsActive,
+                ct
+            );
 
             if (!isAllowed)
             {
-                throw new UnauthorizedAccessException("This user only accepts invitations from approved users.");
+                throw new UnauthorizedAccessException(
+                    "This user only accepts invitations from approved users."
+                );
             }
         }
     }
@@ -197,7 +232,8 @@ public sealed class InvitationService : IInvitationService
     private async Task PushNotificationAsync(
         string targetSupabaseId,
         InvitationReceivedPayload payload,
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
         try
         {
@@ -205,11 +241,15 @@ public sealed class InvitationService : IInvitationService
             await client.PostAsJsonAsync(
                 "internal/notifications/push",
                 new { targetSupabaseId, payload },
-                ct);
+                ct
+            );
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to push SignalR notification — notification is saved in the DB.");
+            _logger.LogWarning(
+                ex,
+                "Failed to push SignalR notification — notification is saved in the DB."
+            );
         }
     }
 }

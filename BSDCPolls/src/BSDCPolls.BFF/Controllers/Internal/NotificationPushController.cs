@@ -18,7 +18,10 @@ public sealed class NotificationPushController : ControllerBase
     private readonly ILogger<NotificationPushController> _logger;
 
     /// <summary>Initialises the controller with the notification hub context and logger.</summary>
-    public NotificationPushController(IHubContext<NotificationHub> hubContext, ILogger<NotificationPushController> logger)
+    public NotificationPushController(
+        IHubContext<NotificationHub> hubContext,
+        ILogger<NotificationPushController> logger
+    )
     {
         _hubContext = hubContext;
         _logger = logger;
@@ -27,15 +30,19 @@ public sealed class NotificationPushController : ControllerBase
     /// <summary>Pushes an <c>InvitationReceived</c> event to the target user's SignalR group.</summary>
     [HttpPost("push")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> Push([FromBody] NotificationPushRequest request, CancellationToken ct)
+    public async Task<IActionResult> Push(
+        [FromBody] NotificationPushRequest request,
+        CancellationToken ct
+    )
     {
-        await _hubContext.Clients
-            .Group(request.TargetSupabaseId)
+        await _hubContext
+            .Clients.Group(request.TargetSupabaseId)
             .SendAsync("InvitationReceived", request.Payload, ct);
 
         _logger.LogInformation(
             "Pushed InvitationReceived to group {TargetSupabaseId}",
-            request.TargetSupabaseId);
+            request.TargetSupabaseId
+        );
 
         return NoContent();
     }

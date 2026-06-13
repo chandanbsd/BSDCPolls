@@ -9,4 +9,5 @@ namespace BSDCPolls.Contracts.Requests.Polls;
 public sealed record AddPollQuestionRequest(
     [Required] [MaxLength(500)] string Text,
     [Required] IReadOnlyList<AnswerOptionInput> Options,
-    bool PushImmediately);
+    bool PushImmediately
+);

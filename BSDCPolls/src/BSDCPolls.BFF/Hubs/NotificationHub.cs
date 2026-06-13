@@ -34,7 +34,8 @@ public sealed class NotificationHub : Hub<INotificationHub>
         _logger.LogInformation(
             "Connection {ConnectionId} joined notification group for user {SupabaseUserId}",
             Context.ConnectionId,
-            supabaseUserId);
+            supabaseUserId
+        );
 
         await base.OnConnectedAsync();
     }

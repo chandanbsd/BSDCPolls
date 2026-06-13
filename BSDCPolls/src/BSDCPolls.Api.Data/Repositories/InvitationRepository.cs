@@ -24,32 +24,51 @@ public sealed class InvitationRepository : IInvitationRepository
 
     /// <inheritdoc />
     public Task<Invitation?> GetByUidAsync(Guid uid, CancellationToken ct = default) =>
-        _db.Invitations
-            .Include(i => i.Inviter)
+        _db
+            .Invitations.Include(i => i.Inviter)
             .Include(i => i.Invitee)
             .Include(i => i.Poll)
             .Include(i => i.Survey)
             .FirstOrDefaultAsync(i => i.Uid == uid && i.IsActive, ct);
 
     /// <inheritdoc />
-    public Task<bool> IsDuplicateAsync(int inviteeId, int? pollId, int? surveyId, CancellationToken ct = default) =>
+    public Task<bool> IsDuplicateAsync(
+        int inviteeId,
+        int? pollId,
+        int? surveyId,
+        CancellationToken ct = default
+    ) =>
         _db.Invitations.AnyAsync(
-            i => i.InviteeId == inviteeId &&
-                 i.IsActive &&
-                 (pollId.HasValue ? i.PollId == pollId : i.SurveyId == surveyId),
-            ct);
+            i =>
+                i.InviteeId == inviteeId
+                && i.IsActive
+                && (pollId.HasValue ? i.PollId == pollId : i.SurveyId == surveyId),
+            ct
+        );
 
     /// <inheritdoc />
-    public Task<Invitation?> GetForPollAsync(Guid pollUid, int inviteeId, CancellationToken ct = default) =>
-        _db.Invitations
-            .FirstOrDefaultAsync(
-                i => i.Poll != null && i.Poll.Uid == pollUid && i.InviteeId == inviteeId && i.IsActive,
-                ct);
+    public Task<Invitation?> GetForPollAsync(
+        Guid pollUid,
+        int inviteeId,
+        CancellationToken ct = default
+    ) =>
+        _db.Invitations.FirstOrDefaultAsync(
+            i => i.Poll != null && i.Poll.Uid == pollUid && i.InviteeId == inviteeId && i.IsActive,
+            ct
+        );
 
     /// <inheritdoc />
-    public Task<Invitation?> GetForSurveyAsync(Guid surveyUid, int inviteeId, CancellationToken ct = default) =>
-        _db.Invitations
-            .FirstOrDefaultAsync(
-                i => i.Survey != null && i.Survey.Uid == surveyUid && i.InviteeId == inviteeId && i.IsActive,
-                ct);
+    public Task<Invitation?> GetForSurveyAsync(
+        Guid surveyUid,
+        int inviteeId,
+        CancellationToken ct = default
+    ) =>
+        _db.Invitations.FirstOrDefaultAsync(
+            i =>
+                i.Survey != null
+                && i.Survey.Uid == surveyUid
+                && i.InviteeId == inviteeId
+                && i.IsActive,
+            ct
+        );
 }

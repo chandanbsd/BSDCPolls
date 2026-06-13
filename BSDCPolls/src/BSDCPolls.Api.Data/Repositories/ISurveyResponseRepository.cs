@@ -12,7 +12,11 @@ public interface ISurveyResponseRepository
     /// <param name="surveyUid">Public GUID of the parent survey.</param>
     /// <param name="respondentId">Internal ID of the respondent.</param>
     /// <param name="ct">Cancellation token.</param>
-    Task<SurveyResponse?> GetByRespondentAsync(Guid surveyUid, int respondentId, CancellationToken ct = default);
+    Task<SurveyResponse?> GetByRespondentAsync(
+        Guid surveyUid,
+        int respondentId,
+        CancellationToken ct = default
+    );
 
     /// <summary>
     /// Returns true if the respondent has already submitted a completed response for the survey.

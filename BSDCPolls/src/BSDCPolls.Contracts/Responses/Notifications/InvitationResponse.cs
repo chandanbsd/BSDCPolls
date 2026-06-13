@@ -9,4 +9,5 @@ public sealed record InvitationResponse(
     Guid InvitationUid,
     string TargetUsername,
     Guid TargetUserUid,
-    DateTime CreatedOn);
+    DateTime CreatedOn
+);

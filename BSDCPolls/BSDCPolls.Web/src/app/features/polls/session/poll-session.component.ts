@@ -63,9 +63,7 @@ export class PollSessionComponent implements OnInit, OnDestroy {
     if (!poll) return;
     this.isActivating = true;
     try {
-      await firstValueFrom(
-        this.apiClient.polls_ChangeStatus(poll.pollUid, { status: PollStatus.Active }),
-      );
+      await firstValueFrom(this.apiClient.polls_ChangeStatus(poll.pollUid, { status: PollStatus.Active }));
       await this.pollStore.loadPoll(poll.pollUid);
     } finally {
       this.isActivating = false;
@@ -77,9 +75,7 @@ export class PollSessionComponent implements OnInit, OnDestroy {
     if (!poll) return;
     this.isClosing = true;
     try {
-      await firstValueFrom(
-        this.apiClient.polls_ChangeStatus(poll.pollUid, { status: PollStatus.Closed }),
-      );
+      await firstValueFrom(this.apiClient.polls_ChangeStatus(poll.pollUid, { status: PollStatus.Closed }));
       this.pollStore.closePoll();
     } finally {
       this.isClosing = false;

@@ -4,7 +4,4 @@ namespace BSDCPolls.Contracts.Responses.Notifications;
 /// <param name="NotificationUid">Public GUID of the updated notification.</param>
 /// <param name="IsRead">Always true after a successful mark-read operation.</param>
 /// <param name="ReadAt">UTC timestamp the notification was acknowledged.</param>
-public sealed record NotificationReadResponse(
-    Guid NotificationUid,
-    bool IsRead,
-    DateTime ReadAt);
+public sealed record NotificationReadResponse(Guid NotificationUid, bool IsRead, DateTime ReadAt);

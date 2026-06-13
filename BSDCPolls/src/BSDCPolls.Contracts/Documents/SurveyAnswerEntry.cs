@@ -17,4 +17,5 @@ public sealed record SurveyAnswerEntry(
     SurveyAnswerType AnswerType,
     Guid? SelectedChoiceUid,
     string? TextValue,
-    Guid? DocumentUid);
+    Guid? DocumentUid
+);

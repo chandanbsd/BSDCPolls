@@ -25,9 +25,7 @@ public class Notification : AuditableEntity
     public DateTime? ReadAt { get; private set; }
 
     /// <summary>EF Core proxy constructor.</summary>
-    protected Notification()
-    {
-    }
+    protected Notification() { }
 
     private Notification(int recipientId, int invitationId)
     {

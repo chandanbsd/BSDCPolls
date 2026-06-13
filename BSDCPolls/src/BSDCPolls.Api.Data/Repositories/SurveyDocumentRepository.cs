@@ -15,7 +15,10 @@ public sealed class SurveyDocumentRepository : ISurveyDocumentRepository
     }
 
     /// <inheritdoc />
-    public async Task<SurveyDocument> CreateAsync(SurveyDocument document, CancellationToken ct = default)
+    public async Task<SurveyDocument> CreateAsync(
+        SurveyDocument document,
+        CancellationToken ct = default
+    )
     {
         _db.SurveyDocuments.Add(document);
         await _db.SaveChangesAsync(ct);

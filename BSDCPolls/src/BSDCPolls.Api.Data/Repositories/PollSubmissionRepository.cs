@@ -15,15 +15,24 @@ public sealed class PollSubmissionRepository : IPollSubmissionRepository
     }
 
     /// <inheritdoc />
-    public Task<bool> HasUserSubmittedAsync(int questionId, int userId, CancellationToken ct = default) =>
-        _db.PollSubmissions
-            .AnyAsync(s => s.PollQuestionId == questionId && s.RespondentId == userId && s.IsActive, ct);
+    public Task<bool> HasUserSubmittedAsync(
+        int questionId,
+        int userId,
+        CancellationToken ct = default
+    ) =>
+        _db.PollSubmissions.AnyAsync(
+            s => s.PollQuestionId == questionId && s.RespondentId == userId && s.IsActive,
+            ct
+        );
 
     /// <inheritdoc />
-    public async Task<IReadOnlyDictionary<Guid, int>> GetVoteCountsAsync(int questionId, CancellationToken ct = default)
+    public async Task<IReadOnlyDictionary<Guid, int>> GetVoteCountsAsync(
+        int questionId,
+        CancellationToken ct = default
+    )
     {
-        var counts = await _db.PollSubmissions
-            .Where(s => s.PollQuestionId == questionId && s.IsActive)
+        var counts = await _db
+            .PollSubmissions.Where(s => s.PollQuestionId == questionId && s.IsActive)
             .GroupBy(s => s.SelectedOption.Uid)
             .Select(g => new { OptionUid = g.Key, Count = g.Count() })
             .ToListAsync(ct);
@@ -32,7 +41,10 @@ public sealed class PollSubmissionRepository : IPollSubmissionRepository
     }
 
     /// <inheritdoc />
-    public async Task<PollSubmission> CreateAsync(PollSubmission submission, CancellationToken ct = default)
+    public async Task<PollSubmission> CreateAsync(
+        PollSubmission submission,
+        CancellationToken ct = default
+    )
     {
         _db.PollSubmissions.Add(submission);
         await _db.SaveChangesAsync(ct);

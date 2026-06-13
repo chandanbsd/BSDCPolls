@@ -7,8 +7,18 @@ namespace BSDCPolls.BFF.Business.Invitations;
 public interface IBffInvitationService
 {
     /// <summary>Invites a user to the specified poll on behalf of the current user.</summary>
-    Task<InvitationResponse> CreatePollInvitationAsync(Guid pollUid, CreateInvitationRequest request, string bearerToken, CancellationToken ct = default);
+    Task<InvitationResponse> CreatePollInvitationAsync(
+        Guid pollUid,
+        CreateInvitationRequest request,
+        string bearerToken,
+        CancellationToken ct = default
+    );
 
     /// <summary>Invites a user to the specified survey on behalf of the current user.</summary>
-    Task<InvitationResponse> CreateSurveyInvitationAsync(Guid surveyUid, CreateInvitationRequest request, string bearerToken, CancellationToken ct = default);
+    Task<InvitationResponse> CreateSurveyInvitationAsync(
+        Guid surveyUid,
+        CreateInvitationRequest request,
+        string bearerToken,
+        CancellationToken ct = default
+    );
 }

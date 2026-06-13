@@ -41,10 +41,7 @@ export class AddQuestionDialogComponent {
   readonly form = this.fb.nonNullable.group({
     text: ['', [Validators.required, Validators.maxLength(500)]],
     pushImmediately: [true],
-    options: this.fb.array([
-      this.createOptionControl(),
-      this.createOptionControl(),
-    ]),
+    options: this.fb.array([this.createOptionControl(), this.createOptionControl()]),
   });
 
   isLoading = false;
@@ -77,9 +74,7 @@ export class AddQuestionDialogComponent {
         pushImmediately: raw.pushImmediately,
         options: raw.options.map((text: string, i: number) => ({ text, orderIndex: i })),
       };
-      const question = await firstValueFrom(
-        this.apiClient.polls_AddQuestion(this.data.pollUid, request),
-      );
+      const question = await firstValueFrom(this.apiClient.polls_AddQuestion(this.data.pollUid, request));
       this.pollStore.addQuestion(question);
       if (request.pushImmediately) {
         this.pollStore.setActiveQuestion(question);
