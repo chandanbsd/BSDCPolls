@@ -29,19 +29,19 @@ builder.Host.UseSerilog(
 );
 
 // ── OpenTelemetry ─────────────────────────────────────────────────────────────
-var otlpEndpoint = builder.Configuration["Otlp:Endpoint"] ?? "http://localhost:4317";
+var otlpEndpoint = builder.Configuration["Otlp:Endpoint"];
 
-builder
+var otel = builder
     .Services.AddOpenTelemetry()
     .ConfigureResource(r => r.AddService("BSDCPolls.BFF"))
-    .WithTracing(t =>
-        t.AddAspNetCoreInstrumentation()
-            .AddHttpClientInstrumentation()
-            .AddOtlpExporter(o => o.Endpoint = new Uri(otlpEndpoint))
-    )
-    .WithMetrics(m =>
-        m.AddAspNetCoreInstrumentation().AddOtlpExporter(o => o.Endpoint = new Uri(otlpEndpoint))
-    );
+    .WithTracing(t => t.AddAspNetCoreInstrumentation().AddHttpClientInstrumentation())
+    .WithMetrics(m => m.AddAspNetCoreInstrumentation());
+
+if (otlpEndpoint is not null)
+{
+    otel.WithTracing(t => t.AddOtlpExporter(o => o.Endpoint = new Uri(otlpEndpoint)))
+        .WithMetrics(m => m.AddOtlpExporter(o => o.Endpoint = new Uri(otlpEndpoint)));
+}
 
 // ── Authentication (Supabase GoTrue JWT — symmetric key validation) ───────────
 var jwtSecret = builder.Configuration["GoTrue:JwtSecret"] ?? "super-secret-jwt-token-for-dev-only";
@@ -51,6 +51,7 @@ builder
     .AddJwtBearer(options =>
     {
         options.RequireHttpsMetadata = false;
+        options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = false,

@@ -17,7 +17,7 @@ var db = postgres.AddDatabase("BsdcPollsDb", "bsdcpolls");
 
 // GoTrue DB URL constructed from the same Aspire parameter — password resolved at runtime.
 var goTrueDbUrl = ReferenceExpression.Create(
-    $"postgres://postgres:{pgPassword.Resource}@bsdcpolls-postgres:5432/bsdcpolls"
+    $"postgres://postgres:{pgPassword.Resource}@bsdcpolls-postgres:5432/bsdcpolls?sslmode=disable&search_path=auth"
 );
 
 // ── Supabase GoTrue (auth) ────────────────────────────────────────────────────
@@ -32,22 +32,11 @@ var goTrue = builder
     .WithEnvironment("GOTRUE_JWT_EXP", "3600")
     .WithEnvironment("GOTRUE_API_HOST", "0.0.0.0")
     .WithEnvironment("PORT", "9999")
-    .WithEnvironment("MAILER_AUTOCONFIRM", "true")
+    .WithEnvironment("GOTRUE_MAILER_AUTOCONFIRM", "true")
     .WithEnvironment("GOTRUE_LOG_LEVEL", "debug")
     .WithEnvironment("API_EXTERNAL_URL", "http://localhost:9999")
     .WithHttpEndpoint(targetPort: 9999, name: "gotrue")
     .WaitFor(postgres);
-
-// ── SigNoz observability ──────────────────────────────────────────────────────
-// SigNoz all-in-one container. OTLP gRPC on 4317, OTLP HTTP on 4318.
-var sigNoz = builder
-    .AddContainer("signoz", "signoz/signoz", "latest")
-    .WithVolume("signoz-data", "/var/lib/signoz")
-    .WithHttpEndpoint(targetPort: 3301, name: "signoz-ui")
-    .WithEndpoint(targetPort: 4317, name: "otlp-grpc", scheme: "http")
-    .WithEndpoint(targetPort: 4318, name: "otlp-http", scheme: "http");
-
-var sigNozOtlpEndpoint = sigNoz.GetEndpoint("otlp-grpc");
 
 // ── Migration Worker ──────────────────────────────────────────────────────────
 var migrationWorker = builder
@@ -60,7 +49,6 @@ var api = builder
     .AddProject<Projects.BSDCPolls_Api>("bsdcpolls-api")
     .WithReference(db)
     .WithEnvironment("GoTrue__Url", goTrue.GetEndpoint("gotrue"))
-    .WithEnvironment("Otlp__Endpoint", sigNozOtlpEndpoint)
     .WaitForCompletion(migrationWorker)
     .WaitFor(goTrue);
 
@@ -69,7 +57,6 @@ var bff = builder
     .AddProject<Projects.BSDCPolls_BFF>("bsdcpolls-bff")
     .WithReference(api)
     .WithEnvironment("InternalApi__Url", api.GetEndpoint("http"))
-    .WithEnvironment("Otlp__Endpoint", sigNozOtlpEndpoint)
     .WaitForCompletion(migrationWorker);
 
 // Allow the internal API to push SignalR notifications via the BFF's internal endpoint.

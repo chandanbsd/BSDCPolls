@@ -109,13 +109,18 @@ public sealed class AuditInterceptor : SaveChangesInterceptor
             entry.Property(nameof(AuditableEntity.Uid)).CurrentValue ?? Guid.Empty
         );
 
-        var payload = JsonSerializer.Serialize(
-            entry.CurrentValues.ToObject(),
-            new JsonSerializerOptions { WriteIndented = false }
+        // Serialize only scalar properties — ToObject() returns a lazy-loading proxy whose
+        // navigation properties (CreatedBy, UpdatedBy, PerformedBy) would fire a SELECT each
+        // when the JSON serializer walks every public property.
+        var scalars = entry.Properties.ToDictionary(
+            p => p.Metadata.Name,
+            p => p.CurrentValue
         );
+        var payload = JsonSerializer.Serialize(scalars, new JsonSerializerOptions { WriteIndented = false });
 
+        // entry.Metadata.ClrType gives the real entity name, not the EF proxy subclass name.
         return AuditLog.Create(
-            entityName: entry.Entity.GetType().Name,
+            entityName: entry.Metadata.ClrType.Name,
             entityId: entityId,
             entityUid: entityUid,
             operation: operation,

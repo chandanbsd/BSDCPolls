@@ -33,19 +33,19 @@ builder.Host.UseSerilog(
 );
 
 // ── OpenTelemetry ─────────────────────────────────────────────────────────────
-var otlpEndpoint = builder.Configuration["Otlp:Endpoint"] ?? "http://localhost:4317";
+var otlpEndpoint = builder.Configuration["Otlp:Endpoint"];
 
-builder
+var otel = builder
     .Services.AddOpenTelemetry()
     .ConfigureResource(r => r.AddService("BSDCPolls.Api"))
-    .WithTracing(t =>
-        t.AddAspNetCoreInstrumentation()
-            .AddEntityFrameworkCoreInstrumentation()
-            .AddOtlpExporter(o => o.Endpoint = new Uri(otlpEndpoint))
-    )
-    .WithMetrics(m =>
-        m.AddAspNetCoreInstrumentation().AddOtlpExporter(o => o.Endpoint = new Uri(otlpEndpoint))
-    );
+    .WithTracing(t => t.AddAspNetCoreInstrumentation().AddEntityFrameworkCoreInstrumentation())
+    .WithMetrics(m => m.AddAspNetCoreInstrumentation());
+
+if (otlpEndpoint is not null)
+{
+    otel.WithTracing(t => t.AddOtlpExporter(o => o.Endpoint = new Uri(otlpEndpoint)))
+        .WithMetrics(m => m.AddOtlpExporter(o => o.Endpoint = new Uri(otlpEndpoint)));
+}
 
 // ── EF Core + Audit infrastructure ───────────────────────────────────────────
 builder.Services.AddHttpContextAccessor();
@@ -75,6 +75,7 @@ builder
     .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = false,
@@ -82,6 +83,23 @@ builder
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = ctx =>
+            {
+                var logger = ctx.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+                logger.LogError(ctx.Exception, "JWT authentication failed");
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = ctx =>
+            {
+                var logger = ctx.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+                var claims = ctx.Principal?.Claims.Select(c => $"{c.Type}={c.Value}");
+                logger.LogInformation("JWT validated. Claims: {Claims}", string.Join(", ", claims ?? []));
+                return Task.CompletedTask;
+            },
         };
     });
 
