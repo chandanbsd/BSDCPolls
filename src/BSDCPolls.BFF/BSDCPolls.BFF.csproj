@@ -19,8 +19,8 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AngularAppDir>$(MSBuildThisFileDirectory)..\..\BSDCPolls.Web</AngularAppDir>
-    <AngularDistDir>$(AngularAppDir)\dist\bsdcpolls.web\browser</AngularDistDir>
+    <AngularAppDir>$(MSBuildThisFileDirectory)..\..\bsdcpolls-frontend</AngularAppDir>
+    <AngularDistDir>$(AngularAppDir)\dist\bsdcpolls-frontend\browser</AngularDistDir>
   </PropertyGroup>
 
   <!-- Build Angular and copy output into wwwroot on dotnet publish only. -->

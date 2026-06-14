@@ -64,7 +64,7 @@ api.WithEnvironment("Bff__InternalUrl", bff.GetEndpoint("http"));
 
 // ── Angular dev server ────────────────────────────────────────────────────────
 builder
-    .AddNpmApp("bsdcpolls-web", "../../BSDCPolls.Web", "start")
+    .AddNpmApp("bsdcpolls-frontend", "../bsdcpolls-frontend", "start")
     .WaitFor(bff);
 
 builder.Build().Run();

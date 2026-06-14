@@ -17,6 +17,7 @@ dotnet run
 ```
 
 The Aspire dashboard opens at `http://localhost:15888`. All services must show "Running" status:
+
 - `bsdcpolls-bff` — BFF ASP.NET Core
 - `bsdcpolls-api` — Backend API ASP.NET Core
 - `bsdcpolls-migration-worker` — (completes and exits; status shows "Finished")
@@ -27,7 +28,7 @@ The Aspire dashboard opens at `http://localhost:15888`. All services must show "
 The Angular dev server runs separately:
 
 ```bash
-# From BSDCPolls.Web/
+# From bsdcpolls-frontend/
 npm install
 npm run generate-api    # Generate TypeScript from BFF OpenAPI spec
 npm start               # Angular dev server at http://localhost:4200
@@ -50,6 +51,7 @@ npm start               # Angular dev server at http://localhost:4200
 personal data is requested or shown. The user is redirected to the home page.
 
 **Verify**:
+
 - The username is three lowercase words separated by hyphens
 - No profane word appears in any component
 - The Supabase PostgreSQL table `application_users` has one row with the generated username
@@ -98,12 +100,14 @@ profiles or use an incognito window for one.
     "Espresso", "Latte", "Cappuccino". Select **Push Now**.
 
 **Expected (within 1 second)**:
+
 - User B sees the question appear as a popup without refreshing the page. (Validates SC-002)
 - Creator dashboard does not yet show votes.
 
 12. User B selects "Latte" and clicks **Submit**.
 
 **Expected (within 1 second)**:
+
 - Creator's dashboard shows 1 vote for "Latte" (100%). (Validates SC-003)
 - User B cannot submit again for the same question (duplicate rejected).
 
@@ -112,6 +116,7 @@ profiles or use an incognito window for one.
 15. Creator closes the poll (status → Closed).
 
 **Verify**:
+
 - `poll_submissions` table has 2 rows for User B
 - `poll_questions` table has 2 rows, both with `pushed_at` set
 - User B attempting to access the unique poll URL of a different invite-only poll returns 403
@@ -166,6 +171,7 @@ profiles or use an incognito window for one.
 **Expected**: Upload rejected with a clear "PDF files only" error before submission.
 
 **Verify**:
+
 - `surveys.question_tree` column contains valid JSONB with the conditional branch structure
 - `survey_responses.answers_json` for User B has no entry for the conditional question
 - `survey_responses.answers_json` for User C has an entry for the conditional question with text
@@ -283,6 +289,7 @@ No stack traces, no exception type names, no internal service names.
 3. In SigNoz Traces, filter by service `bsdcpolls-bff`.
 
 **Expected**: Distributed traces show the full span tree:
+
 - Angular request → BFF controller → BFF.Business service → API (via internal call) → EF Core
   database query → response
 
@@ -312,7 +319,7 @@ dotnet csharpier --check .
 dotnet build --configuration Release
 
 # Angular TypeScript generation (check for diffs)
-cd BSDCPolls.Web && npm run generate-api && git diff --exit-code src/app/generated/
+cd bsdcpolls-frontend && npm run generate-api && git diff --exit-code src/app/generated/
 
 # Angular linting (zero warnings)
 ng lint --max-warnings 0
@@ -330,11 +337,11 @@ find . -name "*.spec.ts" -o -name "*Tests.csproj" | grep -q . && echo "TEST FILE
 
 ## Artifact References
 
-| Artifact | Location |
-|----------|----------|
-| Entity data model | [data-model.md](./data-model.md) |
-| REST API contracts | [contracts/api-endpoints.md](./contracts/api-endpoints.md) |
-| SignalR hub contracts | [contracts/signalr-hubs.md](./contracts/signalr-hubs.md) |
-| DTO validation rules | [contracts/dto-schemas.md](./contracts/dto-schemas.md) |
-| Technical decisions | [research.md](./research.md) |
-| Feature specification | [spec.md](./spec.md) |
+| Artifact              | Location                                                   |
+| --------------------- | ---------------------------------------------------------- |
+| Entity data model     | [data-model.md](./data-model.md)                           |
+| REST API contracts    | [contracts/api-endpoints.md](./contracts/api-endpoints.md) |
+| SignalR hub contracts | [contracts/signalr-hubs.md](./contracts/signalr-hubs.md)   |
+| DTO validation rules  | [contracts/dto-schemas.md](./contracts/dto-schemas.md)     |
+| Technical decisions   | [research.md](./research.md)                               |
+| Feature specification | [spec.md](./spec.md)                                       |

@@ -35,6 +35,7 @@ environment with no external network dependency. JwtBearer with a JWKS endpoint 
 ASP.NET Core pattern and avoids any Supabase SDK dependency in the .NET backend.
 
 **Alternatives considered**:
+
 - Using ASP.NET Core Identity as the auth system — rejected because Supabase Auth (GoTrue) is
   explicitly mandated by the constitution.
 - Storing the JWT secret as a static key — rejected because JWKS rotation is a security best
@@ -68,6 +69,7 @@ industry-standard (used by Bitwarden, Ente, and similar privacy-focused applicat
 combinations, making collisions effectively impossible at early scale.
 
 **Alternatives considered**:
+
 - Using UUID slugs (e.g., "abc-123") — rejected because they are not memorable or friendly.
 - Using a third-party profanity library — rejected because an embedded deny-list gives full
   control and avoids an external dependency that could change its list without notice.
@@ -89,6 +91,7 @@ constraint because no ApplicationUser exists yet. Seeding a system user in the i
 breaks the circular dependency cleanly.
 
 **Alternatives considered**:
+
 - Nullable `CreatedById` on `ApplicationUser` only — rejected because the constitution says
   "no entity may omit any of these properties," implying non-nullable.
 - Self-referential on INSERT (set CreatedById = own Id) — rejected because the Id is
@@ -142,6 +145,7 @@ the EF Core entity model clean while respecting the no-raw-SQL constraint — th
 deserialization is explicit C# code, not a raw SQL call.
 
 **Alternatives considered**:
+
 - A separate `SurveyQuestion` entity table with a self-referential `ParentQuestionId` FK —
   rejected because the spec explicitly states survey structure is stored as a document. The
   spec says "all the survey options as NoSQL documents within Postgres."
@@ -172,6 +176,7 @@ PostgreSQL instance as all other data simplifies local development, backup, and 
 parity with zero additional containers.
 
 **Alternatives considered**:
+
 - Supabase Storage (self-hosted MinIO) — rejected for Phase 1 because it adds container
   complexity without a compelling need at the stated 10 MB cap. Can be revisited as a
   future enhancement.
@@ -207,6 +212,7 @@ real-time events. Keying groups by poll GUID ties directly to the domain model. 
 connection IDs server-side avoids sending vote totals to all participants.
 
 **Alternatives considered**:
+
 - A separate presence service (Redis backplane) for distributed SignalR — rejected because
   initial scope targets ~1,000 concurrent users, which a single BFF instance handles comfortably.
   Horizontal scaling with a Redis backplane is a documented future path.
@@ -247,12 +253,12 @@ ensures no notifications are lost for offline users.
    and re-generated whenever the BFF is rebuilt in CI.
 
 2. **Angular project reads `openapi.json` and generates TypeScript** using the NSwag CLI
-   (`npx nswag run`) with a `nswag.json` at the `BSDCPolls.Web` root that points at the
+   (`npx nswag run`) with a `nswag.json` at the `bsdcpolls-frontend` root that points at the
    committed `openapi.json`. Generated files are output to `src/app/generated/` and committed
    to the repository.
 
 3. **CI pipeline step order**: `dotnet build → dotnet nswag (generate openapi.json) → npx nswag
-   run (generate TS) → ng build`. A diff on the generated files in CI acts as a type-regression
+run (generate TS) → ng build`. A diff on the generated files in CI acts as a type-regression
    detector.
 
 **Developer workflow**: After changing any BFF contract, run `npm run generate-api` (defined in
@@ -284,14 +290,14 @@ discovery just like any other service.
 
 ## Summary of Decisions
 
-| ID | Topic | Decision |
-|----|-------|----------|
-| R-001 | Supabase Auth JWT validation | `JwtBearer` with JWKS from self-hosted GoTrue; synthetic email for registration |
-| R-002 | Username generation | Embedded word lists (adj-adj-noun); deny-list profanity filter; `IUsernameGenerator` |
-| R-003 | AuditableEntity bootstrapping | System sentinel user seeded in migration (Id=1); registration interceptor falls back to sentinel |
-| R-004 | JSONB for survey trees | EF Core value converter with `System.Text.Json`; `SurveyQuestionTreeDocument` record |
-| R-005 | PDF storage | PostgreSQL `bytea` column on `SurveyDocument` entity; 10 MB cap at BFF controller |
-| R-006 | SignalR poll groups | Group per `pollUid`; creator connection tracked in `IPollSessionTracker`; vote counts to creator only |
-| R-007 | Notification hub | Separate `NotificationHub`; personal group per `userId`; REST fallback for offline users |
-| R-008 | NSwag pipeline | BFF generates `openapi.json`; Angular reads committed JSON; `npm run generate-api` script |
-| R-009 | SigNoz in Aspire | `ContainerResource` in AppHost; OTLP on 4317/4318; linked from Aspire dashboard |
+| ID    | Topic                         | Decision                                                                                              |
+| ----- | ----------------------------- | ----------------------------------------------------------------------------------------------------- |
+| R-001 | Supabase Auth JWT validation  | `JwtBearer` with JWKS from self-hosted GoTrue; synthetic email for registration                       |
+| R-002 | Username generation           | Embedded word lists (adj-adj-noun); deny-list profanity filter; `IUsernameGenerator`                  |
+| R-003 | AuditableEntity bootstrapping | System sentinel user seeded in migration (Id=1); registration interceptor falls back to sentinel      |
+| R-004 | JSONB for survey trees        | EF Core value converter with `System.Text.Json`; `SurveyQuestionTreeDocument` record                  |
+| R-005 | PDF storage                   | PostgreSQL `bytea` column on `SurveyDocument` entity; 10 MB cap at BFF controller                     |
+| R-006 | SignalR poll groups           | Group per `pollUid`; creator connection tracked in `IPollSessionTracker`; vote counts to creator only |
+| R-007 | Notification hub              | Separate `NotificationHub`; personal group per `userId`; REST fallback for offline users              |
+| R-008 | NSwag pipeline                | BFF generates `openapi.json`; Angular reads committed JSON; `npm run generate-api` script             |
+| R-009 | SigNoz in Aspire              | `ContainerResource` in AppHost; OTLP on 4317/4318; linked from Aspire dashboard                       |

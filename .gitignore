@@ -17,11 +17,11 @@ packages/
 .podman/
 
 ## Angular / Node
-BSDCPolls.Web/node_modules/
-BSDCPolls.Web/dist/
-BSDCPolls.Web/.angular/
-BSDCPolls.Web/src/app/generated/
-BSDCPolls.Web/coverage/
+bsdcpolls-frontend/node_modules/
+bsdcpolls-frontend/dist/
+bsdcpolls-frontend/.angular/
+bsdcpolls-frontend/src/app/generated/
+bsdcpolls-frontend/coverage/
 
 ## Secrets / environment
 .env
