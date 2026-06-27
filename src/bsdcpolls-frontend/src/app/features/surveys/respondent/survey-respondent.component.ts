@@ -7,6 +7,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
 import { MatRadioModule } from '@angular/material/radio';
 import { SurveyStore, SurveyAnswerType } from '../../../store/survey.store';
 import { BsdcPollsApiClient, FileParameter, SurveyQuestionNode } from '../../../generated/api';
@@ -25,10 +26,12 @@ import { firstValueFrom } from 'rxjs';
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
+    MatIconModule,
     MatProgressSpinnerModule,
     MatRadioModule,
   ],
   templateUrl: './survey-respondent.component.html',
+  styleUrl: './survey-respondent.component.scss',
 })
 export class SurveyRespondentComponent implements OnInit {
   readonly surveyStore = inject(SurveyStore);
@@ -156,6 +159,9 @@ export class SurveyRespondentComponent implements OnInit {
     this.dialog.open(InviteUserDialogComponent, {
       data: { surveyUid: this.surveyUid },
       width: '400px',
+      restoreFocus: true,
+      autoFocus: 'first-tabbable',
+      ariaLabel: 'Invite user to survey',
     });
   }
 

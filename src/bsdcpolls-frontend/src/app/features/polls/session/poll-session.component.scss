@@ -1,0 +1,84 @@
+@use '../../../../styles/tokens' as t;
+@use '../../../../styles/breakpoints' as bp;
+
+:host {
+  display: block;
+  padding: t.$space-4;
+}
+
+h1 {
+  font: var(--mat-sys-headline-large);
+  color: var(--mat-sys-on-surface);
+  margin-block: t.$space-4;
+}
+
+h2 {
+  font: var(--mat-sys-headline-medium);
+  color: var(--mat-sys-on-surface);
+  margin-block: t.$space-3;
+}
+
+.session-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: t.$space-4;
+
+  @include bp.md-up {
+    // Side-by-side: vote options left, live results right
+    grid-template-columns: 1fr 1fr;
+    gap: t.$space-8;
+    align-items: start;
+    max-width: 1000px;
+  }
+}
+
+.creator-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: t.$space-3;
+  margin-block-end: t.$space-4;
+
+  button {
+    min-height: 44px;
+  }
+}
+
+mat-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: t.$space-3;
+}
+
+mat-radio-button {
+  // Minimum 44 px touch target per WCAG 2.5.5
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.vote-actions {
+  margin-block-start: t.$space-4;
+
+  button {
+    width: 100%;
+    min-height: 44px;
+
+    @include bp.md-up {
+      width: auto;
+    }
+  }
+}
+
+.vote-error {
+  display: flex;
+  align-items: center;
+  gap: t.$space-2;
+  color: var(--mat-sys-error);
+  font: var(--mat-sys-body-medium);
+  margin-block-start: t.$space-2;
+}
+
+.waiting-message {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-large);
+}

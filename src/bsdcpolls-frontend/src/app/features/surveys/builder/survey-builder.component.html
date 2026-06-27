@@ -1,7 +1,6 @@
-<mat-card>
-  <mat-card-header>
-    <mat-card-title>Create Survey</mat-card-title>
-  </mat-card-header>
+<h1>Create Survey</h1>
+
+<mat-card class="builder-card">
   <mat-card-content>
     <mat-stepper orientation="vertical" [linear]="true">
       <!-- Step 1: Title & Visibility -->
@@ -11,11 +10,14 @@
             <mat-label>Title</mat-label>
             <input matInput formControlName="title" maxlength="200" />
             @if (metaForm.get('title')?.hasError('required')) {
-              <mat-error>Title is required.</mat-error>
+              <mat-error>
+                <mat-icon aria-hidden="true">error</mat-icon>
+                Title is required.
+              </mat-error>
             }
           </mat-form-field>
           <mat-slide-toggle formControlName="isPublic">Public survey</mat-slide-toggle>
-          <div>
+          <div class="step-actions">
             <button mat-raised-button color="primary" matStepperNext [disabled]="metaForm.invalid">Next</button>
           </div>
         </form>
@@ -54,31 +56,33 @@
                         <mat-chip-row (removed)="removeChoice($index, $index)">
                           <input matInput [formControl]="$any(choice).get('text')" placeholder="Choice text" />
                           <button matChipRemove [attr.aria-label]="'Remove choice'">
-                            <mat-icon>cancel</mat-icon>
+                            <mat-icon aria-hidden="true">cancel</mat-icon>
                           </button>
                         </mat-chip-row>
                       }
                     </mat-chip-grid>
                     <button mat-stroked-button (click)="addChoice($index)">
-                      <mat-icon>add</mat-icon>
+                      <mat-icon aria-hidden="true">add</mat-icon>
                       Add Choice
                     </button>
                   </div>
                 }
 
-                <button mat-icon-button color="warn" (click)="removeQuestion($index)">
-                  <mat-icon>delete</mat-icon>
-                </button>
+                <div class="question-actions">
+                  <button mat-icon-button color="warn" [attr.aria-label]="'Remove question ' + ($index + 1)" (click)="removeQuestion($index)">
+                    <mat-icon aria-hidden="true">delete</mat-icon>
+                  </button>
+                </div>
               </div>
             </mat-expansion-panel>
           }
 
-          <button mat-stroked-button (click)="addQuestion()">
-            <mat-icon>add</mat-icon>
+          <button mat-stroked-button class="add-question-btn" (click)="addQuestion()">
+            <mat-icon aria-hidden="true">add</mat-icon>
             Add Question
           </button>
 
-          <div>
+          <div class="step-actions">
             <button mat-button matStepperPrevious>Back</button>
             <button
               mat-raised-button
@@ -95,7 +99,10 @@
           </div>
 
           @if (error) {
-            <p>{{ error }}</p>
+            <div class="form-error" role="alert">
+              <mat-icon aria-hidden="true">error</mat-icon>
+              {{ error }}
+            </div>
           }
         </form>
       </mat-step>

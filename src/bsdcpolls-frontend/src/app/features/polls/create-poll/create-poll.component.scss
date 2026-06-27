@@ -1,0 +1,53 @@
+@use '../../../../styles/tokens' as t;
+@use '../../../../styles/breakpoints' as bp;
+
+:host {
+  display: block;
+  padding: t.$space-4;
+}
+
+h1 {
+  font: var(--mat-sys-headline-large);
+  color: var(--mat-sys-on-surface);
+  margin-block: t.$space-4;
+}
+
+.form-card {
+  width: 100%;
+
+  @include bp.md-up {
+    max-width: 800px;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: t.$space-4;
+  }
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-block-start: t.$space-2;
+
+  button {
+    min-height: 44px;
+
+    @include bp.xs {
+      width: 100%;
+    }
+  }
+}
+
+.form-error {
+  display: flex;
+  align-items: center;
+  gap: t.$space-2;
+  color: var(--mat-sys-error);
+  font: var(--mat-sys-body-medium);
+}

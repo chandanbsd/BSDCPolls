@@ -1,17 +1,17 @@
 @if (surveyStore.survey(); as survey) {
-  <mat-card>
+  <mat-card class="respondent-card">
     <mat-card-header>
-      <mat-card-title>{{ survey.title }}</mat-card-title>
+      <mat-card-title><h1>{{ survey.title }}</h1></mat-card-title>
     </mat-card-header>
     <mat-card-content>
       @if (currentQuestion; as question) {
         <mat-card>
           <mat-card-header>
-            <mat-card-title>{{ question.text }}</mat-card-title>
+            <mat-card-title><h2>{{ question.text }}</h2></mat-card-title>
           </mat-card-header>
           <mat-card-content>
             @if (question.answerType === SurveyAnswerType.MultipleChoice) {
-              <mat-radio-group [(ngModel)]="selectedChoiceUid">
+              <mat-radio-group [(ngModel)]="selectedChoiceUid" [attr.aria-label]="question.text">
                 @for (choice of question.choices ?? []; track choice.uid) {
                   <mat-radio-button [value]="choice.uid">{{ choice.text }}</mat-radio-button>
                 }
@@ -27,13 +27,16 @@
                 <textarea matInput [(ngModel)]="textValue" rows="4"></textarea>
               </mat-form-field>
             } @else if (question.answerType === SurveyAnswerType.DocumentUpload) {
-              <input type="file" accept=".pdf" (change)="onFileSelected($event)" />
+              <input type="file" accept=".pdf" (change)="onFileSelected($event)" [attr.aria-label]="'Upload PDF for: ' + question.text" />
               @if (uploadError) {
-                <p>{{ uploadError }}</p>
+                <div role="alert" class="form-error">
+                  <mat-icon aria-hidden="true">error</mat-icon>
+                  {{ uploadError }}
+                </div>
               }
             }
           </mat-card-content>
-          <mat-card-actions>
+          <mat-card-actions class="question-actions">
             <button
               mat-raised-button
               color="primary"
@@ -54,12 +57,18 @@
         <p>No questions available.</p>
       }
       @if (surveyStore.error()) {
-        <p>{{ surveyStore.error() }}</p>
+        <div role="alert" class="form-error">
+          <mat-icon aria-hidden="true">error</mat-icon>
+          {{ surveyStore.error() }}
+        </div>
       }
     </mat-card-content>
   </mat-card>
 } @else if (surveyStore.error()) {
-  <p>{{ surveyStore.error() }}</p>
+  <div role="alert" class="form-error">
+    <mat-icon aria-hidden="true">error</mat-icon>
+    {{ surveyStore.error() }}
+  </div>
 } @else {
   <mat-spinner></mat-spinner>
 }

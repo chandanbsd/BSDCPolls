@@ -1,0 +1,68 @@
+<mat-sidenav-container class="drawer-container">
+  <mat-sidenav
+    mode="side"
+    [opened]="true"
+    [class.drawer--xl]="layoutStore.isXl()"
+    class="nav-drawer"
+  >
+    <div class="drawer-header">
+      <span class="app-name">BSDCPolls</span>
+    </div>
+
+    <nav aria-label="Main navigation">
+      <mat-nav-list>
+        <a
+          mat-list-item
+          routerLink="/feed"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: false }"
+          [attr.aria-current]="feedLink.isActive ? 'page' : null"
+          #feedLink="routerLinkActive"
+        >
+          <mat-icon matListItemIcon aria-hidden="true">home</mat-icon>
+          <span matListItemTitle>Feed</span>
+        </a>
+
+        <a
+          mat-list-item
+          routerLink="/polls"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: false }"
+          [attr.aria-current]="pollsLink.isActive ? 'page' : null"
+          #pollsLink="routerLinkActive"
+        >
+          <mat-icon matListItemIcon aria-hidden="true">poll</mat-icon>
+          <span matListItemTitle>Polls</span>
+        </a>
+
+        <a
+          mat-list-item
+          routerLink="/surveys"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: false }"
+          [attr.aria-current]="surveysLink.isActive ? 'page' : null"
+          #surveysLink="routerLinkActive"
+        >
+          <mat-icon matListItemIcon aria-hidden="true">assignment</mat-icon>
+          <span matListItemTitle>Surveys</span>
+        </a>
+
+        <a
+          mat-list-item
+          routerLink="/profile"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: false }"
+          [attr.aria-current]="profileLink.isActive ? 'page' : null"
+          #profileLink="routerLinkActive"
+        >
+          <mat-icon matListItemIcon aria-hidden="true">account_circle</mat-icon>
+          <span matListItemTitle>Profile</span>
+        </a>
+      </mat-nav-list>
+    </nav>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <ng-content />
+  </mat-sidenav-content>
+</mat-sidenav-container>

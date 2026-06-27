@@ -1,3 +1,5 @@
+<h1>Feed</h1>
+
 <mat-tab-group (selectedIndexChange)="onTabChange($event)">
   <mat-tab label="Polls">
     <div class="tab-content">
@@ -5,32 +7,51 @@
         <mat-spinner diameter="40"></mat-spinner>
       }
       @if (store.error()) {
-        <p>{{ store.error() }}</p>
+        <p role="alert" class="empty-state">{{ store.error() }}</p>
       }
-      <div>
-        <button mat-raised-button color="primary" (click)="createPoll()">
-          <mat-icon>add</mat-icon>
+      <div class="feed-actions">
+        <button mat-raised-button (click)="createPoll()">
+          <mat-icon aria-hidden="true">add</mat-icon>
           New Poll
         </button>
       </div>
-      @for (poll of store.polls(); track poll.pollUid) {
-        <mat-card (click)="openPoll(poll.pollUid)">
-          <mat-card-header>
-            <mat-card-title>{{ poll.title }}</mat-card-title>
-            <mat-card-subtitle>by {{ poll.creatorUsername }}</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content>
-            <mat-chip-set>
-              <mat-chip>{{ poll.status }}</mat-chip>
-              @if (!poll.isPublic) {
-                <mat-chip>Private</mat-chip>
-              }
-            </mat-chip-set>
-          </mat-card-content>
-        </mat-card>
-      }
+      <h2 class="visually-hidden">Active Polls</h2>
+      <div class="feed-grid">
+        @for (poll of store.polls(); track poll.pollUid) {
+          <mat-card class="poll-card" (click)="openPoll(poll.pollUid)" tabindex="0"
+            (keydown.enter)="openPoll(poll.pollUid)" (keydown.space)="openPoll(poll.pollUid)"
+            role="button" [attr.aria-label]="poll.title + ' — ' + poll.status">
+            <mat-card-header>
+              <mat-card-title><h3>{{ poll.title }}</h3></mat-card-title>
+              <mat-card-subtitle>by {{ poll.creatorUsername }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-chip-set>
+                <mat-chip>
+                  <span class="status-badge">
+                    @if (poll.status === PollStatus.Active) {
+                      <mat-icon aria-hidden="true">check_circle</mat-icon>
+                    } @else if (poll.status === PollStatus.Closed) {
+                      <mat-icon aria-hidden="true">cancel</mat-icon>
+                    } @else {
+                      <mat-icon aria-hidden="true">edit</mat-icon>
+                    }
+                    {{ poll.status }}
+                  </span>
+                </mat-chip>
+                @if (!poll.isPublic) {
+                  <mat-chip>
+                    <mat-icon aria-hidden="true">lock</mat-icon>
+                    Private
+                  </mat-chip>
+                }
+              </mat-chip-set>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
       @if (!store.isLoading() && store.polls().length === 0) {
-        <p>No polls yet.</p>
+        <p class="empty-state">No polls yet.</p>
       }
     </div>
   </mat-tab>
@@ -40,37 +61,56 @@
       @if (store.isLoading()) {
         <mat-spinner diameter="40"></mat-spinner>
       }
-      <div>
-        <button mat-raised-button color="primary" (click)="createSurvey()">
-          <mat-icon>add</mat-icon>
+      <div class="feed-actions">
+        <button mat-raised-button (click)="createSurvey()">
+          <mat-icon aria-hidden="true">add</mat-icon>
           New Survey
         </button>
       </div>
-      @for (survey of store.surveys(); track survey.surveyUid) {
-        <mat-card (click)="openSurvey(survey.surveyUid)">
-          <mat-card-header>
-            <mat-card-title>{{ survey.title }}</mat-card-title>
-            <mat-card-subtitle>by {{ survey.creatorUsername }}</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content>
-            <mat-chip-set>
-              <mat-chip>{{ survey.status }}</mat-chip>
-              @if (!survey.isPublic) {
-                <mat-chip>Private</mat-chip>
-              }
-            </mat-chip-set>
-          </mat-card-content>
-        </mat-card>
-      }
+      <h2 class="visually-hidden">Active Surveys</h2>
+      <div class="feed-grid">
+        @for (survey of store.surveys(); track survey.surveyUid) {
+          <mat-card class="survey-card" (click)="openSurvey(survey.surveyUid)" tabindex="0"
+            (keydown.enter)="openSurvey(survey.surveyUid)" (keydown.space)="openSurvey(survey.surveyUid)"
+            role="button" [attr.aria-label]="survey.title + ' — ' + survey.status">
+            <mat-card-header>
+              <mat-card-title><h3>{{ survey.title }}</h3></mat-card-title>
+              <mat-card-subtitle>by {{ survey.creatorUsername }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-chip-set>
+                <mat-chip>
+                  <span class="status-badge">
+                    @if (survey.status === SurveyStatus.Published) {
+                      <mat-icon aria-hidden="true">check_circle</mat-icon>
+                    } @else if (survey.status === SurveyStatus.Closed) {
+                      <mat-icon aria-hidden="true">cancel</mat-icon>
+                    } @else {
+                      <mat-icon aria-hidden="true">edit</mat-icon>
+                    }
+                    {{ survey.status }}
+                  </span>
+                </mat-chip>
+                @if (!survey.isPublic) {
+                  <mat-chip>
+                    <mat-icon aria-hidden="true">lock</mat-icon>
+                    Private
+                  </mat-chip>
+                }
+              </mat-chip-set>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
       @if (!store.isLoading() && store.surveys().length === 0) {
-        <p>No surveys yet.</p>
+        <p class="empty-state">No surveys yet.</p>
       }
     </div>
   </mat-tab>
 
   <mat-tab label="Results">
     <div class="tab-content">
-      <p>Completed polls and surveys you participated in will appear here.</p>
+      <p class="empty-state">Completed polls and surveys you participated in will appear here.</p>
     </div>
   </mat-tab>
 </mat-tab-group>

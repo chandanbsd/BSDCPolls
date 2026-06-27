@@ -1,0 +1,78 @@
+@use '../../../../styles/tokens' as t;
+@use '../../../../styles/motion' as motion;
+
+.rail-container {
+  // Fill the full viewport height so sidenav stretches edge-to-edge
+  height: 100%;
+}
+
+.nav-rail {
+  // Rail is exactly 80 px wide per M3 navigation rail specification
+  width: t.$nav-rail-width;
+  background-color: var(--mat-sys-surface-container);
+  border-right: none;
+}
+
+.rail-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: t.$space-3;
+  padding-block: t.$space-6;
+}
+
+.rail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: t.$space-1;
+  width: 100%;
+  // Minimum 56 px height per M3 nav rail item specification
+  min-height: 56px;
+  padding-block: t.$space-2;
+  color: var(--mat-sys-on-surface-variant);
+  text-decoration: none;
+  position: relative;
+  @include motion.motion-safe-transition(color 0.2s ease);
+
+  &:focus-visible {
+    outline: 2px solid var(--mat-sys-primary);
+    outline-offset: -2px;
+    border-radius: var(--mat-sys-corner-extra-small);
+  }
+
+  // M3 active indicator pill — 56 px wide × 32 px tall, positioned above the label
+  &::before {
+    content: '';
+    position: absolute;
+    top: t.$space-2;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 56px;
+    height: 32px;
+    border-radius: var(--mat-sys-corner-full);
+    background-color: transparent;
+    @include motion.motion-safe-transition(background-color 0.2s ease);
+  }
+
+  &.active {
+    color: var(--mat-sys-on-secondary-container);
+
+    &::before {
+      background-color: var(--mat-sys-secondary-container);
+    }
+  }
+
+  mat-icon {
+    font-size: t.$space-6;
+    height: t.$space-6;
+    width: t.$space-6;
+    position: relative;
+  }
+}
+
+.rail-label {
+  font: var(--mat-sys-label-medium);
+  position: relative;
+}

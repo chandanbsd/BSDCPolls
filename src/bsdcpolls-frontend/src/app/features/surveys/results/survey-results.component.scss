@@ -1,0 +1,84 @@
+@use '../../../../styles/tokens' as t;
+@use '../../../../styles/breakpoints' as bp;
+
+:host {
+  display: block;
+  padding: t.$space-4;
+}
+
+h1 {
+  font: var(--mat-sys-headline-large);
+  color: var(--mat-sys-on-surface);
+  margin-block: t.$space-4;
+}
+
+h2 {
+  font: var(--mat-sys-headline-medium);
+  color: var(--mat-sys-on-surface);
+  margin-block: t.$space-3;
+}
+
+h3 {
+  font: var(--mat-sys-headline-small);
+  color: var(--mat-sys-on-surface);
+  margin-block: t.$space-2;
+}
+
+.results-container {
+  max-width: 1200px;
+
+  @include bp.md-up {
+    display: grid;
+    grid-template-columns: 60% 40%;
+    gap: t.$space-6;
+    align-items: start;
+  }
+
+  @include bp.lg-up {
+    grid-template-columns: 65% 35%;
+  }
+
+  // The h1 and summary-meta span full width regardless of grid
+  > h1,
+  > .summary-meta {
+    grid-column: 1 / -1;
+  }
+}
+
+.question-card {
+  margin-block-end: t.$space-4;
+  width: 100%;
+}
+
+// Results table — accessible data representation
+.results-table {
+  width: 100%;
+}
+
+.text-answers {
+  display: flex;
+  flex-direction: column;
+  gap: t.$space-2;
+}
+
+.text-answer {
+  font: var(--mat-sys-body-large);
+  color: var(--mat-sys-on-surface);
+  padding: t.$space-3;
+  background-color: var(--mat-sys-surface-variant);
+  border-radius: var(--mat-sys-corner-small);
+}
+
+.summary-meta {
+  font: var(--mat-sys-body-medium);
+  color: var(--mat-sys-on-surface-variant);
+  margin-block-end: t.$space-4;
+}
+
+.form-error {
+  display: flex;
+  align-items: center;
+  gap: t.$space-2;
+  color: var(--mat-sys-error);
+  font: var(--mat-sys-body-medium);
+}

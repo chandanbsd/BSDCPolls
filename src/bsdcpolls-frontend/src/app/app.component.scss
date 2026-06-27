@@ -1,0 +1,46 @@
+@use '../styles/tokens' as t;
+@use '../styles/breakpoints' as bp;
+
+.app-header {
+  display: flex;
+  align-items: center;
+  padding-inline: t.$space-4;
+  height: 64px;
+  background-color: var(--mat-sys-surface-container);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
+.app-header__title {
+  font: var(--mat-sys-title-large);
+  color: var(--mat-sys-on-surface);
+}
+
+.app-header__spacer {
+  flex: 1 1 auto;
+}
+
+.content {
+  display: block;
+  padding: t.$space-4;
+  // Ensure <main> fills remaining height so page backgrounds extend fully
+  min-height: calc(100vh - 64px);
+
+  // tabindex="-1" removes the default focus outline; we suppress it visually
+  // because focus here is programmatic (skip link / route change), not user-initiated.
+  &:focus {
+    outline: none;
+  }
+}
+
+.content--bottom-nav {
+  // Prevent content from being hidden behind the fixed bottom nav bar
+  padding-bottom: calc(t.$bottom-nav-height + t.$space-4);
+}
+
+.content--xl-constrained {
+  @include bp.xl {
+    // Keep body text at readable line lengths on very wide monitors
+    max-width: t.$content-max-width-xl;
+    margin-inline: auto;
+  }
+}

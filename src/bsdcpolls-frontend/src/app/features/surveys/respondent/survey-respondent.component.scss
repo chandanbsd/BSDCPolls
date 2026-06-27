@@ -1,0 +1,67 @@
+@use '../../../../styles/tokens' as t;
+@use '../../../../styles/breakpoints' as bp;
+
+:host {
+  display: flex;
+  justify-content: center;
+  padding: t.$space-4;
+}
+
+h1 {
+  font: var(--mat-sys-headline-large);
+  color: var(--mat-sys-on-surface);
+  margin-block: t.$space-4;
+}
+
+h2 {
+  font: var(--mat-sys-headline-medium);
+  color: var(--mat-sys-on-surface);
+  margin-block: t.$space-3;
+}
+
+.respondent-card {
+  width: 100%;
+  max-width: 640px;
+
+  @include bp.lg-up {
+    max-width: 720px;
+  }
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: t.$space-3;
+}
+
+mat-radio-button {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.question-actions {
+  margin-block-start: t.$space-4;
+
+  button {
+    width: 100%;
+    min-height: 44px;
+
+    @include bp.md-up {
+      width: auto;
+    }
+  }
+}
+
+.form-error {
+  display: flex;
+  align-items: center;
+  gap: t.$space-2;
+  color: var(--mat-sys-error);
+  font: var(--mat-sys-body-medium);
+  margin-block-start: t.$space-2;
+}

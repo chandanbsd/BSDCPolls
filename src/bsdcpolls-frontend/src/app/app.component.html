@@ -1,0 +1,68 @@
+<app-skip-link />
+
+@if (authStore.isAuthenticated()) {
+  @if (layoutStore.isXsOrSm()) {
+    <!-- Phone: bottom nav bar; notification bell floats in page header -->
+    <header class="app-header">
+      <span class="app-header__title">BSDCPolls</span>
+      <span class="app-header__spacer"></span>
+      <app-notification-bell />
+      <button
+        mat-icon-button
+        (click)="navigateToProfile()"
+        [attr.aria-label]="'Profile: ' + authStore.username()"
+      >
+        <mat-icon aria-hidden="true">account_circle</mat-icon>
+      </button>
+    </header>
+    <main id="main-content" tabindex="-1" class="content content--bottom-nav">
+      <router-outlet />
+    </main>
+    <app-bottom-nav />
+  }
+
+  @if (layoutStore.isMd()) {
+    <!-- Tablet: nav rail on the left -->
+    <app-nav-rail>
+      <header class="app-header">
+        <span class="app-header__spacer"></span>
+        <app-notification-bell />
+        <button
+          mat-icon-button
+          (click)="navigateToProfile()"
+          [attr.aria-label]="'Profile: ' + authStore.username()"
+        >
+          <mat-icon aria-hidden="true">account_circle</mat-icon>
+        </button>
+      </header>
+      <main id="main-content" tabindex="-1" class="content">
+        <router-outlet />
+      </main>
+    </app-nav-rail>
+  }
+
+  @if (layoutStore.isLgOrXl()) {
+    <!-- Desktop: persistent nav drawer -->
+    <app-nav-drawer>
+      <header class="app-header">
+        <span class="app-header__spacer"></span>
+        <app-notification-bell />
+        <button
+          mat-icon-button
+          (click)="navigateToProfile()"
+          [attr.aria-label]="'Profile: ' + authStore.username()"
+        >
+          <mat-icon aria-hidden="true">account_circle</mat-icon>
+        </button>
+      </header>
+      <main id="main-content" tabindex="-1" class="content content--xl-constrained">
+        <router-outlet />
+      </main>
+    </app-nav-drawer>
+  }
+} @else {
+  <!-- Unauthenticated: no nav, full-width router outlet -->
+  <main id="main-content" tabindex="-1" class="content">
+    <router-outlet />
+  </main>
+}

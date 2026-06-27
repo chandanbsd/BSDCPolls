@@ -8,6 +8,7 @@ import { GlobalErrorHandler } from './core/global-error-handler';
 import { traceparentInterceptor } from './core/traceparent.interceptor';
 import { tokenInterceptor } from './core/auth/token.interceptor';
 import { BsdcPollsApiClient } from './generated/api';
+import { breakpointServiceProvider } from './core/layout/breakpoint.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,5 +18,6 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([traceparentInterceptor, tokenInterceptor])),
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
     BsdcPollsApiClient,
+    breakpointServiceProvider,
   ],
 };

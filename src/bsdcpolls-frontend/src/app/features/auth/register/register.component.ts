@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthStore } from '../../../store/auth.store';
@@ -25,10 +26,12 @@ const hasSpecial = (c: AbstractControl) => /[^a-zA-Z0-9]/.test(c.value) ? null :
     MatCardModule,
     MatDialogModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
     MatProgressSpinnerModule,
   ],
   templateUrl: './register.component.html',
+  styleUrl: './register.component.scss',
 })
 export class RegisterComponent {
   private readonly authStore = inject(AuthStore);
@@ -48,15 +51,24 @@ export class RegisterComponent {
     return this.authStore.error();
   }
 
+  confirmationMessage = '';
+
   async onSubmit(): Promise<void> {
     if (this.form.invalid) return;
 
     const { password } = this.form.getRawValue();
     const username = await this.authStore.register({ password });
+    if (username) {
+      this.confirmationMessage = 'Account created successfully.';
+      setTimeout(() => (this.confirmationMessage = ''), 4000);
+    }
 
     const dialogRef = this.dialog.open(UsernameDialogComponent, {
       disableClose: true,
       data: { username },
+      restoreFocus: true,
+      autoFocus: 'first-tabbable',
+      ariaLabel: 'Your new username',
     });
 
     dialogRef.afterClosed().subscribe(() => {

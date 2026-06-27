@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthStore } from '../../../store/auth.store';
@@ -17,10 +18,12 @@ import { AuthStore } from '../../../store/auth.store';
     MatButtonModule,
     MatCardModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
     MatProgressSpinnerModule,
   ],
   templateUrl: './login.component.html',
+  styleUrl: './login.component.scss',
 })
 export class LoginComponent {
   private readonly authStore = inject(AuthStore);
@@ -40,10 +43,15 @@ export class LoginComponent {
     return this.authStore.error();
   }
 
+  confirmationMessage = '';
+
   async onSubmit(): Promise<void> {
     if (this.form.invalid) return;
 
     await this.authStore.login(this.form.getRawValue());
-    await this.router.navigate(['/feed']);
+    if (!this.authStore.error()) {
+      this.confirmationMessage = 'Signed in successfully.';
+      await this.router.navigate(['/feed']);
+    }
   }
 }
