@@ -1,6 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -15,7 +14,6 @@ import { PollStatus, SurveyStatus } from '../../generated/api';
   selector: 'app-feed',
   standalone: true,
   imports: [
-    CommonModule,
     MatTabsModule,
     MatCardModule,
     MatButtonModule,
@@ -24,6 +22,7 @@ import { PollStatus, SurveyStatus } from '../../generated/api';
     MatIconModule,
   ],
   templateUrl: './feed.component.html',
+  styleUrl: './feed.component.scss',
 })
 export class FeedComponent implements OnInit {
   readonly store = inject(FeedStore);

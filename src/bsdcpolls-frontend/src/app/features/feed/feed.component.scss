@@ -1,0 +1,69 @@
+@use '../../../styles/tokens' as t;
+@use '../../../styles/breakpoints' as bp;
+
+:host {
+  display: block;
+}
+
+h1 {
+  font: var(--mat-sys-headline-large);
+  color: var(--mat-sys-on-surface);
+  margin-block: t.$space-4;
+}
+
+.feed-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-block-end: t.$space-4;
+
+  button {
+    min-height: 44px;
+  }
+}
+
+.feed-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: t.$space-4;
+
+  @include bp.md {
+    grid-template-columns: repeat(2, 1fr);
+    gap: t.$space-6;
+  }
+
+  @include bp.lg-up {
+    grid-template-columns: repeat(3, 1fr);
+    gap: t.$space-6;
+  }
+}
+
+.poll-card,
+.survey-card {
+  cursor: pointer;
+  // Ensure cards don't stretch beyond a readable width at xl
+  width: 100%;
+
+  &:focus-visible {
+    outline: 2px solid var(--mat-sys-primary);
+    outline-offset: 2px;
+    border-radius: var(--mat-sys-corner-medium);
+  }
+}
+
+.empty-state {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-large);
+  text-align: center;
+  padding-block: t.$space-8;
+}
+
+.tab-content {
+  padding-block: t.$space-4;
+}
+
+// Status badge inside chips — icon + text per WCAG 1.4.1
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: t.$space-1;
+}

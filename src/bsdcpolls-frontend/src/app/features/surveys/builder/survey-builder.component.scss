@@ -1,0 +1,72 @@
+@use '../../../../styles/tokens' as t;
+@use '../../../../styles/breakpoints' as bp;
+
+:host {
+  display: block;
+  padding: t.$space-4;
+}
+
+h1 {
+  font: var(--mat-sys-headline-large);
+  color: var(--mat-sys-on-surface);
+  margin-block: t.$space-4;
+}
+
+.builder-card {
+  width: 100%;
+
+  @include bp.md-up {
+    max-width: 900px;
+  }
+
+  @include bp.lg-up {
+    max-width: 960px;
+  }
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-stepper {
+  background: transparent;
+}
+
+.step-actions {
+  display: flex;
+  gap: t.$space-3;
+  flex-wrap: wrap;
+  margin-block-start: t.$space-4;
+
+  button {
+    min-height: 44px;
+
+    @include bp.xs {
+      width: 100%;
+    }
+  }
+}
+
+mat-expansion-panel {
+  margin-block-end: t.$space-3;
+}
+
+.question-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-block-start: t.$space-2;
+}
+
+.add-question-btn {
+  min-height: 44px;
+  margin-block-start: t.$space-3;
+}
+
+.form-error {
+  display: flex;
+  align-items: center;
+  gap: t.$space-2;
+  color: var(--mat-sys-error);
+  font: var(--mat-sys-body-medium);
+  margin-block-start: t.$space-2;
+}

@@ -1,0 +1,32 @@
+// Spacing scale — 4 px base grid
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 20px;
+$space-6: 24px;
+$space-8: 32px;
+$space-10: 40px;
+$space-12: 48px;
+$space-16: 64px;
+
+// Layout constants
+$content-max-width-xl: 1440px;
+$nav-drawer-width-lg: 256px;
+$nav-drawer-width-xl: 280px;
+$nav-rail-width: 80px;
+$bottom-nav-height: 80px;
+
+// Screen-reader-only / visually hidden utility
+// Use on elements that must be announced but not seen.
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

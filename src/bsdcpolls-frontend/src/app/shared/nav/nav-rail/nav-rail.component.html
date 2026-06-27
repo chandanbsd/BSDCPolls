@@ -1,0 +1,57 @@
+<mat-sidenav-container class="rail-container">
+  <mat-sidenav mode="side" [opened]="true" class="nav-rail">
+    <nav aria-label="Main navigation" class="rail-nav">
+      <a
+        routerLink="/feed"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: false }"
+        class="rail-item"
+        [attr.aria-current]="feedLink.isActive ? 'page' : null"
+        #feedLink="routerLinkActive"
+      >
+        <mat-icon aria-hidden="true">home</mat-icon>
+        <span class="rail-label">Feed</span>
+      </a>
+
+      <a
+        routerLink="/polls"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: false }"
+        class="rail-item"
+        [attr.aria-current]="pollsLink.isActive ? 'page' : null"
+        #pollsLink="routerLinkActive"
+      >
+        <mat-icon aria-hidden="true">poll</mat-icon>
+        <span class="rail-label">Polls</span>
+      </a>
+
+      <a
+        routerLink="/surveys"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: false }"
+        class="rail-item"
+        [attr.aria-current]="surveysLink.isActive ? 'page' : null"
+        #surveysLink="routerLinkActive"
+      >
+        <mat-icon aria-hidden="true">assignment</mat-icon>
+        <span class="rail-label">Surveys</span>
+      </a>
+
+      <a
+        routerLink="/profile"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: false }"
+        class="rail-item"
+        [attr.aria-current]="profileLink.isActive ? 'page' : null"
+        #profileLink="routerLinkActive"
+      >
+        <mat-icon aria-hidden="true">account_circle</mat-icon>
+        <span class="rail-label">Profile</span>
+      </a>
+    </nav>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <ng-content />
+  </mat-sidenav-content>
+</mat-sidenav-container>

@@ -1,17 +1,22 @@
-<mat-card>
-  <mat-card-header>
-    <mat-card-title>Create Poll</mat-card-title>
-  </mat-card-header>
+<h1>Create Poll</h1>
+
+<mat-card class="form-card">
   <mat-card-content>
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <mat-form-field appearance="outline">
         <mat-label>Poll Title</mat-label>
         <input matInput formControlName="title" maxlength="200" />
         @if (form.get('title')?.hasError('required')) {
-          <mat-error>Title is required.</mat-error>
+          <mat-error>
+            <mat-icon aria-hidden="true">error</mat-icon>
+            Title is required.
+          </mat-error>
         }
         @if (form.get('title')?.hasError('maxlength')) {
-          <mat-error>Title must not exceed 200 characters.</mat-error>
+          <mat-error>
+            <mat-icon aria-hidden="true">error</mat-icon>
+            Title must not exceed 200 characters.
+          </mat-error>
         }
       </mat-form-field>
 
@@ -20,14 +25,17 @@
       </div>
 
       @if (error) {
-        <p>{{ error }}</p>
+        <div class="form-error" role="alert">
+          <mat-icon aria-hidden="true">error</mat-icon>
+          {{ error }}
+        </div>
       }
 
-      <div>
+      <div class="form-actions">
         @if (isLoading) {
           <mat-spinner diameter="24"></mat-spinner>
         } @else {
-          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Create Poll</button>
+          <button mat-flat-button type="submit" [disabled]="form.invalid">Create Poll</button>
         }
       </div>
     </form>

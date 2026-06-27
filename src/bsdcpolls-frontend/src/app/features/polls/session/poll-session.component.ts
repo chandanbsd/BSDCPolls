@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal, effect } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -7,6 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { PollSessionStore } from '../../../store/poll-session.store';
 import { PollHubService } from '../services/poll-hub.service';
@@ -26,10 +27,12 @@ import { firstValueFrom } from 'rxjs';
     MatProgressBarModule,
     MatProgressSpinnerModule,
     MatDialogModule,
+    MatIconModule,
     MatRadioModule,
     MatChipsModule,
   ],
   templateUrl: './poll-session.component.html',
+  styleUrl: './poll-session.component.scss',
 })
 export class PollSessionComponent implements OnInit, OnDestroy {
   readonly pollStore = inject(PollSessionStore);
@@ -44,9 +47,22 @@ export class PollSessionComponent implements OnInit, OnDestroy {
   isClosing = false;
   voteError: string | null = null;
 
+  readonly pollStatusMessage = signal<string | null>(null);
+  readonly voteConfirmation = signal<string | null>(null);
+
+  private prevStatus: string | null = null;
+
   async ngOnInit(): Promise<void> {
     const pollUid = this.route.snapshot.paramMap.get('pollUid') ?? '';
     await this.pollStore.loadPoll(pollUid);
+    effect(() => {
+      const status = this.pollStore.poll()?.status ?? null;
+      if (this.prevStatus !== null && status === PollStatus.Closed && this.prevStatus !== PollStatus.Closed) {
+        this.pollStatusMessage.set('Poll has been closed.');
+        setTimeout(() => this.pollStatusMessage.set(null), 5000);
+      }
+      this.prevStatus = status;
+    }, { allowSignalWrites: true });
     try {
       await this.pollHubService.connect(pollUid);
     } catch {
@@ -88,6 +104,9 @@ export class PollSessionComponent implements OnInit, OnDestroy {
     this.dialog.open(AddQuestionDialogComponent, {
       data: { pollUid: poll.pollUid },
       width: '600px',
+      restoreFocus: true,
+      autoFocus: 'first-tabbable',
+      ariaLabel: 'Add question',
     });
   }
 
@@ -97,6 +116,9 @@ export class PollSessionComponent implements OnInit, OnDestroy {
     this.dialog.open(InviteUserDialogComponent, {
       data: { pollUid: poll.pollUid },
       width: '400px',
+      restoreFocus: true,
+      autoFocus: 'first-tabbable',
+      ariaLabel: 'Invite user to poll',
     });
   }
 
@@ -108,6 +130,8 @@ export class PollSessionComponent implements OnInit, OnDestroy {
     try {
       await this.pollHubService.submitVote(activeQuestion.questionUid, this.selectedOptionUid);
       this.selectedOptionUid = null;
+      this.voteConfirmation.set('Vote submitted successfully.');
+      setTimeout(() => this.voteConfirmation.set(null), 4000);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Vote failed.';
       this.voteError = message.includes('VOTE_DUPLICATE')

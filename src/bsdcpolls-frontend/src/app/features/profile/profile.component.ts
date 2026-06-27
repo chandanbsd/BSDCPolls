@@ -54,6 +54,7 @@ interface PrivacySettingsResponse {
     MatSnackBarModule,
   ],
   templateUrl: './profile.component.html',
+  styleUrl: './profile.component.scss',
 })
 export class ProfileComponent implements OnInit {
   readonly authStore = inject(AuthStore);

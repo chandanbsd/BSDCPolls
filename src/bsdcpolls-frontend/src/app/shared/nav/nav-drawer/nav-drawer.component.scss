@@ -1,0 +1,44 @@
+@use '../../../../styles/tokens' as t;
+
+.drawer-container {
+  height: 100%;
+}
+
+.nav-drawer {
+  width: t.$nav-drawer-width-lg;
+  background-color: var(--mat-sys-surface-container-low);
+  border-right: 1px solid var(--mat-sys-outline-variant);
+
+  &.drawer--xl {
+    width: t.$nav-drawer-width-xl;
+  }
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  padding: t.$space-6 t.$space-4 t.$space-4;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
+.app-name {
+  font: var(--mat-sys-title-large);
+  color: var(--mat-sys-on-surface);
+}
+
+// Active nav item highlight via M3 secondary-container role
+nav mat-nav-list a.active {
+  background-color: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+  border-radius: var(--mat-sys-corner-full);
+
+  mat-icon {
+    color: var(--mat-sys-on-secondary-container);
+  }
+}
+
+nav mat-nav-list a:focus-visible {
+  outline: 2px solid var(--mat-sys-primary);
+  outline-offset: 2px;
+  border-radius: var(--mat-sys-corner-extra-small);
+}

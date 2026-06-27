@@ -1,6 +1,7 @@
-<mat-card>
+<mat-card class="auth-card">
   <mat-card-header>
-    <mat-card-title>Sign in to BSDCPolls</mat-card-title>
+    <mat-card-title><h1>Sign in</h1></mat-card-title>
+    <mat-card-subtitle>Sign in to BSDCPolls</mat-card-subtitle>
   </mat-card-header>
 
   <mat-card-content>
@@ -9,7 +10,10 @@
         <mat-label>Username</mat-label>
         <input matInput formControlName="username" autocomplete="username" />
         @if (form.controls.username.invalid && form.controls.username.touched) {
-          <mat-error>Username is required.</mat-error>
+          <mat-error>
+            <mat-icon aria-hidden="true">error</mat-icon>
+            Username is required.
+          </mat-error>
         }
       </mat-form-field>
 
@@ -17,12 +21,18 @@
         <mat-label>Password</mat-label>
         <input matInput type="password" formControlName="password" autocomplete="current-password" />
         @if (form.controls.password.invalid && form.controls.password.touched) {
-          <mat-error>Password is required.</mat-error>
+          <mat-error>
+            <mat-icon aria-hidden="true">error</mat-icon>
+            Password is required.
+          </mat-error>
         }
       </mat-form-field>
 
       @if (error) {
-        <mat-error>{{ error }}</mat-error>
+        <div class="auth-error" role="alert">
+          <mat-icon aria-hidden="true">error</mat-icon>
+          {{ error }}
+        </div>
       }
 
       <button mat-flat-button type="submit" [disabled]="isLoading">
@@ -33,6 +43,11 @@
         }
       </button>
     </form>
+
+    <!-- Submission confirmation announced to screen readers -->
+    <div role="status" aria-live="polite" class="visually-hidden">
+      {{ confirmationMessage }}
+    </div>
   </mat-card-content>
 
   <mat-card-actions>

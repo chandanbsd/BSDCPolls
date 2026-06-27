@@ -40,6 +40,7 @@ import { firstValueFrom } from 'rxjs';
     MatStepperModule,
   ],
   templateUrl: './survey-builder.component.html',
+  styleUrl: './survey-builder.component.scss',
 })
 export class SurveyBuilderComponent {
   private readonly apiClient = inject(BsdcPollsApiClient);

@@ -1,0 +1,70 @@
+@use '../../../../styles/tokens' as t;
+@use '../../../../styles/motion' as motion;
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  height: t.$bottom-nav-height;
+  background-color: var(--mat-sys-surface-container);
+  border-top: 1px solid var(--mat-sys-outline-variant);
+  z-index: 100;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: t.$space-1;
+  // Minimum 44×44 px touch target per WCAG 2.5.5
+  min-height: 44px;
+  padding-block: t.$space-2;
+  color: var(--mat-sys-on-surface-variant);
+  text-decoration: none;
+  position: relative;
+  @include motion.motion-safe-transition(color 0.2s ease);
+
+  &:focus-visible {
+    outline: 2px solid var(--mat-sys-primary);
+    outline-offset: -2px;
+    border-radius: var(--mat-sys-corner-extra-small);
+  }
+
+  // M3 active indicator pill behind the icon
+  &::before {
+    content: '';
+    position: absolute;
+    top: t.$space-2;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 64px;
+    height: 32px;
+    border-radius: var(--mat-sys-corner-full);
+    background-color: transparent;
+    @include motion.motion-safe-transition(background-color 0.2s ease);
+  }
+
+  &.active {
+    color: var(--mat-sys-on-secondary-container);
+
+    &::before {
+      background-color: var(--mat-sys-secondary-container);
+    }
+  }
+
+  mat-icon {
+    font-size: t.$space-6;
+    height: t.$space-6;
+    width: t.$space-6;
+    position: relative;
+  }
+}
+
+.nav-label {
+  font: var(--mat-sys-label-medium);
+  position: relative;
+}

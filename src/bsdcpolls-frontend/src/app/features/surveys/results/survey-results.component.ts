@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { BsdcPollsApiClient, SurveyAnswerType, SurveyResultsResponse } from '../../../generated/api';
@@ -11,8 +12,9 @@ import { firstValueFrom } from 'rxjs';
 @Component({
   selector: 'app-survey-results',
   standalone: true,
-  imports: [MatBadgeModule, MatCardModule, MatProgressSpinnerModule, MatTableModule],
+  imports: [MatBadgeModule, MatCardModule, MatIconModule, MatProgressSpinnerModule, MatTableModule],
   templateUrl: './survey-results.component.html',
+  styleUrl: './survey-results.component.scss',
 })
 export class SurveyResultsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

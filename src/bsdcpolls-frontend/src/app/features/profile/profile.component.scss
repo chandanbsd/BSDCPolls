@@ -1,0 +1,59 @@
+@use '../../../styles/tokens' as t;
+@use '../../../styles/breakpoints' as bp;
+
+:host {
+  display: block;
+  padding: t.$space-4;
+}
+
+h1 {
+  font: var(--mat-sys-headline-large);
+  color: var(--mat-sys-on-surface);
+  margin-block: t.$space-4;
+}
+
+h2 {
+  font: var(--mat-sys-headline-medium);
+  color: var(--mat-sys-on-surface);
+}
+
+.profile-sections {
+  display: flex;
+  flex-direction: column;
+  gap: t.$space-4;
+  max-width: 900px;
+
+  @include bp.md-up {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  @include bp.lg-up {
+    grid-template-columns: 30% 1fr;
+  }
+}
+
+mat-card {
+  width: 100%;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: t.$space-3;
+}
+
+mat-radio-button {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.profile-action {
+  min-height: 44px;
+}

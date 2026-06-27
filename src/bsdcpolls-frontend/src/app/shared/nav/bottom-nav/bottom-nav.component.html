@@ -1,0 +1,49 @@
+<nav aria-label="Main navigation" class="bottom-nav">
+  <a
+    routerLink="/feed"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: false }"
+    class="nav-item"
+    [attr.aria-current]="feedLink.isActive ? 'page' : null"
+    #feedLink="routerLinkActive"
+  >
+    <mat-icon aria-hidden="true">home</mat-icon>
+    <span class="nav-label">Feed</span>
+  </a>
+
+  <a
+    routerLink="/polls"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: false }"
+    class="nav-item"
+    [attr.aria-current]="pollsLink.isActive ? 'page' : null"
+    #pollsLink="routerLinkActive"
+  >
+    <mat-icon aria-hidden="true">poll</mat-icon>
+    <span class="nav-label">Polls</span>
+  </a>
+
+  <a
+    routerLink="/surveys"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: false }"
+    class="nav-item"
+    [attr.aria-current]="surveysLink.isActive ? 'page' : null"
+    #surveysLink="routerLinkActive"
+  >
+    <mat-icon aria-hidden="true">assignment</mat-icon>
+    <span class="nav-label">Surveys</span>
+  </a>
+
+  <a
+    routerLink="/profile"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: false }"
+    class="nav-item"
+    [attr.aria-current]="profileLink.isActive ? 'page' : null"
+    #profileLink="routerLinkActive"
+  >
+    <mat-icon aria-hidden="true">account_circle</mat-icon>
+    <span class="nav-label">Profile</span>
+  </a>
+</nav>

@@ -1,9 +1,28 @@
 @if (pollStore.poll(); as poll) {
-  <mat-card>
+  <!-- T035: Poll status change assertive live region -->
+  <div role="alert" aria-live="assertive" aria-atomic="true" class="visually-hidden">
+    {{ pollStatusMessage() }}
+  </div>
+
+  <!-- T036: Vote submission confirmation polite live region -->
+  <div role="status" aria-live="polite" aria-atomic="true" class="visually-hidden">
+    {{ voteConfirmation() }}
+  </div>
+
+  <mat-card class="session-layout">
     <mat-card-header>
-      <mat-card-title>{{ poll.title }}</mat-card-title>
+      <mat-card-title><h1>{{ poll.title }}</h1></mat-card-title>
       <mat-card-subtitle>
-        Status: {{ poll.status }}
+        <span class="status-badge">
+          @if (poll.status === PollStatus.Active) {
+            <mat-icon aria-hidden="true">check_circle</mat-icon>
+          } @else if (poll.status === PollStatus.Closed) {
+            <mat-icon aria-hidden="true">cancel</mat-icon>
+          } @else {
+            <mat-icon aria-hidden="true">edit</mat-icon>
+          }
+          {{ poll.status }}
+        </span>
         @if (poll.isPublic) {
           &nbsp;· Public
         }
@@ -36,39 +55,48 @@
           <button mat-stroked-button (click)="openInviteDialog()">Invite User</button>
         </div>
 
-        <!-- Live results for creator -->
-        @for (question of poll.questions; track question.questionUid) {
-          @if (question.pushedAt) {
-            <mat-card>
-              <mat-card-header>
-                <mat-card-title>{{ question.text }}</mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                @for (option of question.options; track option.optionUid) {
-                  <div>
-                    <span>{{ option.text }}</span>
-                    <mat-progress-bar mode="determinate" [value]="0"></mat-progress-bar>
-                  </div>
-                }
-              </mat-card-content>
-            </mat-card>
+        <!-- T034: Live results for creator — polite live region -->
+        <div role="status" aria-live="polite" aria-atomic="false" aria-label="Live vote results">
+          @for (question of poll.questions; track question.questionUid) {
+            @if (question.pushedAt) {
+              <mat-card>
+                <mat-card-header>
+                  <mat-card-title><h2>{{ question.text }}</h2></mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  @for (option of question.options; track option.optionUid) {
+                    <div>
+                      <span>{{ option.text }}</span>
+                      <mat-progress-bar
+                        mode="determinate"
+                        [value]="0"
+                        [attr.aria-label]="option.text + ': 0 votes'"
+                      ></mat-progress-bar>
+                    </div>
+                  }
+                </mat-card-content>
+              </mat-card>
+            }
           }
-        }
+        </div>
       } @else {
         <!-- Participant view -->
         @if (pollStore.activeQuestion(); as activeQuestion) {
           <mat-card>
             <mat-card-header>
-              <mat-card-title>{{ activeQuestion.text }}</mat-card-title>
+              <mat-card-title><h2>{{ activeQuestion.text }}</h2></mat-card-title>
             </mat-card-header>
             <mat-card-content>
-              <mat-radio-group [(ngModel)]="selectedOptionUid">
+              <mat-radio-group [(ngModel)]="selectedOptionUid" [attr.aria-label]="activeQuestion.text">
                 @for (option of activeQuestion.options; track option.optionUid) {
                   <mat-radio-button [value]="option.optionUid">{{ option.text }}</mat-radio-button>
                 }
               </mat-radio-group>
               @if (voteError) {
-                <p>{{ voteError }}</p>
+                <div role="alert" class="form-error">
+                  <mat-icon aria-hidden="true">error</mat-icon>
+                  {{ voteError }}
+                </div>
               }
             </mat-card-content>
             <mat-card-actions>
@@ -84,7 +112,10 @@
     </mat-card-content>
   </mat-card>
 } @else if (pollStore.error()) {
-  <p>{{ pollStore.error() }}</p>
+  <div role="alert" class="form-error">
+    <mat-icon aria-hidden="true">error</mat-icon>
+    {{ pollStore.error() }}
+  </div>
 } @else {
   <mat-spinner></mat-spinner>
 }

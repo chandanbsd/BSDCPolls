@@ -1,0 +1,19 @@
+// Reduced-motion helpers.
+// Angular Material's built-in animations respect prefers-reduced-motion at the CSS level.
+// Use these mixins for any custom transitions or animations in component SCSS.
+
+@mixin reduce-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}
+
+// Wraps a transition declaration and suppresses it when reduce-motion is active.
+// Usage: @include motion.motion-safe-transition(opacity 0.2s ease, transform 0.2s ease);
+@mixin motion-safe-transition($properties...) {
+  transition: $properties;
+
+  @include reduce-motion {
+    transition: none;
+  }
+}
